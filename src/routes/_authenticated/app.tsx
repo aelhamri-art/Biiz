@@ -45,7 +45,7 @@ function AppPage() {
   });
 
   useEffect(() => {
-    if (!wsId && ws.data?.length) setWsId(ws.data[0].id);
+    if (!wsId && ws.data?.[0]) setWsId(ws.data[0].id);
   }, [ws.data, wsId]);
 
   const links = useQuery({
@@ -85,7 +85,7 @@ function AppPage() {
     if (!newWs.trim()) return;
     const { data: u } = await supabase.auth.getUser();
     const { data, error } = await supabase.from("workspaces").insert({ name: newWs.trim(), created_by: u.user!.id }).select("id").single();
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setNewWs("");
     await qc.invalidateQueries({ queryKey: ["workspaces"] });
     setWsId(data.id);
@@ -107,7 +107,7 @@ function AppPage() {
           <span className="font-semibold tracking-tight">BIIZ</span>
           <span className="text-muted-foreground">/</span>
           {ws.data && ws.data.length > 0 && (
-            <Select value={wsId ?? undefined} onValueChange={setWsId}>
+            <Select value={wsId ?? ""} onValueChange={setWsId}>
               <SelectTrigger className="h-8 w-48"><SelectValue /></SelectTrigger>
               <SelectContent>{ws.data.map((w) => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}</SelectContent>
             </Select>
@@ -190,14 +190,14 @@ function Stat({ label, value }: { label: string; value: number }) {
 function NewLinkForm({ wsId, onCreated }: { wsId: string; onCreated: () => void }) {
   const [name, setName] = useState("");
   const [dest, setDest] = useState("");
-  const [src, setSrc] = useState(SOURCES[0].label);
+  const [src, setSrc] = useState(SOURCES[0]!.label);
   const [campaign, setCampaign] = useState("");
   const [content, setContent] = useState("");
   const preset = SOURCES.find((s) => s.label === src)!;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    try { new URL(dest); } catch { return toast.error("URL de destination invalide"); }
+    try { new URL(dest); } catch { toast.error("URL de destination invalide"); return; }
     const { data: u } = await supabase.auth.getUser();
     const { error } = await supabase.from("links").insert({
       workspace_id: wsId, code: randomCode(), name: name.trim(), destination_url: dest.trim(),
@@ -205,7 +205,7 @@ function NewLinkForm({ wsId, onCreated }: { wsId: string; onCreated: () => void 
       utm_campaign: slugify(campaign), utm_content: content ? slugify(content) : null,
       created_by: u.user!.id,
     });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Lien créé");
     setName(""); setCampaign(""); setContent("");
     onCreated();
@@ -240,8 +240,9 @@ function NewLinkForm({ wsId, onCreated }: { wsId: string; onCreated: () => void 
 function QrDialog({ link, onClose }: { link: Link | null; onClose: () => void }) {
   const [src, setSrc] = useState("");
   useEffect(() => {
-    if (!link) return;
-    QRCode.toDataURL(`${window.location.origin}/r/${link.code}`, { width: 640, margin: 2 }).then(setSrc);
+    if (!link) return undefined;
+    void QRCode.toDataURL(`${window.location.origin}/r/${link.code}`, { width: 640, margin: 2 }).then(setSrc);
+    return undefined;
   }, [link]);
   return (
     <Dialog open={!!link} onOpenChange={(o) => !o && onClose()}>
