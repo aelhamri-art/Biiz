@@ -23,6 +23,7 @@ export const Route = createFileRoute("/r/$code")({
         url.searchParams.set("utm_medium", link.utm_medium);
         url.searchParams.set("utm_campaign", link.utm_campaign);
         if (link.utm_content) url.searchParams.set("utm_content", link.utm_content);
+        url.searchParams.set("bz", code);
         return new Response(null, { status: 302, headers: { Location: url.toString(), "Cache-Control": "no-store" } });
       },
     },
