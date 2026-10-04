@@ -56,6 +56,56 @@ export type Database = {
           },
         ]
       }
+      contents: {
+        Row: {
+          body: string | null
+          created_at: string
+          created_by: string
+          due_date: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string
+          status: string
+          title: string
+          type: string
+          workspace_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          created_by?: string
+          due_date?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          status?: string
+          title: string
+          type: string
+          workspace_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          created_by?: string
+          due_date?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          status?: string
+          title?: string
+          type?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contents_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string

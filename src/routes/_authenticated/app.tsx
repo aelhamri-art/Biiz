@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { SOURCES, slugify, randomCode } from "@/lib/utm";
 import { AnalysePanel, EquipePanel, InstallPanel, ParcoursPanel, type TLink } from "@/components/tracking/panels";
+import { ContenusPanel } from "@/components/tracking/contenus";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({
@@ -144,14 +145,16 @@ function AppPage() {
               <Stat label="Visites 7 derniers jours" value={clicks.data?.filter((c) => Date.now() - new Date(c.created_at).getTime() < 7 * 864e5).length ?? 0} />
             </div>
 
-            <Tabs defaultValue="liens" className="mt-8">
+            <Tabs defaultValue="contenus" className="mt-8">
               <TabsList>
+                <TabsTrigger value="contenus">Contenus</TabsTrigger>
                 <TabsTrigger value="liens">Liens & QR</TabsTrigger>
                 <TabsTrigger value="analyse">Analyse</TabsTrigger>
                 <TabsTrigger value="parcours">Parcours</TabsTrigger>
                 <TabsTrigger value="equipe">Équipe</TabsTrigger>
                 <TabsTrigger value="install">Installation</TabsTrigger>
               </TabsList>
+              <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
 
               <TabsContent value="liens">
                 <NewLinkForm wsId={wsId} onCreated={() => void reloadLinks()} />
