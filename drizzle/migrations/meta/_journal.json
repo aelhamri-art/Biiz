@@ -15,6 +15,13 @@
       "when": 1791096981654,
       "tag": "0001_team_events_archive",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791097884703,
+      "tag": "0002_create_contents",
+      "breakpoints": true
     }
   ]
 }
