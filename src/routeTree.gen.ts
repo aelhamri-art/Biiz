@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as RCodeRouteImport } from './routes/r.$code'
+import { Route as ApiPublicBiizDotjsRouteImport } from './routes/api/public/biiz[.]js'
+import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -39,18 +41,32 @@ const RCodeRoute = RCodeRouteImport.update({
   path: '/r/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicBiizDotjsRoute = ApiPublicBiizDotjsRouteImport.update({
+  id: '/api/public/biiz.js',
+  path: '/api/public/biiz.js',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTrackRoute = ApiPublicTrackRouteImport.update({
+  id: '/api/public/track',
+  path: '/api/public/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRoute
   '/r/$code': typeof RCodeRoute
+  '/api/public/biiz.js': typeof ApiPublicBiizDotjsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/app': typeof AuthenticatedAppRoute
   '/r/$code': typeof RCodeRoute
+  '/api/public/biiz.js': typeof ApiPublicBiizDotjsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +75,26 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/r/$code': typeof RCodeRoute
+  '/api/public/biiz.js': typeof ApiPublicBiizDotjsRoute
+  '/api/public/track': typeof ApiPublicTrackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/app' | '/r/$code'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/r/$code'
+    | '/api/public/biiz.js'
+    | '/api/public/track'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/app' | '/r/$code'
+  to:
+    | '/'
+    | '/auth'
+    | '/app'
+    | '/r/$code'
+    | '/api/public/biiz.js'
+    | '/api/public/track'
   id:
     | '__root__'
     | '/'
@@ -72,6 +102,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/app'
     | '/r/$code'
+    | '/api/public/biiz.js'
+    | '/api/public/track'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -79,6 +111,8 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   RCodeRoute: typeof RCodeRoute
+  ApiPublicBiizDotjsRoute: typeof ApiPublicBiizDotjsRoute
+  ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -118,6 +152,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/biiz.js': {
+      id: '/api/public/biiz.js'
+      path: '/api/public/biiz.js'
+      fullPath: '/api/public/biiz.js'
+      preLoaderRoute: typeof ApiPublicBiizDotjsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track': {
+      id: '/api/public/track'
+      path: '/api/public/track'
+      fullPath: '/api/public/track'
+      preLoaderRoute: typeof ApiPublicTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -137,6 +185,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   RCodeRoute: RCodeRoute,
+  ApiPublicBiizDotjsRoute: ApiPublicBiizDotjsRoute,
+  ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
