@@ -14,6 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_events: {
+        Row: {
+          content_id: string | null
+          created_at: string
+          created_by: string
+          event_date: string
+          id: string
+          kind: string
+          location: string | null
+          notes: string | null
+          start_time: string | null
+          title: string
+          workspace_id: string
+        }
+        Insert: {
+          content_id?: string | null
+          created_at?: string
+          created_by?: string
+          event_date: string
+          id?: string
+          kind?: string
+          location?: string | null
+          notes?: string | null
+          start_time?: string | null
+          title: string
+          workspace_id: string
+        }
+        Update: {
+          content_id?: string | null
+          created_at?: string
+          created_by?: string
+          event_date?: string
+          id?: string
+          kind?: string
+          location?: string | null
+          notes?: string | null
+          start_time?: string | null
+          title?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "contents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calendar_events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clicks: {
         Row: {
           created_at: string
