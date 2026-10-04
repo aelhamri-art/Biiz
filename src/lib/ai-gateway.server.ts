@@ -20,7 +20,7 @@ export class GatewayError extends Error {
 
 /** Streams a Responses call server-side and returns the final text. */
 export async function generateTextViaGateway(system: string, prompt: string): Promise<string> {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env['LOVABLE_API_KEY'];
   if (!apiKey) throw new GatewayError(401, "Clé IA manquante côté serveur.");
   const provider = createOpenAI({
     baseURL: "https://ai.gateway.lovable.dev/v1",
@@ -44,7 +44,8 @@ export async function generateTextViaGateway(system: string, prompt: string): Pr
       },
     },
   });
-  const text = await result.text.catch((e) => { failure ??= e; return ""; });
+  let text = "";
+  try { text = await result.text; } catch (e) { failure ??= e; }
   if (failure || !text) {
     const status = (failure as { statusCode?: number })?.statusCode ?? 500;
     const msg =
