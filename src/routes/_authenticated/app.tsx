@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { SOURCES, slugify, randomCode } from "@/lib/utm";
 import { AnalysePanel, EquipePanel, InstallPanel, ParcoursPanel, type TLink } from "@/components/tracking/panels";
 import { ContenusPanel } from "@/components/tracking/contenus";
+import { CalendrierPanel } from "@/components/tracking/calendrier";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({
@@ -148,6 +149,7 @@ function AppPage() {
             <Tabs defaultValue="contenus" className="mt-8">
               <TabsList>
                 <TabsTrigger value="contenus">Contenus</TabsTrigger>
+                <TabsTrigger value="calendrier">Calendrier</TabsTrigger>
                 <TabsTrigger value="liens">Liens & QR</TabsTrigger>
                 <TabsTrigger value="analyse">Analyse</TabsTrigger>
                 <TabsTrigger value="parcours">Parcours</TabsTrigger>
@@ -155,6 +157,7 @@ function AppPage() {
                 <TabsTrigger value="install">Installation</TabsTrigger>
               </TabsList>
               <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
+              <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
 
               <TabsContent value="liens">
                 <NewLinkForm wsId={wsId} onCreated={() => void reloadLinks()} />

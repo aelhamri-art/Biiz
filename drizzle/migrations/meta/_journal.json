@@ -22,6 +22,13 @@
       "when": 1791097884703,
       "tag": "0002_create_contents",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791122901478,
+      "tag": "0003_create_calendar_events",
+      "breakpoints": true
     }
   ]
 }
