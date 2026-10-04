@@ -201,14 +201,14 @@ function EventForm({ wsId, value, contents, onClose, onSaved }: {
       ? await supabase.from("calendar_events").update(payload).eq("id", value.id)
       : await supabase.from("calendar_events").insert({ ...payload, workspace_id: wsId });
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(value.id ? "Mis à jour" : "Ajouté au calendrier");
     onSaved(); onClose();
   }
   async function remove() {
     if (!value.id || !confirm("Supprimer cet élément du calendrier ?")) return;
     const { error } = await supabase.from("calendar_events").delete().eq("id", value.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     onSaved(); onClose();
   }
 
