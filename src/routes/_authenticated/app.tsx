@@ -145,7 +145,7 @@ function AppPage() {
               <Stat label="Visites 7 derniers jours" value={clicks.data?.filter((c) => Date.now() - new Date(c.created_at).getTime() < 7 * 864e5).length ?? 0} />
             </div>
 
-            <Tabs defaultValue="liens" className="mt-8">
+            <Tabs defaultValue="contenus" className="mt-8">
               <TabsList>
                 <TabsTrigger value="contenus">Contenus</TabsTrigger>
                 <TabsTrigger value="liens">Liens & QR</TabsTrigger>
