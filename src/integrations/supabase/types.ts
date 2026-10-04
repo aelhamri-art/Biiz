@@ -56,8 +56,70 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          created_at: string
+          first_link_id: string | null
+          id: string
+          link_id: string | null
+          name: string
+          page: string | null
+          props: Json | null
+          session_id: string | null
+          visitor_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          first_link_id?: string | null
+          id?: string
+          link_id?: string | null
+          name: string
+          page?: string | null
+          props?: Json | null
+          session_id?: string | null
+          visitor_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          first_link_id?: string | null
+          id?: string
+          link_id?: string | null
+          name?: string
+          page?: string | null
+          props?: Json | null
+          session_id?: string | null
+          visitor_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_first_link_id_fkey"
+            columns: ["first_link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       links: {
         Row: {
+          archived_at: string | null
           code: string
           created_at: string
           created_by: string
@@ -71,6 +133,7 @@ export type Database = {
           workspace_id: string
         }
         Insert: {
+          archived_at?: string | null
           code: string
           created_at?: string
           created_by?: string
@@ -84,6 +147,7 @@ export type Database = {
           workspace_id: string
         }
         Update: {
+          archived_at?: string | null
           code?: string
           created_at?: string
           created_by?: string
@@ -99,6 +163,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "links_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workspace_invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workspace_invites_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -158,7 +254,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_invites: { Args: never; Returns: undefined }
+      invite_member: { Args: { _email: string; _ws: string }; Returns: string }
       is_member: { Args: { _user: string; _ws: string }; Returns: boolean }
+      list_members: {
+        Args: { _ws: string }
+        Returns: {
+          email: string
+          joined_at: string
+          user_id: string
+        }[]
+      }
+      remove_member: {
+        Args: { _user: string; _ws: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
