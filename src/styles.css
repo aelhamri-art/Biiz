@@ -63,38 +63,38 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.99 0.003 95);
-  --foreground: oklch(0.2 0.01 95);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.01 95);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.01 95);
-  --primary: oklch(0.42 0.09 165);
-  --primary-foreground: oklch(0.99 0.003 95);
-  --secondary: oklch(0.96 0.006 95);
-  --secondary-foreground: oklch(0.25 0.01 95);
-  --muted: oklch(0.965 0.005 95);
-  --muted-foreground: oklch(0.52 0.01 95);
-  --accent: oklch(0.95 0.03 165);
-  --accent-foreground: oklch(0.32 0.08 165);
-  --destructive: oklch(0.577 0.2 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.92 0.005 95);
-  --input: oklch(0.9 0.006 95);
-  --ring: oklch(0.42 0.09 165);
-  --chart-1: oklch(0.42 0.09 165);
-  --chart-2: oklch(0.7 0.12 75);
-  --chart-3: oklch(0.55 0.1 240);
-  --chart-4: oklch(0.65 0.14 30);
-  --chart-5: oklch(0.6 0.05 95);
-  --sidebar: oklch(0.975 0.004 95);
-  --sidebar-foreground: oklch(0.2 0.01 95);
-  --sidebar-primary: oklch(0.42 0.09 165);
+  --background: oklch(0.115 0.012 260);
+  --foreground: oklch(0.95 0.008 255);
+  --card: oklch(0.155 0.014 260);
+  --card-foreground: oklch(0.95 0.008 255);
+  --popover: oklch(0.18 0.016 260);
+  --popover-foreground: oklch(0.95 0.008 255);
+  --primary: oklch(0.66 0.17 250);
+  --primary-foreground: oklch(0.99 0.002 250);
+  --secondary: oklch(0.205 0.018 260);
+  --secondary-foreground: oklch(0.92 0.008 255);
+  --muted: oklch(0.195 0.015 260);
+  --muted-foreground: oklch(0.65 0.025 255);
+  --accent: oklch(0.235 0.035 252);
+  --accent-foreground: oklch(0.94 0.02 250);
+  --destructive: oklch(0.65 0.19 25);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.29 0.018 260 / 58%);
+  --input: oklch(0.32 0.02 260 / 68%);
+  --ring: oklch(0.66 0.17 250);
+  --chart-1: oklch(0.66 0.17 250);
+  --chart-2: oklch(0.72 0.16 160);
+  --chart-3: oklch(0.76 0.15 80);
+  --chart-4: oklch(0.67 0.17 25);
+  --chart-5: oklch(0.68 0.12 320);
+  --sidebar: oklch(0.14 0.014 260);
+  --sidebar-foreground: oklch(0.95 0.008 255);
+  --sidebar-primary: oklch(0.66 0.17 250);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.95 0.006 95);
-  --sidebar-accent-foreground: oklch(0.2 0.01 95);
-  --sidebar-border: oklch(0.92 0.005 95);
-  --sidebar-ring: oklch(0.42 0.09 165);
+  --sidebar-accent: oklch(0.21 0.025 255);
+  --sidebar-accent-foreground: oklch(0.95 0.008 255);
+  --sidebar-border: oklch(0.29 0.018 260 / 58%);
+  --sidebar-ring: oklch(0.66 0.17 250);
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 }
@@ -145,7 +145,133 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
+
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 35%, transparent);
+  }
   code, .font-mono {
     font-family: var(--font-mono);
+  }
+}
+
+@layer components {
+  .biiz-app {
+    background-image: linear-gradient(180deg, color-mix(in oklab, var(--primary) 6%, transparent), transparent 22rem);
+  }
+
+  .biiz-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--foreground) 3%, transparent);
+  }
+
+  .biiz-mark {
+    display: grid;
+    height: 2.25rem;
+    width: 2.25rem;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-weight: 700;
+    box-shadow: 0 0 24px color-mix(in oklab, var(--primary) 28%, transparent);
+  }
+
+  .biiz-stat {
+    position: relative;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--card) 92%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 3%, transparent);
+  }
+
+  .biiz-stat::after {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 2px;
+    background: var(--primary);
+    content: "";
+    opacity: 0.75;
+  }
+
+  .biiz-tabs-shell {
+    position: relative;
+    margin-inline: -0.25rem;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .biiz-tabs {
+    display: flex;
+    width: 100%;
+    height: auto;
+    justify-content: flex-start;
+    gap: 0.25rem;
+    overflow-x: auto;
+    border-radius: 0;
+    background: transparent;
+    padding: 0 1.75rem 0 0.25rem;
+    scrollbar-width: none;
+  }
+
+  .biiz-tabs::-webkit-scrollbar { display: none; }
+
+  .biiz-tabs [role="tab"] {
+    gap: 0.45rem;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border-bottom: 2px solid transparent;
+    padding: 0.8rem 0.8rem 0.75rem;
+    color: var(--muted-foreground);
+    box-shadow: none;
+  }
+
+  .biiz-tabs [role="tab"] svg { height: 0.95rem; width: 0.95rem; }
+  .biiz-tabs [role="tab"][data-state="active"] {
+    border-bottom-color: var(--primary);
+    background: color-mix(in oklab, var(--primary) 8%, transparent);
+    color: var(--foreground);
+    box-shadow: none;
+  }
+
+  .biiz-tabs-hint {
+    position: absolute;
+    right: 0.25rem;
+    top: 50%;
+    height: 1rem;
+    width: 1rem;
+    transform: translateY(-50%) rotate(-90deg);
+    color: var(--muted-foreground);
+  }
+
+  .biiz-app [data-slot="card"],
+  .biiz-app form.rounded-lg,
+  .biiz-app div.rounded-lg.border.bg-card {
+    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--foreground) 3%, transparent), 0 14px 38px color-mix(in oklab, var(--background) 55%, transparent);
+  }
+
+  .biiz-app input,
+  .biiz-app textarea,
+  .biiz-app button[role="combobox"] {
+    background-color: color-mix(in oklab, var(--secondary) 68%, transparent);
+  }
+
+  .biiz-app tbody tr,
+  .biiz-app li.rounded-md.border {
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+  }
+
+  .biiz-app tbody tr:hover,
+  .biiz-app li.rounded-md.border:hover {
+    border-color: color-mix(in oklab, var(--primary) 25%, var(--border));
+    background-color: color-mix(in oklab, var(--primary) 5%, var(--card));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .biiz-app [role="tabpanel"] { animation: biiz-enter 220ms ease-out; }
+  @keyframes biiz-enter {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 }

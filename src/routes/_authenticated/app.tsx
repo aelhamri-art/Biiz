@@ -2,6 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
+import {
+  BarChart3, CalendarDays, ChevronDown, ClipboardList, FileText, Link2,
+  LogOut, Plus, Settings2, Sparkles, Users, Waypoints,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +29,8 @@ export const Route = createFileRoute("/_authenticated/app")({
       { name: "description", content: "Liens trackés, QR codes, parcours et attribution par projet." },
       { property: "og:title", content: "Tracking — BIIZ" },
       { property: "og:description", content: "Liens trackés, QR codes, parcours et attribution par projet." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AppPage,
@@ -38,6 +44,7 @@ function AppPage() {
   const [qrLink, setQrLink] = useState<TLink | null>(null);
   const [editLink, setEditLink] = useState<TLink | null>(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [activeTab, setActiveTab] = useState("contenus");
 
   const ws = useQuery({
     queryKey: ["workspaces"],
@@ -81,6 +88,7 @@ function AppPage() {
 
   const active = links.data?.filter((l) => !l.archived_at) ?? [];
   const visible = showArchived ? links.data ?? [] : active;
+  const currentWorkspace = ws.data?.find((workspace) => workspace.id === wsId);
   const reloadLinks = () => qc.invalidateQueries({ queryKey: ["links", wsId] });
 
   async function createWs(e: React.FormEvent) {
@@ -114,27 +122,33 @@ function AppPage() {
   }
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b bg-card">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-6 py-3">
-          <span className="font-semibold tracking-tight">BIIZ</span>
-          <span className="text-muted-foreground">/</span>
+    <div className="biiz-app min-h-screen bg-background">
+      <header className="biiz-topbar border-b bg-card/95">
+        <div className="mx-auto flex max-w-[1480px] flex-wrap items-center gap-4 px-5 py-4 lg:px-8">
+          <div className="mr-2 flex items-center gap-3">
+            <span className="biiz-mark">B</span>
+            <div className="leading-none">
+              <span className="block text-lg font-semibold tracking-tight">BIIZ</span>
+              <span className="mt-1 block text-[10px] font-medium uppercase text-muted-foreground">Cockpit marketing</span>
+            </div>
+          </div>
+          <span className="hidden h-7 w-px bg-border md:block" />
           {ws.data && ws.data.length > 0 && (
             <Select value={wsId ?? ""} onValueChange={setWsId}>
-              <SelectTrigger className="h-8 w-48"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-9 w-52 border-transparent bg-secondary/70 font-medium"><SelectValue /></SelectTrigger>
               <SelectContent>{ws.data.map((w) => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}</SelectContent>
             </Select>
           )}
-          <span className="text-sm text-muted-foreground">Tracking</span>
-          <form onSubmit={createWs} className="flex gap-2">
-            <Input className="h-8 w-40" placeholder="Nouveau projet" value={newWs} onChange={(e) => setNewWs(e.target.value)} />
-            <Button size="sm" variant="outline" type="submit">Ajouter</Button>
+          <span className="hidden rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary md:inline-flex">Tracking</span>
+          <form onSubmit={createWs} className="ml-auto hidden gap-2 lg:flex">
+            <Input className="h-9 w-44 bg-secondary/50" placeholder="Nouveau projet" value={newWs} onChange={(e) => setNewWs(e.target.value)} />
+            <Button size="sm" variant="outline" type="submit"><Plus />Ajouter</Button>
           </form>
-          <Button size="sm" variant="ghost" className="ml-auto" onClick={signOut}>Déconnexion</Button>
+          <Button size="icon" variant="ghost" className="lg:ml-0" onClick={signOut} aria-label="Déconnexion" title="Déconnexion"><LogOut /></Button>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-10">
+      <main className="mx-auto max-w-[1480px] px-5 py-7 lg:px-8 lg:py-10">
         {!ws.isLoading && ws.data?.length === 0 ? (
           <div className="mx-auto max-w-md py-20 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Créez votre premier projet</h1>
@@ -142,24 +156,39 @@ function AppPage() {
           </div>
         ) : wsId ? (
           <>
-            <div className="grid gap-4 md:grid-cols-3">
+            <section className="mb-7 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="mb-2 text-xs font-medium uppercase text-primary">Espace de travail</p>
+                <h1 className="text-3xl font-semibold">{currentWorkspace?.name ?? "Projet"}</h1>
+                <p className="mt-2 text-sm text-muted-foreground">Planifiez, produisez et mesurez le travail de l’équipe au même endroit.</p>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="h-2 w-2 rounded-full bg-chart-2 shadow-[0_0_10px_var(--chart-2)]" />
+                Espace partagé
+              </div>
+            </section>
+
+            <div className="biiz-stats grid gap-3 md:grid-cols-3">
               <Stat label="Liens actifs" value={active.length} />
               <Stat label="Visites totales" value={clicks.data?.length ?? 0} />
               <Stat label="Visites 7 derniers jours" value={clicks.data?.filter((c) => Date.now() - new Date(c.created_at).getTime() < 7 * 864e5).length ?? 0} />
             </div>
 
-            <Tabs defaultValue="contenus" className="mt-8">
-              <TabsList>
-                <TabsTrigger value="contenus">Contenus</TabsTrigger>
-                <TabsTrigger value="script-ia">Script IA</TabsTrigger>
-                <TabsTrigger value="taches">Tâches terrain</TabsTrigger>
-                <TabsTrigger value="calendrier">Calendrier</TabsTrigger>
-                <TabsTrigger value="liens">Liens & QR</TabsTrigger>
-                <TabsTrigger value="analyse">Analyse</TabsTrigger>
-                <TabsTrigger value="parcours">Parcours</TabsTrigger>
-                <TabsTrigger value="equipe">Équipe</TabsTrigger>
-                <TabsTrigger value="install">Installation</TabsTrigger>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-7">
+              <div className="biiz-tabs-shell">
+              <TabsList className="biiz-tabs">
+                <TabsTrigger value="contenus"><FileText />Contenus</TabsTrigger>
+                <TabsTrigger value="script-ia"><Sparkles />Script IA</TabsTrigger>
+                <TabsTrigger value="taches"><ClipboardList />Tâches</TabsTrigger>
+                <TabsTrigger value="calendrier"><CalendarDays />Calendrier</TabsTrigger>
+                <TabsTrigger value="liens"><Link2 />Liens & QR</TabsTrigger>
+                <TabsTrigger value="analyse"><BarChart3 />Analyse</TabsTrigger>
+                <TabsTrigger value="parcours"><Waypoints />Parcours</TabsTrigger>
+                <TabsTrigger value="equipe"><Users />Équipe</TabsTrigger>
+                <TabsTrigger value="install"><Settings2 />Installation</TabsTrigger>
               </TabsList>
+              <ChevronDown className="biiz-tabs-hint" />
+              </div>
               <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
               <TabsContent value="taches" className="mt-6"><TachesPanel wsId={wsId} /></TabsContent>
@@ -219,9 +248,9 @@ function AppPage() {
 
 function Stat({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border bg-card p-5">
+    <div className="biiz-stat rounded-lg border bg-card p-5">
       <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="mt-2 text-4xl font-semibold tabular-nums tracking-tight">{value}</p>
+      <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight">{value}</p>
     </div>
   );
 }
