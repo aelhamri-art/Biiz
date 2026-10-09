@@ -14,6 +14,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Connectez-vous à BIIZ." },
       { property: "og:title", content: "Connexion — BIIZ" },
       { property: "og:description", content: "Connectez-vous à BIIZ." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AuthPage,

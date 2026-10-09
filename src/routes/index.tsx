@@ -8,6 +8,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Créez des liens UTM et QR codes par projet, et suivez d'où viennent vos clients." },
       { property: "og:title", content: "BIIZ — Liens trackés, QR et attribution" },
       { property: "og:description", content: "Créez des liens UTM et QR codes par projet, et suivez d'où viennent vos clients." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
