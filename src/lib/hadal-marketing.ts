@@ -23,7 +23,7 @@ export const MISSION_KINDS = [
 ] as const;
 export const kindLabel = (k: string) => MISSION_KINDS.find(([v]) => v === k)?.[1] ?? k;
 
-export type MissionPlan = { title: string; instruction: string; line?: string };
+export type MissionPlan = { title: string; instruction: string; line?: string | undefined };
 export type KitchenMission = {
   id: string; workspace_id: string; period_start: string; scope: "semaine" | "mois" | string; kind: string;
   title: string; pitch: string | null; duration_min: number | null; people: string | null;

@@ -53,7 +53,7 @@ function MissionCard({ m, sentCount, wsId }: { m: KitchenMission; sentCount: num
       setBusy(`Envoi ${i + 1}/${files.length}…`);
       const safe = file.name.replace(/[^\w.-]+/g, "_");
       const file_path = `${wsId}/${crypto.randomUUID()}-${safe}`;
-      const { error: upErr } = await supabase.storage.from("rushs").upload(file_path, file, { contentType: file.type || undefined });
+      const { error: upErr } = await supabase.storage.from("rushs").upload(file_path, file, file.type ? { contentType: file.type } : {});
       if (upErr) { toast.error(`${file.name} : ${upErr.message}`); continue; }
       const { error } = await supabase.from("contents").insert({ workspace_id: wsId, type: "rush", title: `Rush · ${m.title}`, file_path, file_name: file.name, mission_id: m.id, created_by: u.user.id, status: "a_valider" });
       if (error) toast.error(error.message); else ok++;
