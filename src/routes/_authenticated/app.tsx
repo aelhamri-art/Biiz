@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import {
   BarChart3, CalendarDays, ChevronDown, ClipboardList, FileText, Link2,
-  LogOut, Plus, Settings2, Sparkles, Users, Waypoints,
+  ChefHat, LogOut, Plus, Settings2, Sparkles, Users, Waypoints,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import { ContenusPanel } from "@/components/tracking/contenus";
 import { CalendrierPanel } from "@/components/tracking/calendrier";
 import { TachesPanel } from "@/components/tracking/taches";
 import { ScriptIAPanel } from "@/components/tracking/script-ia";
+import { CuisinePanel } from "@/components/tracking/cuisine";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({
@@ -178,6 +179,7 @@ function AppPage() {
               <div className="biiz-tabs-shell">
               <TabsList className="biiz-tabs">
                 <TabsTrigger value="contenus"><FileText />Contenus</TabsTrigger>
+                <TabsTrigger value="cuisine"><ChefHat />Page cuisine</TabsTrigger>
                 <TabsTrigger value="script-ia"><Sparkles />Script IA</TabsTrigger>
                 <TabsTrigger value="taches"><ClipboardList />Tâches</TabsTrigger>
                 <TabsTrigger value="calendrier"><CalendarDays />Calendrier</TabsTrigger>
@@ -192,6 +194,7 @@ function AppPage() {
               <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
               <TabsContent value="taches" className="mt-6"><TachesPanel wsId={wsId} /></TabsContent>
+              <TabsContent value="cuisine" className="mt-6"><CuisinePanel wsId={wsId} /></TabsContent>
               <TabsContent value="script-ia" className="mt-6"><ScriptIAPanel wsId={wsId} /></TabsContent>
 
               <TabsContent value="liens">
