@@ -29,11 +29,17 @@ function AuthPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    const go = () => {
+      let next: string | null = null;
+      try { next = sessionStorage.getItem("biiz:next"); sessionStorage.removeItem("biiz:next"); } catch { /* ignore */ }
+      if (next === "/hadal-marketing") navigate({ to: "/hadal-marketing" });
+      else navigate({ to: "/app" });
+    };
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/app" });
+      if (data.session) go();
     });
     const { data } = supabase.auth.onAuthStateChange((_e, s) => {
-      if (s) navigate({ to: "/app" });
+      if (s) go();
     });
     return () => data.subscription.unsubscribe();
   }, [navigate]);

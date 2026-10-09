@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { editorialCadence, instagramEmbedUrl, instagramInspirations } from "@/lib/hadal-marketing";
+import { editorialCadence, instagramCanonical, instagramEmbedUrl, parsePlans, weekKey, monthKey } from "@/lib/hadal-marketing";
 
 describe("HADAL editorial rules", () => {
   it.each([
@@ -13,13 +13,18 @@ describe("HADAL editorial rules", () => {
     expect(item?.period).toBe(period);
   });
 
-  it("does not invent Instagram references before real links are supplied", () => {
-    expect(instagramInspirations).toEqual([]);
+  it("groups missions by Monday week and first day of month", () => {
+    expect(weekKey(new Date(2026, 9, 9))).toBe("2026-10-05");
+    expect(monthKey(new Date(2026, 9, 9))).toBe("2026-10-01");
+  });
+
+  it("ignores malformed plans", () => {
+    expect(parsePlans([{ title: "A", instruction: "B" }, 3, { foo: 1 }])).toEqual([{ title: "A", instruction: "B", line: undefined }]);
   });
 
   it("uses an official embed endpoint for a valid permalink", () => {
     expect(instagramEmbedUrl("https://www.instagram.com/reel/AbC_123-/?igsh=example")).toBe("https://www.instagram.com/reel/AbC_123-/embed/");
-    expect(instagramEmbedUrl("https://instagram.com/p/AbC123/")).toBe("https://www.instagram.com/p/AbC123/embed/");
+    expect(instagramCanonical("https://instagram.com/p/AbC123")).toBe("https://www.instagram.com/p/AbC123/");
   });
 
   it.each(["https://instagram.com.attacker.test/reel/abc/", "javascript:alert(1)", "https://www.instagram.com/accounts/login/", "http://instagram.com/p/abc/"])("rejects unsafe or non-post URLs: %s", (url) => {
