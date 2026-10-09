@@ -36,6 +36,13 @@
       "when": 1791122979658,
       "tag": "0004_create_tasks",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1791549767527,
+      "tag": "0005_kitchen_missions",
+      "breakpoints": true
     }
   ]
 }

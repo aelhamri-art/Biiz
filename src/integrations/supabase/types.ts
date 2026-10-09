@@ -122,6 +122,7 @@ export type Database = {
           file_name: string | null
           file_path: string | null
           id: string
+          mission_id: string | null
           status: string
           title: string
           type: string
@@ -135,6 +136,7 @@ export type Database = {
           file_name?: string | null
           file_path?: string | null
           id?: string
+          mission_id?: string | null
           status?: string
           title: string
           type: string
@@ -148,12 +150,20 @@ export type Database = {
           file_name?: string | null
           file_path?: string | null
           id?: string
+          mission_id?: string | null
           status?: string
           title?: string
           type?: string
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contents_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "kitchen_missions"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contents_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -217,6 +227,112 @@ export type Database = {
           },
           {
             foreignKeyName: "events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kitchen_inspirations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          tags: string[]
+          takeaway: string | null
+          title: string
+          url: string
+          why: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          tags?: string[]
+          takeaway?: string | null
+          title: string
+          url: string
+          why?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          tags?: string[]
+          takeaway?: string | null
+          title?: string
+          url?: string
+          why?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kitchen_inspirations_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kitchen_missions: {
+        Row: {
+          created_at: string
+          created_by: string
+          duration_min: number | null
+          id: string
+          kind: string
+          never: string | null
+          people: string | null
+          period_start: string
+          pitch: string | null
+          plans: Json
+          position: number
+          scope: string
+          title: string
+          want: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          duration_min?: number | null
+          id?: string
+          kind?: string
+          never?: string | null
+          people?: string | null
+          period_start: string
+          pitch?: string | null
+          plans?: Json
+          position?: number
+          scope?: string
+          title: string
+          want?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          duration_min?: number | null
+          id?: string
+          kind?: string
+          never?: string | null
+          people?: string | null
+          period_start?: string
+          pitch?: string | null
+          plans?: Json
+          position?: number
+          scope?: string
+          title?: string
+          want?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kitchen_missions_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
