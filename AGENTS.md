@@ -14,3 +14,5 @@
 - Membership changes go through SECURITY DEFINER RPCs (invite_member, claim_invites, remove_member); workspace_members has no direct write policies.
 - Public tracking writes (/r/$code, /api/public/track) use the service role and derive workspace from the link code, never from client input.
 - Attribution is client-side in /api/public/biiz.js via the `bz` param: first touch and last touch kept in localStorage.
+- Public kitchen pages use an isolated, explicitly curated content module with no workspace queries; completion is device-local only, so anonymous visitors cannot read or write cockpit data.
+- Instagram inspirations accept only HTTPS Instagram post/Reel permalinks and render official Instagram embeds with an external fallback, keeping untrusted URLs out of iframe sources.
