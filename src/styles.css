@@ -215,6 +215,7 @@
 .hadal-main { padding-top: 36px; }
 .hadal-week-layout { display: grid; grid-template-columns: 235px minmax(0,1fr); gap: 56px; align-items: start; }
 .hadal-week-intro { padding-top: 5px; }
+.hadal-cadence > div > p:last-child { white-space: nowrap; flex-shrink: 0; }
 .biiz-kitchen .hadal-mission { box-shadow: var(--hadal-shadow); transition: border-color 180ms, box-shadow 180ms; }
 .biiz-kitchen .hadal-mission:hover { box-shadow: var(--biiz-shadow-popover); }
 .hadal-mission-trigger { padding: 25px; }
@@ -240,6 +241,7 @@
   .hadal-container { width: calc(100% - 40px); }
   .hadal-cover { height: 245px; }
   .hadal-cover > img { object-position: 59% center; }
+  .hadal-cover-scrim { background: linear-gradient(90deg, var(--card) 0%, color-mix(in oklab, var(--card) 93%, transparent) 26%, color-mix(in oklab, var(--card) 55%, transparent) 53%, transparent 82%); }
   .hadal-cover h1 { font-size: 54px; }
   .hadal-cover-content > p:not(.hadal-eyebrow) { max-width: 180px; line-height: 1.5; }
   .hadal-brand-divider { display: none; }

@@ -9,5 +9,5 @@
 - [x] Vérifier les dix onglets connectés, les écrans publics et l'affichage sur petits écrans.
 
 # HADAL — Finition premium
-- [ ] Recomposer uniquement la présentation cuisine, missions, inspirations et guide.
-- [ ] Vérifier la page connectée, les plans et la galerie sans modifier les données.
+- [x] Recomposer uniquement la présentation cuisine, missions, inspirations et guide.
+- [x] Vérifier la page connectée, les plans et la galerie sans modifier les données.
