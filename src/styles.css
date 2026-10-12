@@ -162,6 +162,7 @@
   .biiz-app [role="tabpanel"] { min-width: 0; }
   .biiz-calendar-cell { min-width: 0; min-height: 110px; transition: background-color 140ms; }
   .biiz-calendar-cell > p { display: grid; place-items: center; width: 24px; height: 24px; }
+  .biiz-kitchen .biiz-tabs-shell { position: sticky; top: 69px; }
   .biiz-kitchen article { box-shadow: var(--biiz-shadow-surface); overflow: hidden; transition: border-color 160ms; }
   .biiz-kitchen article:hover { border-color: color-mix(in oklab, var(--primary) 30%, var(--border)); }
   .biiz-kitchen article[data-open="true"] { border-color: color-mix(in oklab, var(--primary) 40%, var(--border)); }
