@@ -4,6 +4,6 @@
 - [x] Tester la mission, les règles éditoriales et les routes sur mobile et desktop.
 
 # BIIZ — Refonte light
-- [ ] Refaire le système visuel clair et les contrôles partagés, sans modifier les règles.
-- [ ] Harmoniser tous les écrans du cockpit, la connexion, l'accueil et la page cuisine.
-- [ ] Vérifier les dix onglets connectés, les écrans publics et l'affichage sur petits écrans.
+- [x] Refaire le système visuel clair et les contrôles partagés, sans modifier les règles.
+- [x] Harmoniser tous les écrans du cockpit, la connexion, l'accueil et la page cuisine.
+- [x] Vérifier les dix onglets connectés, les écrans publics et l'affichage sur petits écrans.
