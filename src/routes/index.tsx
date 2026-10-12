@@ -1,3 +1,4 @@
+import { ArrowRight, Link2, MousePointer2, QrCode } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 
@@ -19,23 +20,23 @@ const flow = ["Support", "Lien / QR", "Visite", "Conversion", "CA", "Décision"]
 
 function Index() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-card">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-6 py-6">
-        <span className="text-lg font-semibold tracking-tight">BIIZ</span>
+        <span className="flex items-center gap-3 text-lg font-semibold"><span className="biiz-mark">B</span>BIIZ</span>
         <Button asChild variant="ghost" size="sm"><Link to="/auth">Se connecter</Link></Button>
       </header>
-      <main className="mx-auto max-w-5xl px-6 pt-20 pb-32">
+      <main className="mx-auto max-w-5xl px-6 pt-16 pb-12 md:pt-24">
         <p className="font-mono text-xs uppercase tracking-widest text-primary">AXIUM · Module Tracking</p>
-        <h1 className="mt-4 max-w-3xl text-5xl font-semibold leading-[1.05] tracking-tight md:text-6xl">
+        <h1 className="mt-4 max-w-3xl text-4xl font-semibold leading-[1.15] md:text-6xl">
           Savoir d'où vient chaque client.
         </h1>
         <p className="mt-6 max-w-xl text-lg text-muted-foreground">
           Un lien tracké et un QR par support — flyer, Reel, partenaire, affiche. Nomenclature UTM standardisée, projets séparés, chiffres réels.
         </p>
         <div className="mt-10 flex gap-3">
-          <Button asChild size="lg"><Link to="/auth">Commencer</Link></Button>
+          <Button asChild size="lg"><Link to="/auth">Commencer<ArrowRight /></Link></Button>
         </div>
-        <div className="mt-24 flex flex-wrap items-center gap-2 font-mono text-xs text-muted-foreground">
+        <div className="biiz-public-flow mt-20 flex flex-wrap items-center gap-3 font-mono text-xs text-muted-foreground">
           {flow.map((s, i) => (
             <span key={s} className="flex items-center gap-2">
               <span className="rounded-md border bg-card px-3 py-1.5 text-foreground">{s}</span>

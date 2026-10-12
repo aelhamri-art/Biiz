@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -62,21 +63,23 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-6">
-      <div className="w-full max-w-sm">
+    <div className="biiz-auth flex min-h-screen flex-col px-6">
+      <header className="mx-auto flex w-full max-w-6xl items-center justify-between py-6"><Link to="/" className="flex items-center gap-3"><span className="biiz-mark">B</span><span className="text-lg font-semibold">BIIZ</span></Link><Button asChild variant="ghost" size="sm"><Link to="/"><ArrowLeft />Retour</Link></Button></header>
+      <main className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center pb-24 pt-12">
         <h1 className="text-2xl font-semibold tracking-tight">{mode === "in" ? "Connexion" : "Créer un compte"}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">BIIZ · AXIUM</p>
-        <Button variant="outline" className="mt-8 w-full" onClick={google}>Continuer avec Google</Button>
-        <div className="my-6 text-center text-xs text-muted-foreground">ou</div>
+        <p className="mt-3 text-sm text-muted-foreground">BIIZ · AXIUM</p>
+        <Button variant="outline" className="mt-8 w-full" onClick={google}><svg viewBox="0 0 24 24" aria-hidden="true" className="size-4"><path fill="currentColor" d="M21.6 12.2c0-.7-.1-1.5-.2-2.2H12v4.2h5.4a4.6 4.6 0 0 1-2 3v2.7h3.3c1.9-1.8 2.9-4.4 2.9-7.7ZM12 22c2.7 0 5-.9 6.7-2.4l-3.3-2.7c-.9.6-2 .9-3.4.9-2.6 0-4.8-1.8-5.6-4.2H3v2.8A10 10 0 0 0 12 22ZM6.4 13.6a6 6 0 0 1 0-3.2V7.6H3a10 10 0 0 0 0 8.8l3.4-2.8ZM12 6.2c1.5 0 2.8.5 3.8 1.5l2.9-2.9A9.7 9.7 0 0 0 12 2a10 10 0 0 0-9 5.6l3.4 2.8C7.2 8 9.4 6.2 12 6.2Z" /></svg>Continuer avec Google</Button>
+        <div className="biiz-auth-separator my-6 text-center text-xs text-muted-foreground">ou</div>
         <form onSubmit={submit} className="space-y-4">
-          <div className="space-y-1.5"><Label>Email</Label><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Mot de passe</Label><Input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} /></div>
-          <Button type="submit" className="w-full" disabled={busy}>{mode === "in" ? "Se connecter" : "Créer le compte"}</Button>
+          <div className="space-y-1.5"><Label htmlFor="auth-email">Email</Label><Input id="auth-email" autoComplete="email" placeholder="vous@entreprise.com" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label htmlFor="auth-password">Mot de passe</Label><Input id="auth-password" autoComplete={mode === "in" ? "current-password" : "new-password"} type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+          <Button type="submit" className="w-full" disabled={busy}>{busy ? <Loader2 className="animate-spin" /> : <>{mode === "in" ? "Se connecter" : "Créer le compte"}<ArrowRight /></>}</Button>
         </form>
-        <button className="mt-6 text-sm text-muted-foreground hover:text-foreground" onClick={() => setMode(mode === "in" ? "up" : "in")}>
+        <Button variant="link" className="mt-6 h-auto self-center p-0 text-sm text-muted-foreground hover:text-foreground" onClick={() => setMode(mode === "in" ? "up" : "in")}>
           {mode === "in" ? "Pas de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}
-        </button>
-      </div>
+        </Button>
+      </main>
+      <footer className="pb-6 text-center text-xs text-muted-foreground">BIIZ · AXIUM</footer>
     </div>
   );
 }

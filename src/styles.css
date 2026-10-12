@@ -27,8 +27,8 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
   --color-overlay: var(--overlay);
-  --shadow-surface: var(--shadow-surface);
-  --shadow-popover: var(--shadow-popover);
+  --shadow-surface: var(--biiz-shadow-surface);
+  --shadow-popover: var(--biiz-shadow-popover);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -101,8 +101,8 @@
   --sidebar-ring: var(--ring);
   --overlay: oklch(0.24 0.018 260 / 30%);
   --shadow-color: oklch(0.25 0.02 260 / 5%);
-  --shadow-surface: 0 1px 3px var(--shadow-color);
-  --shadow-popover: 0 12px 40px oklch(0.25 0.02 260 / 12%), 0 2px 6px var(--shadow-color);
+  --biiz-shadow-surface: 0 1px 3px var(--shadow-color);
+  --biiz-shadow-popover: 0 12px 40px oklch(0.25 0.02 260 / 12%), 0 2px 6px var(--shadow-color);
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 }
@@ -126,7 +126,7 @@
   .biiz-mark { display: grid; height: 2.25rem; width: 2.25rem; flex-shrink: 0; place-items: center; border-radius: 7px; background: var(--primary); color: var(--primary-foreground); font-size: 21px; font-weight: 700; }
   .biiz-sidebar-brand { display: none; }
   .biiz-sidebar-footer { display: none; }
-  .biiz-stat { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; border-radius: 8px; background: var(--card); padding: 18px 20px; box-shadow: var(--shadow-surface); }
+  .biiz-stat { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-width: 0; border-radius: 8px; background: var(--card); padding: 18px 20px; box-shadow: var(--biiz-shadow-surface); }
   .biiz-stat-icon { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 7px; background: var(--muted); color: var(--muted-foreground); }
   .biiz-tabs-shell { position: relative; min-width: 0; border-bottom: 1px solid var(--border); }
   .biiz-tabs { display: flex; width: 100%; height: auto; justify-content: flex-start; gap: 4px; overflow-x: auto; border-radius: 0; background: transparent; padding: 0 20px 0 0; scrollbar-width: none; }
@@ -151,7 +151,7 @@
   .biiz-board-column[data-status="publie"] > p::before { background: var(--chart-5); }
   .biiz-board-column[data-status="bloque"] > p::before { background: var(--destructive); }
   .biiz-board-column > ul { min-height: 175px; }
-  .biiz-board-column li.rounded-md { background: var(--card); box-shadow: var(--shadow-surface); transition: box-shadow 160ms, border-color 160ms; }
+  .biiz-board-column li.rounded-md { background: var(--card); box-shadow: var(--biiz-shadow-surface); transition: box-shadow 160ms, border-color 160ms; }
   .biiz-board-column li.rounded-md:hover { border-color: color-mix(in oklab, var(--primary) 35%, var(--border)); box-shadow: 0 4px 12px var(--shadow-color); }
   .biiz-filters { gap: 4px; }
   .biiz-filters button { border-color: transparent; box-shadow: none; }
@@ -162,7 +162,7 @@
   .biiz-app [role="tabpanel"] { min-width: 0; }
   .biiz-calendar-cell { min-width: 0; min-height: 110px; transition: background-color 140ms; }
   .biiz-calendar-cell > p { display: grid; place-items: center; width: 24px; height: 24px; }
-  .biiz-kitchen article { box-shadow: var(--shadow-surface); overflow: hidden; transition: border-color 160ms; }
+  .biiz-kitchen article { box-shadow: var(--biiz-shadow-surface); overflow: hidden; transition: border-color 160ms; }
   .biiz-kitchen article:hover { border-color: color-mix(in oklab, var(--primary) 30%, var(--border)); }
   .biiz-kitchen article[data-open="true"] { border-color: color-mix(in oklab, var(--primary) 40%, var(--border)); }
   .biiz-kitchen article ol { counter-reset: plan; }

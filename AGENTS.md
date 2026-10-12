@@ -16,3 +16,5 @@
 - Attribution is client-side in /api/public/biiz.js via the `bz` param: first touch and last touch kept in localStorage.
 - The kitchen page (/hadal-marketing) is a public URL but shows data only to signed-in workspace members (RLS); missions and inspirations are authored in the cockpit's Page cuisine tab, and uploaded rushes become `contents` rows (type rush, mission_id) in the `rushs` bucket.
 - Instagram inspirations accept only HTTPS Instagram post/Reel permalinks and render official Instagram embeds with an external fallback, keeping untrusted URLs out of iframe sources.
+
+- Presentation refinements share semantic tokens and reusable UI components in the global stylesheet; module queries and mutations stay unchanged so visual redesigns cannot alter business behavior.
