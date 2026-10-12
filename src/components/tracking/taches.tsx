@@ -1,3 +1,4 @@
+import { Plus, UserRound, CalendarDays, MapPin, FileText, Paperclip, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -72,9 +73,9 @@ export function TachesPanel({ wsId }: { wsId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <Select value={who} onValueChange={setWho}>
-          <SelectTrigger className="w-56"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="w-full sm:w-56"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="tous">Toutes les tâches</SelectItem>
             <SelectItem value="moi">Mes tâches</SelectItem>
@@ -82,33 +83,33 @@ export function TachesPanel({ wsId }: { wsId: string }) {
             {(members.data ?? []).map((m) => <SelectItem key={m.user_id} value={m.user_id}>{m.email}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Button onClick={() => setEditing({ status: "a_faire" })}>Nouvelle tâche</Button>
+        <Button onClick={() => setEditing({ status: "a_faire" })}><Plus />Nouvelle tâche</Button>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
+      <div className="biiz-board grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {STATUSES.map(([sk, sl]) => {
           const list = visible.filter((t) => t.status === sk);
           return (
-            <div key={sk} className="rounded-lg border bg-card">
-              <p className="border-b px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">{sl} · {list.length}</p>
+            <div key={sk} data-status={sk} className="biiz-board-column">
+              <p className="text-muted-foreground">{sl} · {list.length}</p>
               <ul className="space-y-2 p-3">
                 {list.map((t) => {
                   const late = t.due_date && t.due_date < today && t.status !== "termine";
                   const ct = contentTitle(t.content_id);
                   return (
                     <li key={t.id} className="rounded-md border bg-background p-3 text-sm">
-                      <button className="w-full text-left font-medium hover:underline" onClick={() => setEditing(t)}>{t.title}</button>
-                      <p className="mt-1 text-xs text-muted-foreground">👤 {email(t.assignee_id)}</p>
+                      <Button variant="ghost" className="h-auto w-full justify-start whitespace-normal p-0 text-left font-medium hover:bg-transparent hover:text-primary" onClick={() => setEditing(t)}>{t.title}</Button>
+                      <p className="mt-1 text-xs text-muted-foreground"><UserRound className="inline size-3.5 mr-1" />{email(t.assignee_id)}</p>
                       {t.due_date && (
                         <p className={cn("text-xs", late ? "font-medium text-destructive" : "text-muted-foreground")}>
-                          📅 {format(new Date(t.due_date + "T00:00"), "d MMM", { locale: fr })}{late ? " · en retard" : ""}
+                          <CalendarDays className="inline size-3.5 mr-1" />{format(new Date(t.due_date + "T00:00"), "d MMM", { locale: fr })}{late ? " · en retard" : ""}
                         </p>
                       )}
-                      {t.location && <p className="text-xs text-muted-foreground">📍 {t.location}</p>}
-                      {ct && <p className="truncate text-xs text-muted-foreground">📝 {ct}</p>}
+                      {t.location && <p className="text-xs text-muted-foreground"><MapPin className="inline size-3.5 mr-1" />{t.location}</p>}
+                      {ct && <p className="truncate text-xs text-muted-foreground"><FileText className="inline size-3.5 mr-1" />{ct}</p>}
                       <div className="mt-2 flex flex-wrap gap-1">
                         {STATUSES.filter(([k]) => k !== t.status).map(([k, l]) => (
-                          <button key={k} className="rounded border px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-accent" onClick={() => setStatus(t, k)}>{l}</button>
+                          <Button key={k} variant="ghost" className="h-6 rounded px-1.5 text-[11px] text-muted-foreground" onClick={() => setStatus(t, k)}>{l}</Button>
                         ))}
                       </div>
                     </li>

@@ -1,3 +1,4 @@
+import { Plus, UserRound, CalendarDays, MapPin, FileText, Paperclip, Trash2 } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
@@ -69,31 +70,31 @@ export function ContenusPanel({ wsId }: { wsId: string }) {
   return (
     <div className="space-y-4">
       <NewContentForm wsId={wsId} onCreated={reload} />
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="biiz-filters flex flex-wrap items-center gap-2">
         <Button size="sm" variant={filter === "tous" ? "default" : "outline"} onClick={() => setFilter("tous")}>Tous</Button>
         {TYPES.map(([k, label]) => (
           <Button key={k} size="sm" variant={filter === k ? "default" : "outline"} onClick={() => setFilter(k)}>{label}</Button>
         ))}
       </div>
-      <div className="grid gap-4 md:grid-cols-5">
+      <div className="biiz-board grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {STATUSES.map(([sk, slabel]) => (
-          <div key={sk} className="rounded-lg border bg-card">
-            <p className="border-b px-3 py-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          <div key={sk} data-status={sk} className="biiz-board-column">
+            <p className="text-muted-foreground">
               {slabel} · {byStatus[sk]?.length ?? 0}
             </p>
             <ul className="space-y-2 p-3">
               {(byStatus[sk] ?? []).map((c) => (
                 <li key={c.id} className="rounded-md border bg-background p-3 text-sm">
-                  <button className="w-full text-left font-medium hover:underline" onClick={() => setOpen(c)}>{c.title}</button>
+                  <Button variant="ghost" className="h-auto w-full justify-start whitespace-normal p-0 text-left font-medium hover:bg-transparent hover:text-primary" onClick={() => setOpen(c)}>{c.title}</Button>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {typeLabel(c.type)}{c.due_date ? ` · ${format(new Date(c.due_date), "d MMM", { locale: fr })}` : ""}
-                    {c.file_name ? ` · 📎 ${c.file_name}` : ""}
+                    {c.file_name ? ` · ${c.file_name}` : ""}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1">
                     {STATUSES.filter(([k]) => k !== c.status).map(([k, l]) => (
-                      <button key={k} className="rounded border px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-accent" onClick={() => setStatus(c, k)}>{l}</button>
+                      <Button key={k} variant="ghost" className="h-6 rounded px-1.5 text-[11px] text-muted-foreground" onClick={() => setStatus(c, k)}>{l}</Button>
                     ))}
-                    <button className="rounded border px-1.5 py-0.5 text-[11px] text-destructive hover:bg-accent" onClick={() => remove(c)}>Suppr.</button>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive" onClick={() => remove(c)} aria-label="Supprimer le contenu" title="Supprimer"><Trash2 className="size-3" /></Button>
                   </div>
                 </li>
               ))}
@@ -144,7 +145,7 @@ function NewContentForm({ wsId, onCreated }: { wsId: string; onCreated: () => vo
   }
 
   return (
-    <form onSubmit={submit} className="rounded-lg border bg-card p-5">
+    <form onSubmit={submit} className="biiz-editor">
       <p className="text-sm font-medium">Nouveau contenu</p>
       <div className="mt-4 grid gap-4 md:grid-cols-6">
         <div className="space-y-1.5">
@@ -159,7 +160,7 @@ function NewContentForm({ wsId, onCreated }: { wsId: string; onCreated: () => vo
         <div className="space-y-1.5"><Label>Fichier (rush, créa…)</Label><Input ref={fileRef} type="file" onChange={(e) => setFile(e.target.files?.[0] ?? null)} /></div>
         <div className="space-y-1.5 md:col-span-6"><Label>Contenu / notes</Label><Textarea rows={3} placeholder="Angle, script, plan de tournage, consignes…" value={body} onChange={(e) => setBody(e.target.value)} /></div>
       </div>
-      <div className="mt-4 flex justify-end"><Button type="submit" disabled={busy}>{busy ? "Envoi…" : "Ajouter"}</Button></div>
+      <div className="mt-4 flex justify-end"><Button type="submit" disabled={busy}>{busy ? "Envoi…" : <><Plus />Ajouter</>}</Button></div>
     </form>
   );
 }

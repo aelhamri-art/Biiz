@@ -9,7 +9,7 @@ function Phone({ good, landscape, children }: { good: boolean; landscape?: boole
       <rect x={x} y={y} width={w} height={h} rx="6" fill="none" stroke="currentColor" strokeWidth="2" />
       <g transform={`translate(${x} ${y})`}>{children}</g>
       <circle cx="68" cy="12" r="9" className={good ? "fill-chart-2" : "fill-destructive"} />
-      <path d={good ? "M64 12l3 3 5-6" : "M65 9l6 6M71 9l-6 6"} stroke="var(--background)" strokeWidth="2" fill="none" strokeLinecap="round" />
+      <path d={good ? "M64 12l3 3 5-6" : "M65 9l6 6M71 9l-6 6"} stroke="var(--primary-foreground)" strokeWidth="2" fill="none" strokeLinecap="round" />
     </svg>
   );
 }
@@ -44,8 +44,8 @@ function Pair({ id, good }: { id: RuleId; good: boolean }) {
 export function RuleVisual({ id }: { id: RuleId }) {
   return (
     <div className="grid grid-cols-2 gap-2">
-      <figure className="rounded-md border bg-secondary/40 p-2 text-muted-foreground"><div className="aspect-square"><Pair id={id} good /></div><figcaption className="mt-1 text-center text-[11px] font-medium text-chart-2">Oui</figcaption></figure>
-      <figure className="rounded-md border bg-secondary/40 p-2 text-muted-foreground"><div className="aspect-square"><Pair id={id} good={false} /></div><figcaption className="mt-1 text-center text-[11px] font-medium text-destructive">Non</figcaption></figure>
+      <figure className="biiz-rule-good rounded-md border p-2 text-muted-foreground"><div className="aspect-square"><Pair id={id} good /></div><figcaption className="mt-1 text-center text-[11px] font-medium text-chart-2">Oui</figcaption></figure>
+      <figure className="biiz-rule-bad rounded-md border p-2 text-muted-foreground"><div className="aspect-square"><Pair id={id} good={false} /></div><figcaption className="mt-1 text-center text-[11px] font-medium text-destructive">Non</figcaption></figure>
     </div>
   );
 }

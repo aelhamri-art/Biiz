@@ -1,3 +1,4 @@
+import { Download, Copy, UserPlus, Users } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
@@ -17,9 +18,9 @@ export type Click = { link_id: string; created_at: string };
 
 function Card({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div className="rounded-lg border bg-card p-5">
-      <div className="flex items-center justify-between">
-        <p className="text-xs uppercase tracking-wider text-muted-foreground">{title}</p>
+    <div className="min-w-0 border-t pt-5">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <p className="text-sm font-semibold text-foreground">{title}</p>
         {action}
       </div>
       <div className="mt-4">{children}</div>
@@ -72,7 +73,7 @@ export function AnalysePanel({ links, clicks, counts }: { links: TLink[]; clicks
       <Card title="Visites par jour" action={
         <div className="flex gap-1">
           {[7, 30, 90].map((n) => <Button key={n} size="sm" variant={days === n ? "default" : "ghost"} onClick={() => setDays(n)}>{n} j</Button>)}
-          <Button size="sm" variant="outline" onClick={exportCsv}>Export CSV</Button>
+          <Button size="sm" variant="outline" onClick={exportCsv}><Download />Export CSV</Button>
         </div>
       }>
         <div className="h-64">
@@ -81,7 +82,7 @@ export function AnalysePanel({ links, clicks, counts }: { links: TLink[]; clicks
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="d" fontSize={11} stroke="var(--muted-foreground)" />
               <YAxis allowDecimals={false} fontSize={11} stroke="var(--muted-foreground)" width={30} />
-              <Tooltip />
+              <Tooltip contentStyle={{ background: "var(--popover)", border: "1px solid var(--border)", borderRadius: "8px", boxShadow: "var(--shadow-popover)", color: "var(--foreground)" }} />
               <Area type="monotone" dataKey="v" name="Visites" stroke="var(--primary)" fill="var(--accent)" />
             </AreaChart>
           </ResponsiveContainer>
@@ -186,15 +187,15 @@ export function EquipePanel({ wsId }: { wsId: string }) {
       <Card title="Inviter dans ce projet">
         <form onSubmit={invite} className="flex gap-2">
           <Input type="email" required placeholder="prenom@entreprise.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Button type="submit">Inviter</Button>
+          <Button type="submit"><UserPlus />Inviter</Button>
         </form>
         <p className="mt-2 text-xs text-muted-foreground">Tout membre peut inviter. La personne crée son compte avec cet email et retrouve le projet automatiquement.</p>
       </Card>
       <Card title={`Membres (${members.data?.length ?? 0})`}>
         <ul className="divide-y text-sm">
           {members.data?.map((m) => (
-            <li key={m.user_id} className="flex items-center justify-between py-2">
-              <span>{m.email}</span>
+            <li key={m.user_id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+              <span className="flex min-w-0 items-center gap-3"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-secondary text-xs font-medium">{m.email.slice(0,2).toUpperCase()}</span><span className="truncate">{m.email}</span></span>
               <Button size="sm" variant="ghost" onClick={() => remove(m.user_id)}>Retirer</Button>
             </li>
           ))}
@@ -204,8 +205,8 @@ export function EquipePanel({ wsId }: { wsId: string }) {
         <Card title="Invitations en attente">
           <ul className="divide-y text-sm">
             {invites.data.map((i) => (
-              <li key={i.id} className="flex items-center justify-between py-2">
-                <span className="text-muted-foreground">{i.email}</span>
+              <li key={i.id} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3">
+                <span className="truncate text-muted-foreground">{i.email}</span>
                 <Button size="sm" variant="ghost" onClick={() => cancel(i.id)}>Annuler</Button>
               </li>
             ))}
@@ -224,7 +225,7 @@ export function InstallPanel() {
     <div className="space-y-4">
       <Card title="1. Coller sur le site de destination (ex. alpha33.app)">
         <pre className="overflow-x-auto rounded bg-muted p-3 font-mono text-xs">{snippet}</pre>
-        <Button className="mt-3" size="sm" variant="outline" onClick={() => copy(snippet)}>Copier</Button>
+        <Button className="mt-3" size="sm" variant="outline" onClick={() => copy(snippet)}><Copy />Copier</Button>
         <p className="mt-3 text-sm text-muted-foreground">Le script retient le premier lien (first touch) et le dernier (last touch) du visiteur, même s'il change de page, et envoie automatiquement <code>page_view</code>.</p>
       </Card>
       <Card title="2. Marquer les boutons importants">
