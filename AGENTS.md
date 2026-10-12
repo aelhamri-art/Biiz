@@ -18,3 +18,4 @@
 - Instagram inspirations accept only HTTPS Instagram post/Reel permalinks and render official Instagram embeds with an external fallback, keeping untrusted URLs out of iframe sources.
 
 - Presentation refinements share semantic tokens and reusable UI components in the global stylesheet; module queries and mutations stay unchanged so visual redesigns cannot alter business behavior.
+- HADAL-specific editorial layouts use scoped `hadal-*` presentation classes and bundled illustrative media; shared cockpit styling remains unchanged to isolate kitchen refinements.
