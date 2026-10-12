@@ -121,7 +121,7 @@
   :focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
 }
 
-@layer components {
+
   .biiz-topbar { position: sticky; top: 0; z-index: 40; background: var(--card); }
   .biiz-mark { display: grid; height: 2.25rem; width: 2.25rem; flex-shrink: 0; place-items: center; border-radius: 7px; background: var(--primary); color: var(--primary-foreground); font-size: 21px; font-weight: 700; }
   .biiz-sidebar-brand { display: none; }
@@ -176,7 +176,6 @@
   .biiz-public-flow { border-top: 1px solid var(--border); padding-block: 32px; }
   .biiz-public-flow > span > span:first-child { border: 0; background: transparent; padding-left: 0; font-family: var(--font-sans); font-size: 13px; }
   .biiz-empty-icon { display: grid; place-items: center; width: 56px; height: 56px; margin-inline: auto; background: var(--muted); color: var(--muted-foreground); border: 1px solid var(--border); border-radius: 8px; }
-}
 
 @media (min-width: 1280px) {
   .biiz-app > .biiz-topbar { margin-left: 232px; }
