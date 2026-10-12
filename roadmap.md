@@ -7,3 +7,7 @@
 - [x] Refaire le système visuel clair et les contrôles partagés, sans modifier les règles.
 - [x] Harmoniser tous les écrans du cockpit, la connexion, l'accueil et la page cuisine.
 - [x] Vérifier les dix onglets connectés, les écrans publics et l'affichage sur petits écrans.
+
+# HADAL — Finition premium
+- [ ] Recomposer uniquement la présentation cuisine, missions, inspirations et guide.
+- [ ] Vérifier la page connectée, les plans et la galerie sans modifier les données.
