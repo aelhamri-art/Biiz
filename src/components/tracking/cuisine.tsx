@@ -54,25 +54,25 @@ export function CuisinePanel({ wsId }: { wsId: string }) {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="biiz-panel-heading">
         <div><h2 className="text-lg font-semibold">Page cuisine</h2><p className="text-sm text-muted-foreground">Ce que la direction créative publie ici apparaît sur la page de l’équipe.</p></div>
         <Button asChild variant="outline" size="sm"><a href="/hadal-marketing" target="_blank" rel="noreferrer">Voir la page<ExternalLink /></a></Button>
       </div>
 
-      <section className="rounded-lg border bg-card p-5">
+      <section className="biiz-section">
         <div className="flex items-center justify-between gap-2">
           <Button size="icon" variant="ghost" onClick={() => setRef(addWeeks(ref, -1))} aria-label="Semaine précédente"><ChevronLeft /></Button>
           <p className="text-sm font-medium">Semaine du {format(parseISO(wk), "d MMMM", { locale: fr })}</p>
           <Button size="icon" variant="ghost" onClick={() => setRef(addWeeks(ref, 1))} aria-label="Semaine suivante"><ChevronRight /></Button>
         </div>
         <Group title="Missions de la semaine" hint="Objectif : 2 POV humour + 1 post statique" items={list.filter((m) => m.scope === "semaine")} onAdd={() => setEdit(blank("semaine"))} onEdit={(m) => setEdit(m)} onDelete={remove} />
-        <div className="mt-2 flex items-center justify-end gap-1 text-xs text-muted-foreground"><button onClick={() => setRef(addMonths(ref, -1))}>‹</button>{format(parseISO(mk), "MMMM yyyy", { locale: fr })}<button onClick={() => setRef(addMonths(ref, 1))}>›</button></div>
+        <div className="mt-2 flex items-center justify-end gap-1 text-xs text-muted-foreground"><Button size="icon" variant="ghost" onClick={() => setRef(addMonths(ref, -1))} aria-label="Mois précédent"><ChevronLeft /></Button>{format(parseISO(mk), "MMMM yyyy", { locale: fr })}<Button size="icon" variant="ghost" onClick={() => setRef(addMonths(ref, 1))} aria-label="Mois suivant"><ChevronRight /></Button></div>
         <Group title="Temps forts du mois" hint="1 film signature + 1 opération HADAL" items={list.filter((m) => m.scope === "mois")} onAdd={() => setEdit(blank("mois"))} onEdit={(m) => setEdit(m)} onDelete={remove} />
       </section>
 
       <InspiManager wsId={wsId} />
 
-      <section className="rounded-lg border bg-card p-5">
+      <section className="biiz-section">
         <h3 className="font-semibold">Rushs reçus de la cuisine</h3>
         <p className="text-sm text-muted-foreground">Aussi rangés dans Contenus (type Rush, « À valider »).</p>
         <ul className="mt-4 divide-y">{(rushes.data ?? []).map((r) => <li key={r.id} className="flex items-center justify-between gap-3 py-2 text-sm"><div className="min-w-0"><p className="truncate font-medium">{r.file_name}</p><p className="truncate text-xs text-muted-foreground">{r.title} · {format(parseISO(r.created_at), "d MMM HH:mm", { locale: fr })}</p></div>{r.file_path && <Button size="sm" variant="outline" onClick={() => void download(r.file_path!)}><Download />Télécharger</Button>}</li>)}
@@ -86,8 +86,8 @@ export function CuisinePanel({ wsId }: { wsId: string }) {
 
 function Group({ title, hint, items, onAdd, onEdit, onDelete }: { title: string; hint: string; items: KitchenMission[]; onAdd: () => void; onEdit: (m: KitchenMission) => void; onDelete: (m: KitchenMission) => void }) {
   return <div className="mt-4">
-    <div className="flex items-center justify-between"><div><h3 className="font-semibold">{title}</h3><p className="text-xs text-muted-foreground">{hint}</p></div><Button size="sm" onClick={onAdd}><Plus />Ajouter</Button></div>
-    <ul className="mt-3 divide-y rounded-md border">{items.map((m) => <li key={m.id} className="flex items-center gap-3 px-3 py-2.5"><span className="w-28 shrink-0 text-xs text-primary">{kindLabel(m.kind)}</span><button className="min-w-0 flex-1 truncate text-left text-sm font-medium hover:underline" onClick={() => onEdit(m)}>{m.title}</button><span className="text-xs text-muted-foreground">{m.plans.length} plans</span><Button size="icon" variant="ghost" className="text-destructive" onClick={() => onDelete(m)} aria-label="Supprimer"><Trash2 /></Button></li>)}
+    <div className="biiz-panel-heading"><div><h3 className="font-semibold">{title}</h3><p className="text-xs text-muted-foreground">{hint}</p></div><Button size="sm" onClick={onAdd}><Plus />Ajouter</Button></div>
+    <ul className="mt-3 divide-y rounded-md border">{items.map((m) => <li key={m.id} className="biiz-kitchen-row flex min-w-0 items-center gap-3 px-3 py-3"><span className="w-28 shrink-0 text-xs text-primary">{kindLabel(m.kind)}</span><Button variant="ghost" className="h-auto min-w-0 flex-1 justify-start truncate p-0 text-left text-sm font-medium hover:bg-transparent hover:text-primary" onClick={() => onEdit(m)}>{m.title}</Button><span className="text-xs text-muted-foreground">{m.plans.length} plans</span><Button size="icon" variant="ghost" className="text-destructive" onClick={() => onDelete(m)} aria-label="Supprimer"><Trash2 /></Button></li>)}
       {items.length === 0 && <li className="px-3 py-5 text-center text-sm text-muted-foreground">Rien de prévu.</li>}</ul>
   </div>;
 }
@@ -153,7 +153,7 @@ function InspiManager({ wsId }: { wsId: string }) {
     if (error) toast.error(error.message); else { toast.success("Inspiration ajoutée"); setUrl(""); setTitle(""); setTags(""); setTakeaway(""); setWhy(""); reload(); }
   }
   async function remove(id: string) { const { error } = await supabase.from("kitchen_inspirations").delete().eq("id", id); if (error) toast.error(error.message); else reload(); }
-  return <section className="rounded-lg border bg-card p-5">
+  return <section className="biiz-section">
     <h3 className="font-semibold">Inspirations Instagram</h3><p className="text-sm text-muted-foreground">Uniquement de vrais liens publics. Ils sont lisibles directement sur la page cuisine.</p>
     <form onSubmit={add} className="mt-4 grid gap-3 sm:grid-cols-2">
       <Input required value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.instagram.com/reel/…" />

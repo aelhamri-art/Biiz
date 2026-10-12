@@ -4,7 +4,7 @@ import {
   addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, isToday, startOfMonth, startOfWeek, subMonths,
 } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,9 +23,9 @@ type TContentLite = { id: string; title: string; due_date: string | null; status
 
 const KINDS = [
   ["tournage", "Tournage", "bg-primary text-primary-foreground"],
-  ["publication", "Publication", "bg-secondary text-secondary-foreground border"],
+  ["publication", "Publication", "bg-chart-2/10 text-chart-2 border border-chart-2/15"],
   ["echeance", "Échéance", "bg-destructive/15 text-destructive"],
-  ["reunion", "Réunion", "bg-accent text-accent-foreground"],
+  ["reunion", "Réunion", "bg-chart-5/10 text-chart-5"],
   ["autre", "Autre", "bg-muted text-muted-foreground"],
 ] as const;
 const kindOf = (k: string) => KINDS.find(([v]) => v === k) ?? KINDS[4];
@@ -81,7 +81,7 @@ export function CalendrierPanel({ wsId }: { wsId: string }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="biiz-calendar-toolbar flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <Button size="icon" variant="outline" onClick={() => setMonth(subMonths(month, 1))} aria-label="Mois précédent"><ChevronLeft /></Button>
           <p className="min-w-40 text-center font-medium capitalize">{format(month, "MMMM yyyy", { locale: fr })}</p>
@@ -96,7 +96,7 @@ export function CalendrierPanel({ wsId }: { wsId: string }) {
               {KINDS.map(([k, l]) => <SelectItem key={k} value={k}>{l}</SelectItem>)}
             </SelectContent>
           </Select>
-          <Button onClick={() => setEditing({ kind: "tournage", event_date: format(new Date(), "yyyy-MM-dd") })}>Planifier</Button>
+          <Button onClick={() => setEditing({ kind: "tournage", event_date: format(new Date(), "yyyy-MM-dd") })}><Plus />Planifier</Button>
         </div>
       </div>
 
@@ -117,22 +117,22 @@ export function CalendrierPanel({ wsId }: { wsId: string }) {
                 <div
                   key={key}
                   onClick={() => setEditing({ kind: "tournage", event_date: key })}
-                  className={cn("min-h-24 cursor-pointer border-b border-r p-1.5 hover:bg-accent/40", !isSameMonth(d, month) && "bg-muted/40 text-muted-foreground")}
+                  className={cn("biiz-calendar-cell cursor-pointer border-b border-r p-1.5 hover:bg-accent/40", !isSameMonth(d, month) && "bg-muted/40 text-muted-foreground")}
                 >
                   <p className={cn("mb-1 text-xs", isToday(d) && "inline-block rounded-full bg-primary px-1.5 text-primary-foreground")}>{format(d, "d")}</p>
                   <div className="space-y-1">
                     {list.slice(0, 3).map((i) => (
-                      <button
+                      <Button variant="ghost"
                         key={i.key}
                         onClick={(e) => {
                           e.stopPropagation();
                           if (i.ev) setEditing(i.ev);
                           else toast.info(`Échéance contenu : ${i.label}`, { description: "Modifiable depuis l'onglet Contenus." });
                         }}
-                        className={cn("block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px]", kindOf(i.kind)[2])}
+                        className={cn("block h-auto w-full truncate rounded px-1.5 py-0.5 text-left text-[11px]", kindOf(i.kind)[2])}
                       >
                         {i.content ? "📝 " : ""}{i.label}
-                      </button>
+                      </Button>
                     ))}
                     {list.length > 3 && <p className="text-[11px] text-muted-foreground">+{list.length - 3} autres</p>}
                   </div>
@@ -142,7 +142,7 @@ export function CalendrierPanel({ wsId }: { wsId: string }) {
           </div>
         </div>
 
-        <div className="rounded-lg border bg-card p-4">
+        <div className="min-w-0 border-t pt-4 lg:border-t-0 lg:border-l lg:pl-5">
           <p className="text-sm font-medium">À venir</p>
           <ul className="mt-3 space-y-3 text-sm">
             {upcoming.length === 0 && <li className="text-xs text-muted-foreground">Rien de planifié.</li>}

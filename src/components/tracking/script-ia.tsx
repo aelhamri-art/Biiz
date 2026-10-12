@@ -1,3 +1,4 @@
+import { Sparkles, Clapperboard, Save, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
@@ -52,8 +53,8 @@ export function ScriptIAPanel({ wsId }: { wsId: string }) {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
-      <form onSubmit={run} className="h-fit space-y-4 rounded-lg border bg-card p-5">
+    <div className="grid min-w-0 gap-8 lg:grid-cols-[minmax(280px,340px)_minmax(0,1fr)]">
+      <form onSubmit={run} className="h-fit min-w-0 space-y-5">
         <p className="text-sm font-medium">Brief → script de tournage</p>
         <div className="space-y-1.5"><Label>Brief</Label>
           <Textarea required minLength={10} rows={9} value={brief} onChange={(e) => setBrief(e.target.value)}
@@ -63,13 +64,13 @@ export function ScriptIAPanel({ wsId }: { wsId: string }) {
           <div className="space-y-1.5"><Label>Format</Label><Input value={format} onChange={(e) => setFormat(e.target.value)} /></div>
           <div className="space-y-1.5"><Label>Durée</Label><Input value={duree} onChange={(e) => setDuree(e.target.value)} /></div>
         </div>
-        <Button type="submit" className="w-full" disabled={busy}>{busy ? "Génération en cours… (≈30 s)" : "Générer avec l'IA"}</Button>
+        <Button type="submit" className="w-full" disabled={busy}>{busy ? <><Loader2 className="animate-spin" />Génération en cours… (≈30 s)</> : <><Sparkles />Générer avec l'IA</>}</Button>
         {err && <p className="text-sm text-destructive">{err}</p>}
       </form>
 
-      <div className="rounded-lg border bg-card p-5">
+      <div className="min-w-0 border-t pt-6 lg:border-t-0 lg:border-l lg:pl-8 lg:pt-0">
         {!res ? (
-          <p className="py-16 text-center text-sm text-muted-foreground">Le script et la liste des plans apparaîtront ici.</p>
+          <div className="py-20 text-center"><span className="biiz-empty-icon"><Clapperboard className="size-6" /></span><p className="mt-4 text-sm text-muted-foreground">Le script et la liste des plans apparaîtront ici.</p></div>
         ) : (
           <div className="space-y-5">
             <div className="flex flex-wrap items-start justify-between gap-3">
@@ -77,7 +78,7 @@ export function ScriptIAPanel({ wsId }: { wsId: string }) {
                 <h3 className="text-lg font-semibold">{res.titre}</h3>
                 {res.accroche && <p className="text-sm text-muted-foreground">Accroche : {res.accroche}</p>}
               </div>
-              <Button onClick={save} disabled={saving}>{saving ? "…" : "Enregistrer dans Contenus"}</Button>
+              <Button onClick={save} disabled={saving}>{saving ? <Loader2 className="animate-spin" /> : <><Save />Enregistrer dans Contenus</>}</Button>
             </div>
             <section>
               <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">Script</p>

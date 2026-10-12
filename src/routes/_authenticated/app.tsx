@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import {
   BarChart3, CalendarDays, ChevronDown, ClipboardList, FileText, Link2,
-  ChefHat, LogOut, Plus, Settings2, Sparkles, Users, Waypoints,
+  ChefHat, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -125,18 +125,18 @@ function AppPage() {
   return (
     <div className="biiz-app min-h-screen bg-background">
       <header className="biiz-topbar border-b bg-card/95">
-        <div className="mx-auto flex max-w-[1480px] flex-wrap items-center gap-4 px-5 py-4 lg:px-8">
-          <div className="mr-2 flex items-center gap-3">
+        <div className="mx-auto grid max-w-[1600px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-3 sm:flex lg:px-8">
+          <div className="biiz-header-brand mr-2 flex min-w-0 items-center gap-3">
             <span className="biiz-mark">B</span>
             <div className="leading-none">
               <span className="block text-lg font-semibold tracking-tight">BIIZ</span>
               <span className="mt-1 block text-[10px] font-medium uppercase text-muted-foreground">Cockpit marketing</span>
             </div>
           </div>
-          <span className="hidden h-7 w-px bg-border md:block" />
+          <span className="hidden h-7 w-px bg-border md:block xl:hidden" />
           {ws.data && ws.data.length > 0 && (
             <Select value={wsId ?? ""} onValueChange={setWsId}>
-              <SelectTrigger className="h-9 w-52 border-transparent bg-secondary/70 font-medium"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="h-9 w-full min-w-0 sm:w-48 border-transparent bg-secondary/70 font-medium" aria-label="Projet actif"><SelectValue /></SelectTrigger>
               <SelectContent>{ws.data.map((w) => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}</SelectContent>
             </Select>
           )}
@@ -145,7 +145,7 @@ function AppPage() {
             <Input className="h-9 w-44 bg-secondary/50" placeholder="Nouveau projet" value={newWs} onChange={(e) => setNewWs(e.target.value)} />
             <Button size="sm" variant="outline" type="submit"><Plus />Ajouter</Button>
           </form>
-          <Button size="icon" variant="ghost" className="lg:ml-0" onClick={signOut} aria-label="Déconnexion" title="Déconnexion"><LogOut /></Button>
+          <Button size="icon" variant="ghost" className="col-start-2 row-start-1 shrink-0 sm:ml-auto lg:ml-0" onClick={signOut} aria-label="Déconnexion" title="Déconnexion"><LogOut /></Button>
         </div>
       </header>
 
@@ -157,26 +157,27 @@ function AppPage() {
           </div>
         ) : wsId ? (
           <>
-            <section className="mb-7 flex flex-wrap items-end justify-between gap-4">
+            <section className="mb-7 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3">
               <div>
-                <p className="mb-2 text-xs font-medium uppercase text-primary">Espace de travail</p>
+                <p className="mb-2 text-xs font-medium uppercase text-primary">Projet</p>
                 <h1 className="text-3xl font-semibold">{currentWorkspace?.name ?? "Projet"}</h1>
-                <p className="mt-2 text-sm text-muted-foreground">Planifiez, produisez et mesurez le travail de l’équipe au même endroit.</p>
+                <p className="hidden"></p>
               </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="h-2 w-2 rounded-full bg-chart-2 shadow-[0_0_10px_var(--chart-2)]" />
+              <div className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
+                <span className="h-2 w-2 rounded-full bg-chart-2" />
                 Espace partagé
               </div>
             </section>
 
-            <div className="biiz-stats grid gap-3 md:grid-cols-3">
-              <Stat label="Liens actifs" value={active.length} />
-              <Stat label="Visites totales" value={clicks.data?.length ?? 0} />
-              <Stat label="Visites 7 derniers jours" value={clicks.data?.filter((c) => Date.now() - new Date(c.created_at).getTime() < 7 * 864e5).length ?? 0} />
+            <div className="biiz-stats grid grid-cols-3 gap-2 sm:gap-4">
+              <Stat label="Liens actifs" value={active.length} icon={<Link2 className="size-4" />} />
+              <Stat label="Visites totales" value={clicks.data?.length ?? 0} icon={<MousePointer2 className="size-4" />} />
+              <Stat label="Visites · 7 jours" value={clicks.data?.filter((c) => Date.now() - new Date(c.created_at).getTime() < 7 * 864e5).length ?? 0} icon={<TrendingUp className="size-4" />} />
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-7">
-              <div className="biiz-tabs-shell">
+              <div className="biiz-tabs-shell biiz-navigation">
+              <div className="biiz-sidebar-brand"><span className="biiz-mark">B</span><div><span className="text-lg font-semibold">BIIZ</span><span className="biiz-sidebar-label">Cockpit marketing</span></div></div>
               <TabsList className="biiz-tabs">
                 <TabsTrigger value="contenus"><FileText />Contenus</TabsTrigger>
                 <TabsTrigger value="cuisine"><ChefHat />Page cuisine</TabsTrigger>
@@ -190,6 +191,7 @@ function AppPage() {
                 <TabsTrigger value="install"><Settings2 />Installation</TabsTrigger>
               </TabsList>
               <ChevronDown className="biiz-tabs-hint" />
+              <div className="biiz-sidebar-footer"><span className="flex items-center gap-2"><Activity className="size-3.5" />Espace collaboratif</span><span className="mt-2 block">BIIZ · AXIUM</span></div>
               </div>
               <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
@@ -218,14 +220,14 @@ function AppPage() {
                               {l.utm_source} · {l.utm_medium} · {l.utm_campaign}{l.utm_content ? ` · ${l.utm_content}` : ""}
                             </td>
                             <td className="px-4 py-3">
-                              <button className="font-mono text-xs text-primary hover:underline" onClick={() => { void navigator.clipboard.writeText(short); toast.success("Lien copié"); }}>/r/{l.code}</button>
+                              <Button variant="link" className="h-auto p-0 font-mono text-xs" onClick={() => { void navigator.clipboard.writeText(short); toast.success("Lien copié"); }}>/r/{l.code}</Button>
                             </td>
                             <td className="px-4 py-3 text-right tabular-nums">{counts[l.id] ?? 0}</td>
                             <td className="whitespace-nowrap px-4 py-3 text-right">
-                              <Button size="sm" variant="outline" onClick={() => setQrLink(l)}>QR</Button>
-                              <Button size="sm" variant="ghost" onClick={() => setEditLink(l)}>Modifier</Button>
-                              <Button size="sm" variant="ghost" onClick={() => toggleArchive(l)}>{l.archived_at ? "Réactiver" : "Archiver"}</Button>
-                              <Button size="sm" variant="ghost" className="text-destructive" onClick={() => removeLink(l)}>Suppr.</Button>
+                              <Button size="icon" variant="ghost" onClick={() => setQrLink(l)} aria-label={`QR · ${l.name}`} title="QR code"><QrCode /></Button>
+                              <Button size="icon" variant="ghost" onClick={() => setEditLink(l)} aria-label={`Modifier · ${l.name}`} title="Modifier"><Pencil /></Button>
+                              <Button size="icon" variant="ghost" onClick={() => toggleArchive(l)} aria-label={`${l.archived_at ? "Réactiver" : "Archiver"} · ${l.name}`} title={l.archived_at ? "Réactiver" : "Archiver"}>{l.archived_at ? <ArchiveRestore /> : <Archive />}</Button>
+                              <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeLink(l)} aria-label={`Supprimer · ${l.name}`} title="Supprimer"><Trash2 /></Button>
                             </td>
                           </tr>
                         );
@@ -249,11 +251,11 @@ function AppPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: number }) {
+function Stat({ label, value, icon }: { label: string; value: number; icon: React.ReactNode }) {
   return (
-    <div className="biiz-stat rounded-lg border bg-card p-5">
-      <p className="text-xs uppercase tracking-wider text-muted-foreground">{label}</p>
-      <p className="mt-2 text-3xl font-semibold tabular-nums tracking-tight">{value}</p>
+    <div className="biiz-stat border">
+      <div className="min-w-0"><p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-2 text-3xl font-semibold tabular-nums">{value}</p></div><span className="biiz-stat-icon">{icon}</span>
     </div>
   );
 }
@@ -283,7 +285,7 @@ function NewLinkForm({ wsId, onCreated }: { wsId: string; onCreated: () => void 
   }
 
   return (
-    <form onSubmit={submit} className="mt-6 rounded-lg border bg-card p-5">
+    <form onSubmit={submit} className="biiz-editor mt-6">
       <p className="text-sm font-medium">Nouveau lien tracké</p>
       <div className="mt-4 grid gap-4 md:grid-cols-6">
         <div className="space-y-1.5 md:col-span-2"><Label>Nom</Label><Input required placeholder="Flyer A6 LTZ" value={name} onChange={(e) => setName(e.target.value)} /></div>

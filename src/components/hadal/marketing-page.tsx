@@ -64,8 +64,8 @@ function MissionCard({ m, sentCount, wsId }: { m: KitchenMission; sentCount: num
   }
 
   return (
-    <article className="rounded-lg border bg-card">
-      <button className="flex w-full items-start gap-3 p-4 text-left" onClick={() => setOpen(!open)} aria-expanded={open}>
+    <article data-open={open} className="rounded-lg border bg-card">
+      <Button variant="ghost" className="h-auto w-full items-start justify-start whitespace-normal rounded-none gap-3 p-5 text-left hover:bg-muted/50" onClick={() => setOpen(!open)} aria-expanded={open}>
         <div className="min-w-0 flex-1">
           <p className="text-[11px] font-medium uppercase text-primary">{kindLabel(m.kind)}</p>
           <h3 className="mt-1 text-lg font-semibold">{m.title}</h3>
@@ -78,8 +78,8 @@ function MissionCard({ m, sentCount, wsId }: { m: KitchenMission; sentCount: num
           </ul>
         </div>
         <ChevronDown className={`mt-1 size-5 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-      {open && <div className="border-t px-4 pb-5">
+      </Button>
+      {open && <div className="border-t px-5 pb-5">
         {m.plans.length > 0 && <ol className="divide-y">{m.plans.map((p, i) => <li key={i} className="py-4"><p className="text-xs font-medium text-primary">PLAN {i + 1}</p><h4 className="mt-1 font-semibold">{p.title}</h4>{p.instruction && <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{p.instruction}</p>}{p.line && <p className="mt-2 text-sm font-medium">{p.line}</p>}</li>)}</ol>}
         {(m.want || m.never) && <div className="grid gap-4 border-t pt-4 sm:grid-cols-2">
           {m.want && <div><h4 className="flex items-center gap-2 text-xs font-semibold text-chart-2"><Check className="size-4" />ON VEUT</h4><p className="mt-1 text-sm">{m.want}</p></div>}
@@ -108,7 +108,7 @@ function Week({ wsId }: { wsId: string }) {
       {editorialCadence.filter((c) => c.period === "week").map((c) => { const k = c.id === "pov" ? "pov" : "statique"; return <div key={c.id} className="rounded-lg border bg-card p-3"><p className="text-xs text-muted-foreground">{c.title}</p><p className="mt-1 font-mono text-lg font-semibold">{done(k)}<span className="text-muted-foreground"> / {c.count}</span></p></div>; })}
     </div>
     {missions.isLoading ? <p className="mt-8 text-sm text-muted-foreground">Chargement…</p> : week.length === 0
-      ? <div className="mt-6 border-y py-12 text-center"><Camera className="mx-auto size-8 text-muted-foreground" /><h2 className="mt-3 font-semibold">Les missions arrivent.</h2><p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">La direction créative prépare la semaine.</p></div>
+      ? <div className="mt-6 border-y py-12 text-center"><span className="biiz-empty-icon"><Camera className="size-6" /></span><h2 className="mt-3 font-semibold">Les missions arrivent.</h2><p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">La direction créative prépare la semaine.</p></div>
       : <div className="mt-6 space-y-3">{week.map((m) => <MissionCard key={m.id} m={m} wsId={wsId} sentCount={sent[m.id] ?? 0} />)}</div>}
     <section className="mt-9"><h2 className="text-xs font-medium uppercase text-primary">Ce mois · Préparé à part</h2>
       {month.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">Film signature et opération HADAL : dates communiquées bientôt.</p>
@@ -128,7 +128,7 @@ function Inspirations({ wsId }: { wsId: string }) {
   });
   const items = q.data ?? [];
   return <><h1 className="text-2xl font-semibold">Les bonnes références</h1><p className="mt-2 text-sm text-muted-foreground">Des situations à reprendre, pas des pubs à imiter.</p>
-    {items.length === 0 ? <div className="mt-7 border-y py-16 text-center"><Instagram className="mx-auto size-8 text-muted-foreground" /><h2 className="mt-4 text-lg font-semibold">La sélection arrive bientôt.</h2><p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">Les Reels choisis par la direction créative apparaîtront ici.</p></div> : <div className="mt-6 grid items-start gap-5 sm:grid-cols-2">{items.map((item) => {
+    {items.length === 0 ? <div className="mt-7 border-y py-16 text-center"><span className="biiz-empty-icon"><Instagram className="size-6" /></span><h2 className="mt-4 text-lg font-semibold">La sélection arrive bientôt.</h2><p className="mx-auto mt-2 max-w-xs text-sm text-muted-foreground">Les Reels choisis par la direction créative apparaîtront ici.</p></div> : <div className="mt-6 grid items-start gap-5 sm:grid-cols-2">{items.map((item) => {
       const embed = instagramEmbedUrl(item.url);
       if (!embed) return null;
       return <article key={item.id} className="min-w-0 overflow-hidden rounded-lg border bg-card"><iframe src={embed} title={item.title} loading="lazy" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" className="h-[480px] w-full border-0" /><div className="p-4"><h2 className="font-semibold">{item.title}</h2>{item.tags.length > 0 && <p className="mt-2 text-xs text-primary">{item.tags.join(" · ")}</p>}{item.takeaway && <p className="mt-3 text-sm"><span className="font-medium">Ce qu’on reprend : </span>{item.takeaway}</p>}{item.why && <p className="mt-2 text-sm text-muted-foreground"><span className="font-medium">Pourquoi : </span>{item.why}</p>}<Button asChild variant="link" className="mt-3 h-auto p-0"><a href={item.url} target="_blank" rel="noopener noreferrer">Ouvrir sur Instagram<ExternalLink /></a></Button></div></article>;
@@ -169,7 +169,7 @@ export function HadalMarketingPage() {
     if (!wsId && list.length) setWsId((list.find((w) => /hadal/i.test(w.name)) ?? list[0]!).id);
   }, [list, wsId]);
 
-  return <div className="min-h-screen bg-background">
+  return <div className="biiz-kitchen min-h-screen bg-background">
     <header className="biiz-topbar border-b bg-card/95"><div className="mx-auto grid max-w-2xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4"><div className="flex min-w-0 items-center gap-3"><span className="biiz-mark shrink-0">B</span><span className="text-lg font-semibold">BIIZ</span></div>
       {list.length > 1 && wsId ? <Select value={wsId} onValueChange={setWsId}><SelectTrigger className="h-8 w-40 text-xs"><SelectValue /></SelectTrigger><SelectContent>{list.map((w) => <SelectItem key={w.id} value={w.id}>{w.name} / Cuisine</SelectItem>)}</SelectContent></Select>
         : <span className="shrink-0 text-xs text-muted-foreground">{list[0]?.name ?? "HADAL"} / Cuisine</span>}</div></header>
