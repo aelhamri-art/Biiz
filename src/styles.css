@@ -103,6 +103,8 @@
   --shadow-color: oklch(0.25 0.02 260 / 5%);
   --biiz-shadow-surface: 0 1px 3px var(--shadow-color);
   --biiz-shadow-popover: 0 12px 40px oklch(0.25 0.02 260 / 12%), 0 2px 6px var(--shadow-color);
+  --hadal-cover-wash: linear-gradient(90deg, oklch(0.99 0.002 250 / 97%) 0%, oklch(0.99 0.002 250 / 86%) 25%, oklch(0.99 0.002 250 / 15%) 57%, transparent 75%);
+  --hadal-shadow: 0 3px 5px oklch(0.25 0.02 260 / 2%), 0 12px 32px oklch(0.25 0.02 260 / 4%);
   --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 }
@@ -192,6 +194,63 @@
   .biiz-app .biiz-navigation .biiz-tabs-hint { display: none; }
   .biiz-app .biiz-sidebar-footer { display: block; margin-top: auto; padding: 16px 12px 0; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted-foreground); }
   .biiz-app .biiz-header-brand { display: none; }
+}
+
+/* HADAL: scoped editorial presentation; shared cockpit tokens stay authoritative. */
+.hadal-container { width: min(100% - 64px, 1080px); margin-inline: auto; }
+.hadal-topbar { height: 69px; }
+.hadal-brand-divider { width: 1px; height: 18px; background: var(--border); margin-inline: 8px; }
+.hadal-cover { position: relative; height: 310px; overflow: hidden; border-bottom: 1px solid var(--border); background: var(--muted); }
+.hadal-cover > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 58%; }
+.hadal-cover-scrim { position: absolute; inset: 0; background: var(--hadal-cover-wash); }
+.hadal-cover-content { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+.hadal-cover h1 { margin-top: 12px; font-size: 76px; line-height: 1; font-weight: 750; }
+.hadal-eyebrow { display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 600; color: var(--primary); }
+.hadal-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); }
+.hadal-tab-bar { top: 69px; background: var(--background); border-bottom: 1px solid var(--border); padding-block: 15px; }
+.hadal-tabs { width: 420px; max-width: 100%; height: 44px; border-radius: 6px; background: var(--secondary); padding: 4px; gap: 4px; }
+.hadal-tabs [role="tab"] { min-width: 0; gap: 8px; height: 36px; border-radius: 4px; border: 1px solid transparent; color: var(--muted-foreground); font-size: 11px; font-weight: 600; transition: background 180ms, color 180ms; }
+.hadal-tabs [role="tab"] svg { width: 15px; height: 15px; }
+.hadal-tabs [role="tab"][data-state="active"] { background: var(--card); border-color: var(--border); color: var(--primary); box-shadow: var(--biiz-shadow-surface); }
+.hadal-main { padding-top: 36px; }
+.hadal-week-layout { display: grid; grid-template-columns: 235px minmax(0,1fr); gap: 56px; align-items: start; }
+.hadal-week-intro { padding-top: 5px; }
+.biiz-kitchen .hadal-mission { box-shadow: var(--hadal-shadow); transition: border-color 180ms, box-shadow 180ms; }
+.biiz-kitchen .hadal-mission:hover { box-shadow: var(--biiz-shadow-popover); }
+.hadal-mission-trigger { padding: 25px; }
+.hadal-mission-icon { flex-shrink: 0; display: grid; place-items: center; width: 42px; height: 48px; border-radius: 6px; background: var(--accent); color: var(--primary); border: 1px solid color-mix(in oklab, var(--primary) 12%, var(--border)); }
+.hadal-mission-body { padding-inline: 25px; }
+.hadal-shot-list > li { position: relative; }
+.hadal-shot-list > li:not(:last-child)::after { content: ""; position: absolute; left: 17px; top: 62px; bottom: -10px; width: 1px; background: var(--border); }
+.hadal-shot-number { display: grid; place-items: center; flex-shrink: 0; width: 35px; height: 35px; border-radius: 50%; border: 1px solid var(--border); background: var(--background); color: var(--primary); font-family: var(--font-mono); font-size: 11px; }
+.hadal-dialogue { border-left: 2px solid var(--primary); padding: 10px 14px; background: var(--accent); border-radius: 0 4px 4px 0; }
+.hadal-loading { display: flex; justify-content: center; align-items: center; gap: 10px; }
+.hadal-empty { background: var(--card); }
+.hadal-empty .biiz-empty-icon { color: var(--primary); background: var(--accent); border-color: var(--border); }
+.hadal-guide-item { overflow: hidden; box-shadow: var(--biiz-shadow-surface); }
+.hadal-guide-item > div:first-child { padding: 16px; gap: 12px; border-bottom: 1px solid var(--border); background: var(--muted); }
+.hadal-guide-item figure { border: 0; padding: 8px; }
+.hadal-guide-item figure > div { aspect-ratio: 1; max-height: 118px; }
+.hadal-natural { background: var(--accent); padding-inline: 28px; border-color: color-mix(in oklab, var(--primary) 15%, var(--border)); }
+@media (max-width: 1023px) {
+  .hadal-week-layout { grid-template-columns: minmax(0,1fr); gap: 28px; }
+  .hadal-cadence { max-width: 450px; }
+}
+@media (max-width: 639px) {
+  .hadal-container { width: calc(100% - 40px); }
+  .hadal-cover { height: 245px; }
+  .hadal-cover > img { object-position: 59% center; }
+  .hadal-cover h1 { font-size: 54px; }
+  .hadal-cover-content > p:not(.hadal-eyebrow) { max-width: 180px; line-height: 1.5; }
+  .hadal-brand-divider { display: none; }
+  .hadal-tabs { width: 100%; }
+  .hadal-main { padding-top: 28px; }
+  .hadal-mission-trigger { padding: 20px 16px; gap: 12px; }
+  .hadal-mission-icon { display: none; }
+  .hadal-mission-body { padding-inline: 16px; }
+  .hadal-mission-trigger h3 { font-size: 19px; }
+  .hadal-natural { padding-inline: 20px; }
+  .hadal-guide-item figure > div { max-height: 145px; }
 }
 @media (max-width: 639px) {
   .biiz-stat { padding: 12px; gap: 8px; flex-direction: column; align-items: flex-start; }
