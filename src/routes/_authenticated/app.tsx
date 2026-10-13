@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
@@ -51,7 +51,7 @@ function AppPage() {
     queryKey: ["workspaces"],
     queryFn: async () => {
       await supabase.rpc("claim_invites");
-      const { data, error } = await supabase.from("workspaces").select("id,name").order("created_at");
+      const { data, error } = await supabase.from("workspaces").select("id,name").eq("app", "marketing").order("created_at");
       if (error) throw error;
       return data;
     },
@@ -141,7 +141,6 @@ function AppPage() {
             </Select>
           )}
           <span className="hidden rounded-md border border-primary/20 bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary md:inline-flex">Tracking</span>
-          <Link to="/sales" className="inline-flex h-9 items-center gap-1.5 rounded-md border px-3 text-xs font-medium hover:bg-secondary">Sales</Link>
           <form onSubmit={createWs} className="ml-auto hidden gap-2 lg:flex">
             <Input className="h-9 w-44 bg-secondary/50" placeholder="Nouveau projet" value={newWs} onChange={(e) => setNewWs(e.target.value)} />
             <Button size="sm" variant="outline" type="submit"><Plus />Ajouter</Button>

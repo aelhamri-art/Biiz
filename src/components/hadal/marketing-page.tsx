@@ -163,7 +163,7 @@ export function HadalMarketingPage() {
     enabled: auth === "in",
     queryFn: async () => {
       await supabase.rpc("claim_invites");
-      const { data, error } = await supabase.from("workspaces").select("id,name").order("created_at");
+      const { data, error } = await supabase.from("workspaces").select("id,name").eq("app", "marketing").order("created_at");
       if (error) throw error;
       return data;
     },
