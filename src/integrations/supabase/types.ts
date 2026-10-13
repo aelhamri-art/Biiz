@@ -921,18 +921,21 @@ export type Database = {
       }
       workspaces: {
         Row: {
+          app: string
           created_at: string
           created_by: string
           id: string
           name: string
         }
         Insert: {
+          app?: string
           created_at?: string
           created_by?: string
           id?: string
           name: string
         }
         Update: {
+          app?: string
           created_at?: string
           created_by?: string
           id?: string

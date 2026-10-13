@@ -50,6 +50,13 @@
       "when": 1791915718249,
       "tag": "0006_biiz_sales",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791916565454,
+      "tag": "0007_workspace_app_scope",
+      "breakpoints": true
     }
   ]
 }

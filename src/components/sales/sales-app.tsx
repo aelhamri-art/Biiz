@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import {
-  ArrowLeft, BarChart3, BookOpen, CalendarClock, ChevronLeft, ChevronRight, Columns3, Globe, Phone, PhoneCall, Plus, Search, Sun, Upload, Users, Pencil, Loader2, Check,
+  BarChart3, BookOpen, CalendarClock, ChevronLeft, ChevronRight, Columns3, Globe, Phone, PhoneCall, Plus, Search, Sun, Upload, Users, Pencil, Loader2, Check,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { BiizBee } from "./BiizBee";
+import { BiizBee, BiizSalesLogo } from "./BiizBee";
 import {
   type Account, type CoachCard, DEFAULT_PLAYBOOK, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
   addDays, delta, findDuplicates, isoDate, mergePlaybook, outcomeLabel, parseCsv, periodStats, qualityBadges, stageLabel, startOfDay, startOfWeek,
@@ -67,9 +66,9 @@ type S = ReturnType<typeof useSales>;
 
 export function SalesApp() {
   const qc = useQueryClient();
-  const ws = useQuery({ queryKey: ["workspaces"], queryFn: async () => {
+  const ws = useQuery({ queryKey: ["sales-workspaces"], queryFn: async () => {
     await supabase.rpc("claim_invites");
-    const { data, error } = await supabase.from("workspaces").select("id,name").order("created_at");
+    const { data, error } = await supabase.from("workspaces").select("id,name").eq("app", "sales").order("created_at");
     if (error) throw error; return data;
   } });
   const [wsId, setWsId] = useState<string | null>(null);
@@ -85,6 +84,18 @@ export function SalesApp() {
   }, [ws.data, wsId]);
   useEffect(() => { if (wsId) localStorage.setItem("biiz:sales:ws", wsId); }, [wsId]);
 
+  const [newSpace, setNewSpace] = useState("");
+  async function createSpace(e: React.FormEvent) {
+    e.preventDefault();
+    const name = newSpace.trim().slice(0, 80);
+    if (!name) return;
+    const { data: u } = await supabase.auth.getUser();
+    const { data, error } = await supabase.from("workspaces").insert({ name, app: "sales", created_by: u.user!.id }).select("id").single();
+    if (error) { toast.error(error.message); return; }
+    setNewSpace(""); toast.success(`Espace « ${name} » créé`);
+    await qc.invalidateQueries({ queryKey: ["sales-workspaces"] });
+    setWsId(data.id);
+  }
   const s = useSales(wsId);
   const refresh = () => qc.invalidateQueries({ queryKey: ["sales", wsId] });
   const go = (z: Zone) => { setZone(z); window.scrollTo({ top: 0 }); };
@@ -95,10 +106,8 @@ export function SalesApp() {
   return (
     <div className="biiz-sales min-h-screen bg-background pb-24 lg:pb-0 lg:pl-60">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r bg-card lg:flex">
-        <div className="flex items-center gap-2.5 px-5 py-5">
-          <BiizBee size={30} className="text-foreground" />
-          <div className="leading-none"><span className="block text-[15px] font-semibold tracking-tight">BIIZ</span><span className="mt-1 block text-[10px] font-medium uppercase tracking-[0.14em] text-muted-foreground">Sales Forces</span></div>
-        </div>
+        <div className="px-5 py-5"><BiizSalesLogo /></div>
+        <div className="sales-stripes mx-5 mb-4 h-1.5 rounded-full" aria-hidden />
         <nav className="flex flex-1 flex-col gap-0.5 px-3" aria-label="Sales">
           {ZONES.map((z) => (
             <button key={z.id} onClick={() => go(z.id)} aria-current={zone === z.id ? "page" : undefined} className="sales-nav-item">
@@ -106,13 +115,14 @@ export function SalesApp() {
             </button>
           ))}
         </nav>
-        <div className="border-t p-3"><Link to="/app" className="sales-nav-item"><ArrowLeft className="size-4" />Cockpit marketing</Link></div>
+        <form onSubmit={createSpace} className="flex gap-1.5 border-t p-3"><Input className="h-9" placeholder="Nouvel espace" value={newSpace} onChange={(e) => setNewSpace(e.target.value)} aria-label="Nouvel espace de vente" /><Button size="icon" variant="outline" type="submit" aria-label="Créer"><Plus /></Button></form>
       </aside>
 
       <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
+        <div className="sales-stripes h-1 lg:hidden" aria-hidden />
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 lg:px-8">
-          <BiizBee size={26} className="text-foreground lg:hidden" />
-          <h1 className="text-[15px] font-semibold tracking-tight">{ZONES.find((z) => z.id === zone)?.label}</h1>
+          <span className="lg:hidden"><BiizSalesLogo size={28} /></span><span className="hidden h-5 w-px bg-border sm:block lg:hidden" />
+          <h1 className="hidden text-[15px] font-semibold tracking-tight sm:block">{ZONES.find((z) => z.id === zone)?.label}</h1>
           <div className="ml-auto flex items-center gap-2">
             {ws.data && ws.data.length > 0 && (
               <Select value={wsId ?? ""} onValueChange={(v) => { setWsId(v); setFocusId(null); }}>
@@ -120,13 +130,20 @@ export function SalesApp() {
                 <SelectContent>{ws.data.map((w) => <SelectItem key={w.id} value={w.id}>{w.name}</SelectItem>)}</SelectContent>
               </Select>
             )}
-            <Link to="/app" className="lg:hidden"><Button size="icon" variant="ghost" aria-label="Retour au cockpit"><ArrowLeft /></Button></Link>
           </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-5 lg:px-8 lg:py-8">
         {error ? <Empty title="Chargement impossible" text={(error as Error).message} action={<Button variant="outline" onClick={refresh}>Réessayer</Button>} />
+        : !ws.isLoading && ws.data?.length === 0 ? (
+          <div className="mx-auto max-w-sm py-14 text-center">
+            <BiizBee size={72} className="mx-auto" />
+            <h2 className="mt-5 text-xl font-semibold tracking-tight">Créez votre espace de vente</h2>
+            <p className="mt-1 text-sm text-muted-foreground">BIIZ Sales a ses propres espaces, séparés de BIIZ Marketing. Ex. LIVROUM.</p>
+            <form onSubmit={createSpace} className="mt-5 flex gap-2"><Input className="h-11" placeholder="Nom de l'espace" value={newSpace} onChange={(e) => setNewSpace(e.target.value)} autoFocus /><Button className="h-11" type="submit">Créer</Button></form>
+          </div>
+        )
         : loading || !wsId ? <div className="flex justify-center py-20 text-muted-foreground"><Loader2 className="animate-spin" /></div>
         : zone === "today" ? <Today s={s} onAdd={() => setNewOpen(true)} onCall={startCall} onOpen={setDetailId} />
         : zone === "prospects" ? <Prospects s={s} wsId={wsId} onAdd={() => setNewOpen(true)} onOpen={setDetailId} refresh={refresh} />
