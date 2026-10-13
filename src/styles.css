@@ -290,7 +290,6 @@
 }
 .biiz-sales .sales-stripes, .sales-stripes { background: var(--sales-stripes); }
 .biiz-sales .sales-tag { display:inline-block; border-radius:4px; background:var(--sales-yellow); color:var(--sales-ink); padding:2px 5px; font-size:10px; font-weight:800; letter-spacing:.12em; box-shadow: inset 0 -2px 0 var(--sales-ink); }
-.biiz-sales button[data-slot="button"]:not([data-variant]), .biiz-sales .sales-card { }
 .biiz-sales .sales-card { position:relative; overflow:hidden; }
 .biiz-sales .sales-card::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:var(--sales-stripes); opacity:.9; }
 .biiz-sales .sales-nav-item { display:flex; align-items:center; gap:.625rem; width:100%; border-radius:.5rem; padding:.55rem .75rem; font-size:.875rem; color:var(--muted-foreground); transition:background .15s,color .15s; }
@@ -312,3 +311,7 @@
 .biiz-sales .sales-prio { border-radius:.3rem; background:var(--secondary); padding:0 .3rem; font-size:10px; font-weight:600; font-variant-numeric:tabular-nums; }
 .biiz-sales .sales-lime-bar { background:var(--sales-lime); }
 .biiz-sales .sales-lime-border { border-color:var(--sales-lime); }
+.biiz-sales .sales-seg:focus-visible, .biiz-sales .sales-nav-item:focus-visible, .sales-bottom-nav button:focus-visible { outline:2px solid var(--sales-ink); outline-offset:2px; box-shadow:0 0 0 4px var(--sales-yellow); }
+.biiz-sales .sales-seg:active { transform:translateY(1px); }
+@media (prefers-reduced-motion: reduce) { .biiz-sales *, .sales-bottom-nav * { transition:none !important; animation:none !important; } }
+@media (min-width: 1024px) { .sales-bottom-nav { display:none !important; } }
