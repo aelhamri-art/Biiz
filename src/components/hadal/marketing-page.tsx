@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowUpRight, CalendarDays, Camera, Check, CheckCircle2, ChevronDown, Clapperboard, Clock3, ExternalLink, Instagram, Loader2, Smartphone, Upload, Users, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { BiizFooter } from "@/components/biiz-footer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -182,7 +183,7 @@ export function HadalMarketingPage() {
     <Tabs defaultValue="week" className="hadal-container pb-8">
       <div className="hadal-tab-bar sticky z-30"><TabsList aria-label="HADAL marketing" className="hadal-tabs grid grid-cols-3"><TabsTrigger value="week"><CalendarDays />SEMAINE</TabsTrigger><TabsTrigger value="inspi"><Instagram />INSPI</TabsTrigger><TabsTrigger value="guide"><Smartphone />GUIDE</TabsTrigger></TabsList></div>
       <main className="hadal-main"><TabsContent value="week" className="mt-0"><Week wsId={wsId} /></TabsContent><TabsContent value="inspi" className="mt-0"><Inspirations wsId={wsId} /></TabsContent><TabsContent value="guide" className="mt-0"><Guide /></TabsContent></main>
-      <footer className="hadal-footer mt-12 flex items-center justify-between gap-4 border-t pt-5 text-[11px] text-muted-foreground"><span className="font-semibold text-foreground">BIIZ<span className="text-primary">.</span></span><span>Pour l’équipe cuisine</span></footer>
     </Tabs>}
+    <div className="hadal-container"><BiizFooter className="biiz-credit--line" /></div>
   </div>;
 }

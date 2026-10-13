@@ -7,6 +7,7 @@ import {
   ChefHat, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { BiizFooter } from "@/components/biiz-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -191,7 +192,7 @@ function AppPage() {
                 <TabsTrigger value="install"><Settings2 />Installation</TabsTrigger>
               </TabsList>
               <ChevronDown className="biiz-tabs-hint" />
-              <div className="biiz-sidebar-footer"><span className="flex items-center gap-2"><Activity className="size-3.5" />Espace collaboratif</span><span className="mt-2 block">BIIZ · AXIUM</span></div>
+              <div className="biiz-sidebar-footer"><span className="flex items-center gap-2"><Activity className="size-3.5" />Espace collaboratif</span><span className="mt-2 block">BIIZ par Axium Studios</span></div>
               </div>
               <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
@@ -256,6 +257,7 @@ function AppPage() {
           </>
         ) : null}
       </main>
+      <BiizFooter className="biiz-credit--line" />
       <QrDialog link={qrLink} onClose={() => setQrLink(null)} />
       <EditDialog link={editLink} onClose={() => setEditLink(null)} onSaved={() => { setEditLink(null); void reloadLinks(); }} />
     </div>
