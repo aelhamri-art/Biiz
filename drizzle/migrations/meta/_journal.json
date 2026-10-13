@@ -57,6 +57,13 @@
       "when": 1791916565454,
       "tag": "0007_workspace_app_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791916685311,
+      "tag": "0008_sales_log_call_keep_future",
+      "breakpoints": true
     }
   ]
 }
