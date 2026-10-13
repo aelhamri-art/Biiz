@@ -5,6 +5,7 @@ import {
   BarChart3, BookOpen, CalendarClock, ChevronLeft, ChevronRight, Columns3, Globe, Phone, PhoneCall, Plus, Search, Sun, Upload, Users, Pencil, Loader2, Check,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { BiizFooter } from "@/components/biiz-footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -152,6 +153,8 @@ export function SalesApp() {
         : zone === "pipeline" ? <Pipeline s={s} onOpen={setDetailId} refresh={refresh} />
         : <Performance s={s} wsId={wsId} refresh={refresh} />}
       </main>
+
+      <BiizFooter className="biiz-credit--line" />
 
       <nav className="sales-bottom-nav lg:hidden" aria-label="Sales">
         {ZONES.map((z) => (

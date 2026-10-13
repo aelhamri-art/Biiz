@@ -194,6 +194,7 @@
   .biiz-app .biiz-navigation .biiz-tabs-hint { display: none; }
   .biiz-app .biiz-sidebar-footer { display: block; margin-top: auto; padding: 16px 12px 0; border-top: 1px solid var(--border); font-size: 11px; color: var(--muted-foreground); }
   .biiz-app .biiz-header-brand { display: none; }
+  .biiz-app > .biiz-credit { margin-left: 232px; }
 }
 
 /* HADAL: scoped editorial presentation; shared cockpit tokens stay authoritative. */
@@ -315,3 +316,13 @@
 .biiz-sales .sales-seg:active { transform:translateY(1px); }
 @media (prefers-reduced-motion: reduce) { .biiz-sales *, .sales-bottom-nav * { transition:none !important; animation:none !important; } }
 @media (min-width: 1024px) { .sales-bottom-nav { display:none !important; } }
+
+/* Mention de marque, en bas de chaque écran BIIZ. */
+.biiz-credit { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 16px 20px 18px; font-size: 11px; letter-spacing: .01em; color: var(--muted-foreground); }
+.biiz-credit-brand { font-weight: 600; color: var(--foreground); }
+.biiz-credit-dot { width: 3px; height: 3px; border-radius: 999px; background: currentColor; opacity: .45; flex-shrink: 0; }
+.biiz-credit--line { border-top: 1px solid var(--border); }
+.biiz-credit--compact { padding: 10px 12px 14px; font-size: 10px; }
+.biiz-sales .biiz-credit-brand { color: var(--sales-ink); }
+.biiz-sales .biiz-credit-dot { background: var(--sales-yellow); opacity: 1; }
+@media (max-width: 640px) { .biiz-credit { padding: 14px 16px 16px; } }

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { BiizFooter } from "@/components/biiz-footer";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -79,7 +80,7 @@ function AuthPage() {
           {mode === "in" ? "Pas de compte ? Créer un compte" : "Déjà un compte ? Se connecter"}
         </Button>
       </main>
-      <footer className="pb-6 text-center text-xs text-muted-foreground">BIIZ · AXIUM</footer>
+      <BiizFooter />
     </div>
   );
 }

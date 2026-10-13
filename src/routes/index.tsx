@@ -1,6 +1,7 @@
 import { ArrowRight, Link2, MousePointer2, QrCode } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { BiizFooter } from "@/components/biiz-footer";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,6 +46,7 @@ function Index() {
           ))}
         </div>
       </main>
+      <BiizFooter className="biiz-credit--line" />
     </div>
   );
 }
