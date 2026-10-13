@@ -43,6 +43,13 @@
       "when": 1791549767527,
       "tag": "0005_kitchen_missions",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791915718249,
+      "tag": "0006_biiz_sales",
+      "breakpoints": true
     }
   ]
 }

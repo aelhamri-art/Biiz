@@ -393,6 +393,417 @@ export type Database = {
           },
         ]
       }
+      sales_accounts: {
+        Row: {
+          amount: number | null
+          city: string | null
+          created_at: string
+          created_by: string
+          evidence: string
+          external_ref: string | null
+          id: string
+          last_activity_at: string | null
+          name: string
+          notes: string | null
+          owner_id: string | null
+          phone: string | null
+          priority: string | null
+          segment: string | null
+          source: string | null
+          stage: string
+          updated_at: string
+          website: string | null
+          workspace_id: string
+        }
+        Insert: {
+          amount?: number | null
+          city?: string | null
+          created_at?: string
+          created_by?: string
+          evidence?: string
+          external_ref?: string | null
+          id?: string
+          last_activity_at?: string | null
+          name: string
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          priority?: string | null
+          segment?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+          website?: string | null
+          workspace_id: string
+        }
+        Update: {
+          amount?: number | null
+          city?: string | null
+          created_at?: string
+          created_by?: string
+          evidence?: string
+          external_ref?: string | null
+          id?: string
+          last_activity_at?: string | null
+          name?: string
+          notes?: string | null
+          owner_id?: string | null
+          phone?: string | null
+          priority?: string | null
+          segment?: string | null
+          source?: string | null
+          stage?: string
+          updated_at?: string
+          website?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_accounts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_activities: {
+        Row: {
+          account_id: string
+          actor_id: string
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          outcome: string
+          workspace_id: string
+        }
+        Insert: {
+          account_id: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          outcome: string
+          workspace_id: string
+        }
+        Update: {
+          account_id?: string
+          actor_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          outcome?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_activities_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "sales_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_activities_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_coach_card_versions: {
+        Row: {
+          actor_id: string
+          card_id: string
+          created_at: string
+          id: string
+          snapshot: Json
+          version: number
+          workspace_id: string
+        }
+        Insert: {
+          actor_id?: string
+          card_id: string
+          created_at?: string
+          id?: string
+          snapshot: Json
+          version: number
+          workspace_id: string
+        }
+        Update: {
+          actor_id?: string
+          card_id?: string
+          created_at?: string
+          id?: string
+          snapshot?: Json
+          version?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_coach_card_versions_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "sales_coach_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_coach_card_versions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_coach_cards: {
+        Row: {
+          advice: string
+          created_at: string
+          goal: string | null
+          id: string
+          listen: string | null
+          next_question: string | null
+          position: number
+          slug: string
+          title: string
+          updated_at: string
+          updated_by: string
+          version: number
+          workspace_id: string
+        }
+        Insert: {
+          advice: string
+          created_at?: string
+          goal?: string | null
+          id?: string
+          listen?: string | null
+          next_question?: string | null
+          position?: number
+          slug: string
+          title: string
+          updated_at?: string
+          updated_by?: string
+          version?: number
+          workspace_id: string
+        }
+        Update: {
+          advice?: string
+          created_at?: string
+          goal?: string | null
+          id?: string
+          listen?: string | null
+          next_question?: string | null
+          position?: number
+          slug?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string
+          version?: number
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_coach_cards_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_contacts: {
+        Row: {
+          account_id: string
+          created_at: string
+          created_by: string
+          email: string | null
+          id: string
+          is_decision_maker: boolean
+          name: string
+          phone: string | null
+          role: string | null
+          workspace_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          created_by?: string
+          email?: string | null
+          id?: string
+          is_decision_maker?: boolean
+          name: string
+          phone?: string | null
+          role?: string | null
+          workspace_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          created_by?: string
+          email?: string | null
+          id?: string
+          is_decision_maker?: boolean
+          name?: string
+          phone?: string | null
+          role?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_contacts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "sales_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_contacts_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_next_actions: {
+        Row: {
+          account_id: string
+          assignee_id: string | null
+          created_at: string
+          created_by: string
+          done_at: string | null
+          id: string
+          label: string
+          next_action_date: string
+          workspace_id: string
+        }
+        Insert: {
+          account_id: string
+          assignee_id?: string | null
+          created_at?: string
+          created_by?: string
+          done_at?: string | null
+          id?: string
+          label: string
+          next_action_date: string
+          workspace_id: string
+        }
+        Update: {
+          account_id?: string
+          assignee_id?: string | null
+          created_at?: string
+          created_by?: string
+          done_at?: string | null
+          id?: string
+          label?: string
+          next_action_date?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_next_actions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "sales_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_next_actions_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_preferences: {
+        Row: {
+          hide_goals: boolean
+          low_stimulation: boolean
+          mode: string
+          updated_at: string
+          user_id: string
+          weekly_challenge: number | null
+          workspace_id: string
+        }
+        Insert: {
+          hide_goals?: boolean
+          low_stimulation?: boolean
+          mode?: string
+          updated_at?: string
+          user_id?: string
+          weekly_challenge?: number | null
+          workspace_id: string
+        }
+        Update: {
+          hide_goals?: boolean
+          low_stimulation?: boolean
+          mode?: string
+          updated_at?: string
+          user_id?: string
+          weekly_challenge?: number | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_preferences_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_stage_history: {
+        Row: {
+          account_id: string
+          actor_id: string
+          created_at: string
+          from_stage: string | null
+          id: string
+          to_stage: string
+          workspace_id: string
+        }
+        Insert: {
+          account_id: string
+          actor_id?: string
+          created_at?: string
+          from_stage?: string | null
+          id?: string
+          to_stage: string
+          workspace_id: string
+        }
+        Update: {
+          account_id?: string
+          actor_id?: string
+          created_at?: string
+          from_stage?: string | null
+          id?: string
+          to_stage?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_stage_history_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "sales_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_stage_history_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           assignee_id: string | null
@@ -548,6 +959,16 @@ export type Database = {
       remove_member: {
         Args: { _user: string; _ws: string }
         Returns: undefined
+      }
+      sales_log_call: {
+        Args: {
+          _account: string
+          _next_date: string
+          _next_label: string
+          _note: string
+          _outcome: string
+        }
+        Returns: string
       }
     }
     Enums: {
