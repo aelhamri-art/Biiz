@@ -277,25 +277,34 @@
 
 /* ---- BIIZ Sales Forces (scopé : ne touche pas la DA marketing) ---- */
 .biiz-sales {
-  --sales-lime: oklch(0.88 0.19 125);
-  --sales-lime-soft: oklch(0.96 0.07 125);
-  --sales-lime-ink: oklch(0.42 0.1 130);
-  --primary: oklch(0.2 0.01 260);
-  --primary-foreground: oklch(0.99 0 0);
-  --ring: oklch(0.72 0.17 128);
+  --sales-yellow: oklch(0.87 0.18 92);
+  --sales-ink: oklch(0.17 0.005 260);
+  --sales-paper: oklch(0.995 0 0);
+  --sales-lime: var(--sales-yellow);
+  --sales-lime-soft: oklch(0.96 0.07 95);
+  --sales-lime-ink: oklch(0.45 0.1 85);
+  --primary: var(--sales-ink);
+  --primary-foreground: var(--sales-paper);
+  --ring: var(--sales-yellow);
+  --sales-stripes: repeating-linear-gradient(-45deg, var(--sales-ink) 0 6px, var(--sales-yellow) 6px 12px);
 }
+.biiz-sales .sales-stripes, .sales-stripes { background: var(--sales-stripes); }
+.biiz-sales .sales-tag { display:inline-block; border-radius:4px; background:var(--sales-yellow); color:var(--sales-ink); padding:2px 5px; font-size:10px; font-weight:800; letter-spacing:.12em; box-shadow: inset 0 -2px 0 var(--sales-ink); }
+.biiz-sales button[data-slot="button"]:not([data-variant]), .biiz-sales .sales-card { }
+.biiz-sales .sales-card { position:relative; overflow:hidden; }
+.biiz-sales .sales-card::before { content:""; position:absolute; inset:0 auto 0 0; width:3px; background:var(--sales-stripes); opacity:.9; }
 .biiz-sales .sales-nav-item { display:flex; align-items:center; gap:.625rem; width:100%; border-radius:.5rem; padding:.55rem .75rem; font-size:.875rem; color:var(--muted-foreground); transition:background .15s,color .15s; }
 .biiz-sales .sales-nav-item:hover { background:var(--secondary); color:var(--foreground); }
-.biiz-sales .sales-nav-item[aria-current="page"] { background:var(--secondary); color:var(--foreground); font-weight:500; box-shadow: inset 2px 0 0 var(--sales-lime); }
-.sales-bottom-nav { position:fixed; inset:auto 0 0 0; z-index:30; display:grid; grid-template-columns:repeat(6,1fr); border-top:1px solid var(--border); background:color-mix(in oklab, var(--card) 94%, transparent); backdrop-filter:blur(12px); padding-bottom:env(safe-area-inset-bottom); }
+.biiz-sales .sales-nav-item[aria-current="page"] { background:var(--secondary); color:var(--foreground); font-weight:500; box-shadow: inset 3px 0 0 var(--sales-yellow); }
+.sales-bottom-nav { --sales-yellow: oklch(0.87 0.18 92); --sales-ink: oklch(0.17 0.005 260); position:fixed; inset:auto 0 0 0; z-index:30; display:grid; grid-template-columns:repeat(6,1fr); border-top:1px solid var(--border); background:color-mix(in oklab, var(--card) 94%, transparent); backdrop-filter:blur(12px); padding-bottom:env(safe-area-inset-bottom); }
 .sales-bottom-nav button { display:flex; flex-direction:column; align-items:center; gap:3px; padding:9px 0 8px; min-height:56px; font-size:10px; color:var(--muted-foreground); }
 .sales-bottom-nav button[aria-current="page"] { color:var(--foreground); font-weight:600; }
-.sales-bottom-nav button[aria-current="page"] svg { color:var(--sales-lime-ink); }
+.sales-bottom-nav button[aria-current="page"] svg { color:var(--sales-ink); background:var(--sales-yellow); border-radius:999px; padding:3px; width:30px; height:24px; margin-top:-3px; margin-bottom:-1px; }
 .biiz-sales .sales-h2 { margin-bottom:.625rem; font-size:.8125rem; font-weight:600; letter-spacing:-.005em; }
 .biiz-sales .sales-card { border:1px solid var(--border); background:var(--card); border-radius:.875rem; padding:1.25rem; box-shadow:0 1px 2px color-mix(in oklab, var(--foreground) 5%, transparent); }
 .biiz-sales .sales-seg { border:1px solid var(--border); background:var(--card); border-radius:.625rem; font-size:.8125rem; font-weight:500; padding:.5rem; transition:all .15s; }
 .biiz-sales .sales-seg:hover { border-color:color-mix(in oklab, var(--foreground) 30%, transparent); }
-.biiz-sales .sales-seg[aria-pressed="true"] { background:var(--primary); color:var(--primary-foreground); border-color:var(--primary); }
+.biiz-sales .sales-seg[aria-pressed="true"] { background:var(--sales-ink); color:var(--sales-yellow); border-color:var(--sales-ink); }
 .biiz-sales .sales-chip { display:inline-flex; align-items:center; white-space:nowrap; border-radius:999px; border:1px solid var(--border); padding:.125rem .5rem; font-size:11px; font-weight:500; color:var(--muted-foreground); }
 .biiz-sales .sales-chip[data-stage="qualifie"], .biiz-sales .sales-chip[data-stage="r2_pris"], .biiz-sales .sales-chip[data-stage="r2_tenu"], .biiz-sales .sales-chip[data-stage="proposition"] { color:var(--foreground); border-color:color-mix(in oklab, var(--foreground) 25%, transparent); }
 .biiz-sales .sales-chip[data-stage="gagne"] { background:var(--sales-lime-soft); color:var(--sales-lime-ink); border-color:transparent; }
