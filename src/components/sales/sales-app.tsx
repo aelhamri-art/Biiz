@@ -326,7 +326,7 @@ function AccountForm({ initial, s, wsId, onDone }: { initial?: Account | null; s
     if (f.website && !/^https?:\/\//i.test(f.website.trim())) { toast.error("Le site doit commencer par http:// ou https://"); return; }
     const amount = f.amount.trim() ? Number(f.amount.replace(",", ".")) : null;
     if (amount !== null && (!Number.isFinite(amount) || amount < 0)) { toast.error("Montant invalide."); return; }
-    if (dups.length && !confirm(`« ${dups[0].name} » existe déjà (même nom ou téléphone). Enregistrer quand même ?`)) return;
+    if (dups.length && !confirm(`« ${dups[0]?.name} » existe déjà (même nom ou téléphone). Enregistrer quand même ?`)) return;
     setBusy(true);
     const row = {
       name: name.slice(0, 160), phone: f.phone.trim() || null, website: f.website.trim() || null, city: f.city.trim() || null, segment: f.segment.trim() || null,

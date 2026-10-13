@@ -17,7 +17,7 @@ describe("sales rules", () => {
   it("parse un CSV ; avec en-têtes FR et ignore priorités invalides", () => {
     const r = parseCsv("Nom;Téléphone;Ville;Priorité\nChez Ali;0611;Lyon;p1\nSans;;;P9");
     expect(r[0]).toMatchObject({ name: "Chez Ali", phone: "0611", city: "Lyon", priority: "P1" });
-    expect(r[1].priority).toBeUndefined();
+    expect(r[1]?.priority).toBeUndefined();
   });
   it("pas de variation affichée sans assez de données", () => {
     expect(delta(10, 4)).toBeNull();
@@ -28,7 +28,7 @@ describe("sales rules", () => {
     expect(qualityBadges(empty)).toEqual([]);
   });
   it("la carte d'équipe remplace la carte de base", () => {
-    const m = mergePlaybook([{ ...DEFAULT_PLAYBOOK[6], advice: "X", id: "a" }]);
+    const m = mergePlaybook([{ ...DEFAULT_PLAYBOOK[6]!, advice: "X", id: "a" }]);
     expect(m).toHaveLength(DEFAULT_PLAYBOOK.length);
     expect(m.find((c) => c.slug === "cest-cher")?.advice).toBe("X");
   });
