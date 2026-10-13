@@ -121,8 +121,8 @@ export function SalesApp() {
       <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
         <div className="sales-stripes h-1 lg:hidden" aria-hidden />
         <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 lg:px-8">
-          <span className="lg:hidden"><BiizBee size={30} /></span>
-          <h1 className="text-[15px] font-semibold tracking-tight">{ZONES.find((z) => z.id === zone)?.label}</h1>
+          <span className="lg:hidden"><BiizSalesLogo size={28} /></span><span className="hidden h-5 w-px bg-border sm:block lg:hidden" />
+          <h1 className="hidden text-[15px] font-semibold tracking-tight sm:block">{ZONES.find((z) => z.id === zone)?.label}</h1>
           <div className="ml-auto flex items-center gap-2">
             {ws.data && ws.data.length > 0 && (
               <Select value={wsId ?? ""} onValueChange={(v) => { setWsId(v); setFocusId(null); }}>
