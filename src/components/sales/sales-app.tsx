@@ -538,12 +538,14 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
           <p className="mb-2 flex items-center gap-1.5 text-sm font-medium"><CalendarClock className="size-4" />Prochaine action</p>
           <div className="flex flex-wrap gap-2">
             {quick.map(([l, d]) => { const v = isoDate(addDays(new Date(), d)); return <button key={l} className="sales-seg h-10 px-3" aria-pressed={nextDate === v} onClick={() => setNextDate(v)}>{l}</button>; })}
-            <button className="sales-seg h-10 px-3" aria-pressed={!nextDate} onClick={() => setNextDate("")}>Aucune</button>
+            {outcome !== "r2" && <button className="sales-seg h-10 px-3" aria-pressed={!nextDate} onClick={() => setNextDate("")}>Aucune</button>}
             <Input type="date" className="h-10 w-40" value={nextDate} min={today} onChange={(e) => setNextDate(e.target.value)} aria-label="Date précise" />
           </div>
+          {outcome === "r2" && !nextDate && <p className="mt-2 text-xs font-medium text-destructive">Un R2 doit avoir une date de rendez-vous.</p>}
+          {outcome === "repondu" && <p className="mt-2 text-xs text-muted-foreground">Date facultative. Les actions déjà prévues plus tard restent en place.</p>}
           {nextDate && <Input className="mt-2 h-10" value={nextLabel} onChange={(e) => setNextLabel(e.target.value)} maxLength={120} aria-label="Intitulé de l'action" />}
         </div>
-        <Button size="lg" className="h-12 w-full" disabled={!outcome || busy} onClick={save}>{busy ? <Loader2 className="animate-spin" /> : <Check />}Enregistrer et suivant</Button>
+        <Button size="lg" className="h-12 w-full" disabled={!outcome || busy || (outcome === "r2" && !nextDate)} onClick={save}>{busy ? <Loader2 className="animate-spin" /> : <Check />}Enregistrer et suivant</Button>
       </section>
     </div>
   );
