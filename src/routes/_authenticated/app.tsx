@@ -196,7 +196,18 @@ function AppPage() {
               <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
               <TabsContent value="taches" className="mt-6"><TachesPanel wsId={wsId} /></TabsContent>
-              <TabsContent value="cuisine" className="mt-6"><CuisinePanel wsId={wsId} /></TabsContent>
+              <TabsContent value="cuisine" className="mt-6">
+                {(() => {
+                  const kitchen = ws.data?.find((w) => /hadal/i.test(w.name));
+                  return kitchen && kitchen.id !== wsId ? (
+                    <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm">
+                      <p>Tu es dans le projet <b>{currentWorkspace?.name}</b>. La page cuisine affiche le projet <b>{kitchen.name}</b> : ce que tu ajoutes ici n'y apparaîtra pas.</p>
+                      <Button size="sm" onClick={() => setWsId(kitchen.id)}>Passer sur {kitchen.name}</Button>
+                    </div>
+                  ) : null;
+                })()}
+                <CuisinePanel wsId={wsId} />
+              </TabsContent>
               <TabsContent value="script-ia" className="mt-6"><ScriptIAPanel wsId={wsId} /></TabsContent>
 
               <TabsContent value="liens">
