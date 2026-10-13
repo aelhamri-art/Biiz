@@ -92,7 +92,8 @@ export function findDuplicates(accounts: Pick<Account, "id" | "name" | "phone">[
 export function parseCsv(text: string) {
   const lines = text.replace(/\r/g, "").split("\n").filter((l) => l.trim());
   if (!lines.length) return [];
-  const sep = (lines[0].match(/;/g)?.length ?? 0) > (lines[0].match(/,/g)?.length ?? 0) ? ";" : ",";
+  const first = lines[0] ?? "";
+  const sep = (first.match(/;/g)?.length ?? 0) > (first.match(/,/g)?.length ?? 0) ? ";" : ",";
   const split = (l: string) => {
     const out: string[] = []; let cur = ""; let q = false;
     for (const ch of l) {
@@ -104,14 +105,14 @@ export function parseCsv(text: string) {
     return out;
   };
   const alias: Record<string, string> = { nom: "name", name: "name", restaurant: "name", telephone: "phone", tel: "phone", phone: "phone", ville: "city", city: "city", site: "website", website: "website", segment: "segment", priorite: "priority", priority: "priority", source: "source" };
-  const head = split(lines[0]).map((h) => alias[normalizeName(h)] ?? "");
+  const head = split(first).map((h) => alias[normalizeName(h)] ?? "");
   if (!head.includes("name")) return [];
   return lines.slice(1).map((l) => {
     const cells = split(l);
     const r: Record<string, string> = {};
-    head.forEach((h, i) => { if (h && cells[i]) r[h] = cells[i].slice(0, 300); });
-    if (r.priority && !PRIORITIES.includes(r.priority.toUpperCase() as never)) delete r.priority;
-    else if (r.priority) r.priority = r.priority.toUpperCase();
+    head.forEach((h, i) => { const c = cells[i]; if (h && c) r[h] = c.slice(0, 300); });
+    const pr = r["priority"]?.toUpperCase();
+    if (pr && PRIORITIES.includes(pr as never)) r["priority"] = pr; else delete r["priority"];
     return r as { name?: string; phone?: string; city?: string; website?: string; segment?: string; priority?: string; source?: string };
   }).filter((r) => r.name);
 }

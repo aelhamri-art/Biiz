@@ -81,7 +81,7 @@ export function SalesApp() {
   useEffect(() => {
     if (wsId || !ws.data?.length) return;
     const saved = localStorage.getItem("biiz:sales:ws");
-    setWsId(ws.data.find((w) => w.id === saved)?.id ?? ws.data[0].id);
+    setWsId(ws.data.find((w) => w.id === saved)?.id ?? ws.data[0]?.id ?? null);
   }, [ws.data, wsId]);
   useEffect(() => { if (wsId) localStorage.setItem("biiz:sales:ws", wsId); }, [wsId]);
 
@@ -492,8 +492,8 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <span>{idx >= 0 ? `${idx + 1} / ${queue.length} dans la file` : "Hors file"}</span>
         <div className="flex gap-1">
-          <Button size="icon" variant="ghost" aria-label="Précédent" disabled={idx <= 0} onClick={() => setFocusId(queue[idx - 1]?.id)}><ChevronLeft /></Button>
-          <Button size="icon" variant="ghost" aria-label="Suivant" disabled={idx < 0 || idx >= queue.length - 1} onClick={() => setFocusId(queue[idx + 1]?.id)}><ChevronRight /></Button>
+          <Button size="icon" variant="ghost" aria-label="Précédent" disabled={idx <= 0} onClick={() => setFocusId(queue[idx - 1]?.id ?? null)}><ChevronLeft /></Button>
+          <Button size="icon" variant="ghost" aria-label="Suivant" disabled={idx < 0 || idx >= queue.length - 1} onClick={() => setFocusId(queue[idx + 1]?.id ?? null)}><ChevronRight /></Button>
         </div>
       </div>
       <article className="sales-card">
@@ -504,7 +504,7 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
         <div className="mt-4 rounded-lg bg-secondary/60 p-3">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Objectif de l'appel</p>
           <p className="mt-1 text-sm">{STAGE_GOAL[acc.stage]}</p>
-          {guided && <p className="mt-2 text-xs text-muted-foreground">Question d'ouverture : « {DEFAULT_PLAYBOOK[0].next_question} »</p>}
+          {guided && <p className="mt-2 text-xs text-muted-foreground">Question d'ouverture : « {DEFAULT_PLAYBOOK[0]?.next_question} »</p>}
         </div>
         {acc.phone ? <a href={`tel:${acc.phone}`} className="mt-4 block"><Button size="lg" className="h-14 w-full text-base"><Phone />Appeler {acc.phone}</Button></a>
           : <p className="mt-4 rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">Pas de téléphone renseigné.</p>}
@@ -681,7 +681,7 @@ function Performance({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => 
       )}
       <section className="sales-card space-y-4">
         <h2 className="text-sm font-medium">Mes réglages</h2>
-        <div><p className="mb-2 text-xs text-muted-foreground">Mode</p><div className="grid grid-cols-2 gap-2">{[["accompagne", "Accompagné"], ["rapide", "Rapide"]].map(([v, l]) => <button key={v} className="sales-seg h-11" aria-pressed={(p?.mode ?? "accompagne") === v} onClick={() => savePrefs({ mode: v })}>{l}</button>)}</div></div>
+        <div><p className="mb-2 text-xs text-muted-foreground">Mode</p><div className="grid grid-cols-2 gap-2">{([["accompagne", "Accompagné"], ["rapide", "Rapide"]] as const).map(([v, l]) => <button key={v} className="sales-seg h-11" aria-pressed={(p?.mode ?? "accompagne") === v} onClick={() => savePrefs({ mode: v })}>{l}</button>)}</div></div>
         <label className="flex items-center justify-between text-sm">Masquer mon défi personnel<Switch checked={!!p?.hide_goals} onCheckedChange={(v) => savePrefs({ hide_goals: v })} /></label>
         <label className="flex items-center justify-between text-sm">Réduire la stimulation (sans badges ni comparaisons)<Switch checked={!!low} onCheckedChange={(v) => savePrefs({ low_stimulation: v })} /></label>
         <form className="flex items-end gap-2" onSubmit={(e) => { e.preventDefault(); const n = challenge.trim() ? Math.round(Number(challenge)) : null; if (n !== null && !(n >= 1 && n <= 500)) { toast.error("Entre 1 et 500."); return; } void savePrefs({ weekly_challenge: n }).then(() => toast.success(n ? "Défi enregistré" : "Défi retiré")); }}>
