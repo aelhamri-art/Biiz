@@ -314,3 +314,4 @@
 .biiz-sales .sales-seg:focus-visible, .biiz-sales .sales-nav-item:focus-visible, .sales-bottom-nav button:focus-visible { outline:2px solid var(--sales-ink); outline-offset:2px; box-shadow:0 0 0 4px var(--sales-yellow); }
 .biiz-sales .sales-seg:active { transform:translateY(1px); }
 @media (prefers-reduced-motion: reduce) { .biiz-sales *, .sales-bottom-nav * { transition:none !important; animation:none !important; } }
+@media (min-width: 1024px) { .sales-bottom-nav { display:none !important; } }
