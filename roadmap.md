@@ -11,3 +11,6 @@
 # HADAL — Finition premium
 - [x] Recomposer uniquement la présentation cuisine, missions, inspirations et guide.
 - [x] Vérifier la page connectée, les plans et la galerie sans modifier les données.
+
+# Mention de marque
+- [x] Ajouter « BIIZ par Axium Studios » en bas de tous les écrans (accueil, connexion, cockpit, cuisine, Sales).
