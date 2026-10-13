@@ -117,6 +117,7 @@ export function SalesApp() {
           ))}
         </nav>
         <form onSubmit={createSpace} className="flex gap-1.5 border-t p-3"><Input className="h-9" placeholder="Nouvel espace" value={newSpace} onChange={(e) => setNewSpace(e.target.value)} aria-label="Nouvel espace de vente" /><Button size="icon" variant="outline" type="submit" aria-label="Créer"><Plus /></Button></form>
+        <BiizFooter className="biiz-credit--compact" />
       </aside>
 
       <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
