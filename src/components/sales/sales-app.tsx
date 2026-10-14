@@ -118,6 +118,9 @@ export function SalesApp() {
               <z.icon className="size-4" />{z.label}
             </button>
           ))}
+          <button type="button" onClick={signOut} className="sales-nav-item mt-auto" aria-label="Se déconnecter de BIIZ Sales">
+            <LogOut className="size-4" />Déconnexion
+          </button>
         </nav>
         <form onSubmit={createSpace} className="flex gap-1.5 border-t p-3"><Input className="h-9" placeholder="Nouvel espace" value={newSpace} onChange={(e) => setNewSpace(e.target.value)} aria-label="Nouvel espace de vente" /><Button size="icon" variant="outline" type="submit" aria-label="Créer"><Plus /></Button></form>
         <BiizFooter className="biiz-credit--compact" />
