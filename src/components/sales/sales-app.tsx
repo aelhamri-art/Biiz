@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
-  BarChart3, BookOpen, CalendarClock, ChevronLeft, ChevronRight, Columns3, Globe, Phone, PhoneCall, Plus, Search, Sun, Upload, Users, Pencil, Loader2, Check,
+  BarChart3, BookOpen, CalendarClock, ChevronLeft, ChevronRight, Columns3, Globe, LogOut, Phone, PhoneCall, Plus, Search, Sun, Upload, Users, Pencil, Loader2, Check,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BiizFooter } from "@/components/biiz-footer";
