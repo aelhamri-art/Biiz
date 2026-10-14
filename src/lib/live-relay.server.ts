@@ -2,6 +2,7 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { stepCountIs, streamText, tool, type ModelMessage } from "ai";
 import process from "node:process";
 import { z } from "zod";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export type LiveConfig = {
   baseURL: string;
@@ -9,10 +10,13 @@ export type LiveConfig = {
   liveModel: string;
   backendModel: string;
   openingInstructions?: string;
+  sales?: SalesContext;
 };
 
+type SalesContext = { db: SupabaseClient; workspaceId: string; userId: string; firstName: string; brief: string };
+
 // Fill from co-loaded knowledge: the gateway URL, the Live model and the resolved chat model.
-const liveSettings = { baseURL: "", liveModel: "", backendModel: "" };
+const liveSettings = { baseURL: "https://ai.gateway.lovable.dev", liveModel: "openai/gpt-live-1", backendModel: "openai/gpt-6-astra" };
 
 export type LiveSocket = {
   readonly readyState: number;
@@ -111,33 +115,97 @@ export function handleLiveRequest(request: Request): Response {
   return new Response(null, response);
 }
 
-const conversationInstructions = `You are Mira, a calm learning companion.
-Speak naturally in brief replies. Ask a focused question when details are unclear.
-Backchannel policy: Use moderate listening sounds without taking over.
-Interruption policy: Stop your answer and listen when the user interrupts.
+function conversationInstructions(ctx: SalesContext) {
+  return `Tu es Aximus, coach commerciale de Livroum dans BIIZ Sales : à la fois directrice commerciale et manager bienveillante. Tu parles uniquement en français, voix posée, chaleureuse, phrases courtes, une idée à la fois.
+La personne s'appelle ${ctx.firstName}. Appelle-la par son prénom de temps en temps, sans excès.
+Rôle : rassurer, expliquer simplement, faire répéter à voix haute, jouer un restaurateur quand on te le demande, débriefer un appel, prioriser la journée. Pédagogie : comprendre, dire, écouter. Félicite seulement sur des faits réels.
+Livroum : « Votre marque. Vos clients. Notre livraison. » Tarifs exacts : Widget 199 € de mise en place, 149 € par mois, plus 0,48 € par livraison, premier mois offert. App 850 € de mise en place configuration incluse, 108 € par mois, plus 0,29 € par livraison. Le transport physique est facturé à part. Ne promets jamais couverture, horaires, délais ni économies garanties. Ne critique jamais Uber Eats.
+N'invente jamais un prospect, un chiffre ou un souvenir. Si tu ne sais pas, dis-le.
+Contexte vérifié au démarrage :
+${ctx.brief}
+Backchannel policy: Petits sons d'écoute modérés (« mm », « d'accord ») sans prendre la parole.
+Interruption policy: Arrête-toi dès que la personne parle et écoute.
 Delegation policy:
-Backend tools: Reason through questions and plan study sessions across days.
-Delegate to the backend when: The user wants a study schedule or careful reasoning,
-or a correction changes a question already being worked on.
-Do not delegate to the backend when: Greeting, clarifying a question, or repeating
-a still-current answer. Wait for the backend result before presenting its answer.`;
+Backend tools: Chercher un prospect du CRM et son historique, lister les actions dues, retrouver ou enregistrer une note de progression personnelle.
+Delegate to the backend when: La personne parle d'un prospect précis, demande quoi faire aujourd'hui, veut un débrief précis, ou demande de retenir un progrès.
+Do not delegate to the backend when: Salutation, encouragement, jeu de rôle, explication du pitch ou d'une objection. Attends le résultat du backend avant d'annoncer un fait du CRM.`;
+}
 
-const studyScheduleInput = z
-  .object({
-    total_minutes: z.number().int().min(1).max(10_080),
-    days: z.number().int().min(1).max(30),
-  })
-  .strict();
+async function loadSalesContext(token: string, workspaceId: string): Promise<SalesContext> {
+  const url = process.env["SUPABASE_URL"];
+  const key = process.env["SUPABASE_PUBLISHABLE_KEY"];
+  if (!url || !key || !token || !/^[0-9a-f-]{36}$/i.test(workspaceId)) throw new Error("Connexion requise");
+  const db = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
+    global: {
+      headers: { Authorization: `Bearer ${token}` },
+      fetch: (input, init) => {
+        const h = new Headers(init?.headers);
+        h.set("apikey", key);
+        return fetch(input, { ...init, headers: h });
+      },
+    },
+  });
+  const { data: u, error } = await db.auth.getUser(token);
+  if (error || !u.user) throw new Error("Session expirée, reconnecte-toi");
+  const { data: ws } = await db.from("workspaces").select("id,name").eq("id", workspaceId).eq("app", "sales").maybeSingle();
+  if (!ws) throw new Error("Espace Sales introuvable");
+  const meta = u.user.user_metadata ?? {};
+  const raw = String(meta.first_name || meta.full_name || meta.name || u.user.email?.split("@")[0] || "").trim();
+  const firstName = (raw.split(/[\s._-]/)[0] || "toi").replace(/^./, (c) => c.toUpperCase()).slice(0, 40);
+  const today = new Date().toISOString().slice(0, 10);
+  const [accounts, due, notes] = await Promise.all([
+    db.from("sales_accounts").select("stage").eq("workspace_id", workspaceId).limit(2000),
+    db.from("sales_next_actions").select("label,next_action_date,sales_accounts(name)").eq("workspace_id", workspaceId).is("done_at", null).lte("next_action_date", today).order("next_action_date").limit(6),
+    db.from("sales_coach_notes").select("note,created_at").eq("workspace_id", workspaceId).eq("user_id", u.user.id).order("created_at", { ascending: false }).limit(5),
+  ]);
+  const stages: Record<string, number> = {};
+  for (const a of accounts.data ?? []) stages[a.stage] = (stages[a.stage] ?? 0) + 1;
+  const brief = [
+    `Espace : ${ws.name}. Prospects : ${accounts.data?.length ?? 0}${Object.keys(stages).length ? ` (${Object.entries(stages).map(([k, v]) => `${k} ${v}`).join(", ")})` : ""}.`,
+    `Actions dues ou en retard : ${(due.data ?? []).map((d) => `${(d.sales_accounts as { name?: string } | null)?.name ?? "?"} — ${d.label ?? "action"} (${d.next_action_date})`).join("; ") || "aucune"}.`,
+    `Notes de progression précédentes : ${(notes.data ?? []).map((n) => `${n.created_at.slice(0, 10)} : ${n.note}`).join(" | ") || "aucune, c'est la première séance"}.`,
+  ].join("\n").slice(0, 3000);
+  return { db, workspaceId, userId: u.user.id, firstName, brief };
+}
 
-function planStudySchedule(args: z.infer<typeof studyScheduleInput>) {
-  const daily = Math.floor(args.total_minutes / args.days);
+function salesTools(ctx: SalesContext, signal: AbortSignal) {
   return {
-    total_minutes: args.total_minutes,
-    days: args.days,
-    sessions: Array.from({ length: args.days }, (_, index) => ({
-      day: index + 1,
-      minutes: daily + (index < args.total_minutes % args.days ? 1 : 0),
-    })),
+    search_prospects: tool({
+      description: "Cherche des prospects du CRM par nom ou ville et renvoie étape, priorité, prochaine action et derniers échanges.",
+      inputSchema: z.object({ query: z.string().min(1).max(80) }).strict(),
+      execute: async ({ query }) => {
+        signal.throwIfAborted();
+        const q = query.replace(/[%,()]/g, " ").trim();
+        const { data, error } = await ctx.db.from("sales_accounts").select("id,name,city,segment,stage,priority,last_activity_at,notes")
+          .eq("workspace_id", ctx.workspaceId).or(`name.ilike.%${q}%,city.ilike.%${q}%`).limit(5);
+        if (error) return { error: "Lecture du CRM impossible" };
+        const ids = (data ?? []).map((a) => a.id);
+        const [acts, next] = await Promise.all([
+          ctx.db.from("sales_activities").select("account_id,outcome,note,created_at").in("account_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]).order("created_at", { ascending: false }).limit(15),
+          ctx.db.from("sales_next_actions").select("account_id,label,next_action_date").in("account_id", ids.length ? ids : ["00000000-0000-0000-0000-000000000000"]).is("done_at", null),
+        ]);
+        return { prospects: (data ?? []).map((a) => ({ ...a, notes: a.notes?.slice(0, 300), next_actions: (next.data ?? []).filter((n) => n.account_id === a.id), recent: (acts.data ?? []).filter((x) => x.account_id === a.id).slice(0, 3) })) };
+      },
+    }),
+    list_due_actions: tool({
+      description: "Liste les prochaines actions non faites de l'espace, triées par date (retards en premier).",
+      inputSchema: z.object({ limit: z.number().int().min(1).max(15) }).strict(),
+      execute: async ({ limit }) => {
+        signal.throwIfAborted();
+        const { data, error } = await ctx.db.from("sales_next_actions").select("label,next_action_date,sales_accounts(name,city,stage)").eq("workspace_id", ctx.workspaceId).is("done_at", null).order("next_action_date").limit(limit);
+        return error ? { error: "Lecture impossible" } : { today: new Date().toISOString().slice(0, 10), actions: data };
+      },
+    }),
+    save_progress_note: tool({
+      description: "Enregistre une courte note de progression personnelle (compétence travaillée, point fort, point à travailler). N'enregistre jamais d'appel CRM.",
+      inputSchema: z.object({ note: z.string().min(3).max(500) }).strict(),
+      execute: async ({ note }) => {
+        signal.throwIfAborted();
+        const { error } = await ctx.db.from("sales_coach_notes").insert({ workspace_id: ctx.workspaceId, user_id: ctx.userId, note });
+        return error ? { saved: false } : { saved: true };
+      },
+    }),
   };
 }
 
@@ -152,8 +220,8 @@ async function answerQuestion(
   correlation: { runID: string; sessionID: string | undefined; delegationID: string },
   signal: AbortSignal,
   consumeInput: () => void,
-  onPlan: (plan: ReturnType<typeof planStudySchedule>) => void,
 ) {
+  if (!config.sales) throw new Error("No sales context");
   signal.throwIfAborted();
   const provider = createOpenAI({
     baseURL: gatewayAPIBase(config.baseURL),
@@ -200,26 +268,12 @@ async function answerQuestion(
       },
     },
     system:
-      "Help a spoken learning companion answer the latest user question. " +
-      "Transcripts may be incomplete or corrected. Use the latest correction. " +
-      "Continue from completed tool results; do not repeat completed actions. " +
-      "Return verified facts and useful next steps in at most 150 words. " +
-      "To display a study schedule for the current request, call plan_study_schedule with its total minutes and days. " +
-      "Ask for missing details instead of guessing. The tool only calculates a draft plan; " +
-      "it does not save calendar events. You have no other tools.",
+      "Tu prépares la réponse orale d'Aximus, coach commerciale Livroum. Réponds en français, phrases courtes à dire à voix haute, 120 mots maximum. " +
+      "Les transcriptions peuvent être incomplètes ; utilise la dernière correction. N'invente aucun prospect ni chiffre : utilise uniquement les résultats des outils. " +
+      "Quand la personne mentionne un progrès, une difficulté travaillée ou demande de retenir quelque chose, appelle save_progress_note avec une note factuelle courte. " +
+      "Les outils CRM sont en lecture seule ; tu n'enregistres jamais un appel ou une étape. Ne répète pas une action déjà faite.\n" + config.sales.brief,
     messages,
-    tools: {
-      plan_study_schedule: tool({
-        description: "Distribute a total study time evenly across days and return a draft schedule.",
-        inputSchema: studyScheduleInput,
-        execute: async (args) => {
-          signal.throwIfAborted();
-          const plan = planStudySchedule(args);
-          onPlan(plan);
-          return plan;
-        },
-      }),
-    },
+    tools: salesTools(config.sales, signal),
   });
   let completed = false;
   let stepCompleted = false;
@@ -285,7 +339,6 @@ export function bindLiveConnection(
   let task: AbortController | undefined;
   const pendingDelegations: Array<{
     event: ProviderEvent;
-    plan?: ReturnType<typeof planStudySchedule>;
   }> = [];
   let completedDelegation: (typeof pendingDelegations)[number] | undefined;
   const backendMessages: ModelMessage[] = [];
@@ -406,7 +459,7 @@ export function bindLiveConnection(
     restartTimer = setTimeout(() => void runDelegation(), 300);
   }
 
-  function deliverResult(delegationID: string, answer: string, plan?: ReturnType<typeof planStudySchedule>) {
+  function deliverResult(delegationID: string, answer: string) {
     if (closing) return;
     if (gateway?.readyState !== 1) return stop();
     try {
@@ -420,7 +473,6 @@ export function bindLiveConnection(
           }),
         );
       }
-      if (plan) emit({ type: "app.study_schedule.plan", delegation_id: delegationID, plan });
       completedDelegation = pendingDelegations.shift();
     } catch {
       stop();
@@ -444,18 +496,14 @@ export function bindLiveConnection(
         controller.signal,
         () => {
           const updates = transcripts.slice(transcriptCursor);
-          if (updates.some(({ role, listeningSound }) => role === "user" && !listeningSound)) delete pending.plan;
           backendMessages.push(...updates.map(({ role, text }) => ({ role, content: text })));
           transcriptCursor = transcripts.length;
           taskRevision = revision;
-        },
-        (plan) => {
-          pending.plan = plan;
-        },
+        }
       );
       if (closing || controller.signal.aborted) return;
       if (taskRevision !== revision) return;
-      deliverResult(id, answer.trim(), pending.plan);
+      deliverResult(id, answer.trim());
     } catch {
       if (closing || controller.signal.aborted) return;
       backendMessages.push({
@@ -464,7 +512,7 @@ export function bindLiveConnection(
           "The backend attempt failed. Completed tool results remain valid; verify uncertain external actions before any retry.",
       });
       if (taskRevision !== revision) return;
-      deliverResult(id, "The backend could not finish the answer. Ask whether the user wants to try again.");
+      deliverResult(id, "Je n'ai pas pu lire le CRM cette fois. Propose de réessayer.");
     } finally {
       if (task === controller) task = undefined;
       scheduleDelegation();
@@ -563,7 +611,10 @@ export function bindLiveConnection(
     }
   }
 
-  async function startSession(sdp: string) {
+  async function startSession(sdp: string, token: string, workspaceId: string) {
+    if (closing || browser.readyState !== 1) return;
+    config.sales = await loadSalesContext(token, workspaceId);
+    config.openingInstructions = `Commence maintenant en français. Salue ${config.sales.firstName} par son prénom, en une phrase chaleureuse, puis pose une seule question : sur quoi veut-elle ou veut-il travailler maintenant ? Puis écoute.`;
     if (closing || browser.readyState !== 1) return;
     clearTimeout(startTimer);
     startupTimer = setTimeout(() => {
@@ -595,7 +646,7 @@ export function bindLiveConnection(
         type: "session.start",
         session: {
           model: config.liveModel,
-          instructions: conversationInstructions,
+          instructions: config.sales ? conversationInstructions(config.sales) : "",
           audio: { output: { voice: "marin" } },
           delegation: { type: "client" },
         },
@@ -616,7 +667,7 @@ export function bindLiveConnection(
         }
         starting = true;
         execution.waitUntil(
-          startSession(event.sdp).catch((error) => {
+          startSession(event.sdp, String(event.token ?? ""), String(event.workspaceId ?? "")).catch((error) => {
             if (!closing)
               emit({
                 type: "app.error",
