@@ -18,7 +18,7 @@ export function Aximus({ wsId }: { wsId: string }) {
       if (e.type === "app.connected") setNotice(null);
     },
   });
-  const live = call.status === "connected" || call.status === "starting" || call.status === "stopping";
+  const live = call.status === "connected" || call.status === "connecting" || call.status === "stopping";
 
   async function start() {
     setNotice(null);
@@ -31,7 +31,7 @@ export function Aximus({ wsId }: { wsId: string }) {
   }
 
   const label =
-    call.status === "starting" ? "Aximus arrive…"
+    call.status === "connecting" ? "Aximus arrive…"
     : call.status === "connected" ? "En conversation"
     : call.status === "stopping" ? "Fin de la séance…"
     : "Disponible";

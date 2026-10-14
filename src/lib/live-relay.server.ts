@@ -151,7 +151,7 @@ async function loadSalesContext(token: string, workspaceId: string): Promise<Sal
   const { data: ws } = await db.from("workspaces").select("id,name").eq("id", workspaceId).eq("app", "sales").maybeSingle();
   if (!ws) throw new Error("Espace Sales introuvable");
   const meta = u.user.user_metadata ?? {};
-  const raw = String(meta.first_name || meta.full_name || meta.name || u.user.email?.split("@")[0] || "").trim();
+  const raw = String(meta["first_name"] || meta["full_name"] || meta["name"] || u.user.email?.split("@")[0] || "").trim();
   const firstName = (raw.split(/[\s._-]/)[0] || "toi").replace(/^./, (c) => c.toUpperCase()).slice(0, 40);
   const today = new Date().toISOString().slice(0, 10);
   const [accounts, due, notes] = await Promise.all([
