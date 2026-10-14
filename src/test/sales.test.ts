@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, DEFAULT_PLAYBOOK } from "@/lib/sales";
+import { COACH_GROUPS, QUICK_COACH, coachGroupForSlug, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, DEFAULT_PLAYBOOK } from "@/lib/sales";
 
 describe("sales rules", () => {
   it("tarifs Widget véridiques", () => {
@@ -26,6 +26,27 @@ describe("sales rules", () => {
   it("badges seulement depuis les données", () => {
     const empty = periodStats([], [], new Date(0), new Date());
     expect(qualityBadges(empty)).toEqual([]);
+  });
+  it("reprend les intentions et les formulations du playbook validé", () => {
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "ouverture")?.advice).toContain("responsable commercial");
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "uber-eats")?.next_question).toContain("directement chez vous");
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "r2")?.advice).toContain("MANUELLEMENT");
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "rappelle-plus-tard")?.advice).toContain("n'est pas un R2");
+    expect(new Set(DEFAULT_PLAYBOOK.map((c) => c.slug)).size).toBe(DEFAULT_PLAYBOOK.length);
+  });
+  it("classe toutes les fiches et relie les six réponses rapides", () => {
+    expect(COACH_GROUPS).toHaveLength(6);
+    expect(DEFAULT_PLAYBOOK.every((c) => coachGroupForSlug(c.slug) !== "autres")).toBe(true);
+    expect(QUICK_COACH).toHaveLength(6);
+    expect(QUICK_COACH.every((q) => DEFAULT_PLAYBOOK.some((c) => c.slug === q.slug))).toBe(true);
+    expect(coachGroupForSlug("nouvelle-fiche-equipe")).toBe("autres");
+  });
+  it("applique les modifications d'équipe aussi aux raccourcis d'appel", () => {
+    const original = DEFAULT_PLAYBOOK.find((c) => c.slug === "uber-eats")!;
+    const customized = { ...original, id: "surcouche", next_question: "Notre question d'équipe" };
+    const result = mergePlaybook([customized]);
+    expect(result.find((c) => c.slug === "uber-eats")?.next_question).toBe("Notre question d'équipe");
+    expect(QUICK_COACH.some((q) => q.slug === customized.slug)).toBe(true);
   });
   it("la carte d'équipe remplace la carte de base", () => {
     const m = mergePlaybook([{ ...DEFAULT_PLAYBOOK[6]!, advice: "X", id: "a" }]);
