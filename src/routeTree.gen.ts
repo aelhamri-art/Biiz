@@ -16,6 +16,7 @@ import { Route as HadalMarketingRouteImport } from './routes/hadal-marketing'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated/app'
 import { Route as AuthenticatedSalesRouteImport } from './routes/_authenticated/sales'
 import { Route as RCodeRouteImport } from './routes/r.$code'
+import { Route as SalesAuthRouteImport } from './routes/sales_.auth'
 import { Route as ApiPublicBiizDotjsRouteImport } from './routes/api/public/biiz[.]js'
 import { Route as ApiPublicTrackRouteImport } from './routes/api/public/track'
 
@@ -53,6 +54,11 @@ const RCodeRoute = RCodeRouteImport.update({
   path: '/r/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SalesAuthRoute = SalesAuthRouteImport.update({
+  id: '/sales_/auth',
+  path: '/sales/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicBiizDotjsRoute = ApiPublicBiizDotjsRouteImport.update({
   id: '/api/public/biiz.js',
   path: '/api/public/biiz.js',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AuthenticatedAppRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/r/$code': typeof RCodeRoute
+  '/sales/auth': typeof SalesAuthRoute
   '/api/public/biiz.js': typeof ApiPublicBiizDotjsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppRoute
   '/sales': typeof AuthenticatedSalesRoute
   '/r/$code': typeof RCodeRoute
+  '/sales/auth': typeof SalesAuthRoute
   '/api/public/biiz.js': typeof ApiPublicBiizDotjsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
@@ -93,6 +101,7 @@ export interface FileRoutesById {
   '/_authenticated/app': typeof AuthenticatedAppRoute
   '/_authenticated/sales': typeof AuthenticatedSalesRoute
   '/r/$code': typeof RCodeRoute
+  '/sales_/auth': typeof SalesAuthRoute
   '/api/public/biiz.js': typeof ApiPublicBiizDotjsRoute
   '/api/public/track': typeof ApiPublicTrackRoute
 }
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/sales'
     | '/r/$code'
+    | '/sales/auth'
     | '/api/public/biiz.js'
     | '/api/public/track'
   fileRoutesByTo: FileRoutesByTo
@@ -115,6 +125,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/sales'
     | '/r/$code'
+    | '/sales/auth'
     | '/api/public/biiz.js'
     | '/api/public/track'
   id:
@@ -126,6 +137,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app'
     | '/_authenticated/sales'
     | '/r/$code'
+    | '/sales_/auth'
     | '/api/public/biiz.js'
     | '/api/public/track'
   fileRoutesById: FileRoutesById
@@ -136,6 +148,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   HadalMarketingRoute: typeof HadalMarketingRoute
   RCodeRoute: typeof RCodeRoute
+  SalesAuthRoute: typeof SalesAuthRoute
   ApiPublicBiizDotjsRoute: typeof ApiPublicBiizDotjsRoute
   ApiPublicTrackRoute: typeof ApiPublicTrackRoute
 }
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sales_/auth': {
+      id: '/sales_/auth'
+      path: '/sales/auth'
+      fullPath: '/sales/auth'
+      preLoaderRoute: typeof SalesAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/biiz.js': {
       id: '/api/public/biiz.js'
       path: '/api/public/biiz.js'
@@ -227,6 +247,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   HadalMarketingRoute: HadalMarketingRoute,
   RCodeRoute: RCodeRoute,
+  SalesAuthRoute: SalesAuthRoute,
   ApiPublicBiizDotjsRoute: ApiPublicBiizDotjsRoute,
   ApiPublicTrackRoute: ApiPublicTrackRoute,
 }
