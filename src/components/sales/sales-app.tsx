@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
-  BarChart3, BookOpen, CalendarClock, ChevronLeft, ChevronRight, Columns3, Globe, Phone, PhoneCall, Plus, Search, Sun, Upload, Users, Pencil, Loader2, Check,
+  BarChart3, BookOpen, CalendarClock, ChevronLeft, ChevronRight, Columns3, Globe, LogOut, Phone, PhoneCall, Plus, Search, Sun, Upload, Users, Pencil, Loader2, Check,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BiizFooter } from "@/components/biiz-footer";
@@ -100,6 +101,12 @@ export function SalesApp() {
     await qc.invalidateQueries({ queryKey: ["sales-workspaces"] });
     setWsId(data.id);
   }
+  const navigate = useNavigate();
+  async function signOut() {
+    await supabase.auth.signOut();
+    toast.success("Vous êtes déconnecté.");
+    navigate({ to: "/sales/auth" });
+  }
   const s = useSales(wsId);
   const refresh = () => qc.invalidateQueries({ queryKey: ["sales", wsId] });
   const go = (z: Zone) => { setZone(z); window.scrollTo({ top: 0 }); };
@@ -118,6 +125,9 @@ export function SalesApp() {
               <z.icon className="size-4" />{z.label}
             </button>
           ))}
+          <button type="button" onClick={signOut} className="sales-nav-item mt-auto" aria-label="Se déconnecter de BIIZ Sales">
+            <LogOut className="size-4" />Déconnexion
+          </button>
         </nav>
         <form onSubmit={createSpace} className="flex gap-1.5 border-t p-3"><Input className="h-9" placeholder="Nouvel espace" value={newSpace} onChange={(e) => setNewSpace(e.target.value)} aria-label="Nouvel espace de vente" /><Button size="icon" variant="outline" type="submit" aria-label="Créer"><Plus /></Button></form>
         <BiizFooter className="biiz-credit--compact" />
