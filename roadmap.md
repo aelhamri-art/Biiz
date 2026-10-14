@@ -14,3 +14,7 @@
 
 # Mention de marque
 - [x] Ajouter « BIIZ par Axium Studios » en bas de tous les écrans (accueil, connexion, cockpit, cuisine, Sales).
+
+# Sales — Coaching terrain
+- [x] Rendre les fiches progressives et applicables en appel, sans quiz ni changement CRM.
+- [x] Vérifier les interactions connectées et les tests Sales.
