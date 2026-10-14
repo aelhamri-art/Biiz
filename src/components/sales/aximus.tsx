@@ -44,7 +44,7 @@ export function Aximus({ wsId }: { wsId: string }) {
           <BiizBee size={34} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Coach vocale · {label}</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">{"\n"}</p>
           <h2 className="text-lg font-semibold tracking-tight">Aximus</h2>
           <p className="text-sm text-muted-foreground">Directrice commerciale et manager. Elle connaît ton prénom, tes prospects et tes progrès.</p>
         </div>
