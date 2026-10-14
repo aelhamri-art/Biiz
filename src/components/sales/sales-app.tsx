@@ -101,6 +101,12 @@ export function SalesApp() {
     await qc.invalidateQueries({ queryKey: ["sales-workspaces"] });
     setWsId(data.id);
   }
+  const navigate = useNavigate();
+  async function signOut() {
+    await supabase.auth.signOut();
+    toast.success("Vous êtes déconnecté.");
+    navigate({ to: "/sales/auth" });
+  }
   const s = useSales(wsId);
   const refresh = () => qc.invalidateQueries({ queryKey: ["sales", wsId] });
   const go = (z: Zone) => { setZone(z); window.scrollTo({ top: 0 }); };
