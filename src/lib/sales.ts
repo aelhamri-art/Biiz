@@ -43,7 +43,7 @@ export const PRICING = {
   widget: { label: "Widget", setup: 199, monthly: 149, perDelivery: 0.48, note: "Premier mois offert" },
   app: { label: "App", setup: 850, monthly: 108, perDelivery: 0.29, note: "Configuration incluse dans le setup" },
   transport: "Le coût physique du transport (livreur) est distinct et s'ajoute.",
-  tagline: "Votre marque. Vos clients. Notre livraison.",
+  tagline: "Votre marque. Vos clients. Votre livraison.",
 } as const;
 
 export const STAGE_GOAL: Record<string, string> = {
