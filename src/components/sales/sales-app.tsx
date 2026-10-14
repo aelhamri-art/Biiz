@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { BiizBee, BiizSalesLogo } from "./BiizBee";
 import {
-  type Account, type CoachCard, DEFAULT_PLAYBOOK, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
+  type Account, type CoachCard, COACH_GROUPS, QUICK_COACH, coachGroupForSlug, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
   addDays, delta, findDuplicates, isoDate, mergePlaybook, outcomeLabel, parseCsv, periodStats, qualityBadges, stageLabel, startOfDay, startOfWeek,
 } from "@/lib/sales";
 
@@ -480,12 +480,17 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
   }, [accounts, s.actions.data, today]);
   const acc = accounts.find((a) => a.id === focusId) ?? queue[0];
   const guided = (s.prefs.data?.mode ?? "accompagne") === "accompagne";
+  // Les deux écrans lisent les mêmes cartes : les personnalisations d'équipe s'appliquent partout.
+  const coachCards = mergePlaybook((s.cards.data ?? []) as CoachCard[]);
+  const [coachOpen, setCoachOpen] = useState(false);
+  const [coachSlug, setCoachSlug] = useState<string | null>(null);
+  const selectedCoach = coachCards.find((c) => c.slug === coachSlug);
   const [outcome, setOutcome] = useState<OutcomeId | null>(null);
   const [note, setNote] = useState("");
   const [nextDate, setNextDate] = useState<string>("");
   const [nextLabel, setNextLabel] = useState("Rappeler");
   const [busy, setBusy] = useState(false);
-  useEffect(() => { setOutcome(null); setNote(""); setNextDate(""); setNextLabel("Rappeler"); }, [acc?.id]);
+  useEffect(() => { setOutcome(null); setNote(""); setNextDate(""); setNextLabel("Rappeler"); setCoachOpen(false); setCoachSlug(null); }, [acc?.id]);
   useEffect(() => {
     if (outcome === "pas_repondu" || outcome === "decideur_absent") { setNextDate(isoDate(addDays(new Date(), 1))); setNextLabel("Rappeler"); }
     else if (outcome === "r2") { setNextLabel("R2"); }
@@ -525,12 +530,39 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
         <div className="mt-4 rounded-lg bg-secondary/60 p-3">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Objectif de l'appel</p>
           <p className="mt-1 text-sm">{STAGE_GOAL[acc.stage]}</p>
-          {guided && <p className="mt-2 text-xs text-muted-foreground">Question d'ouverture : « {DEFAULT_PLAYBOOK[0]?.next_question} »</p>}
+          {guided && <p className="mt-2 text-xs text-muted-foreground">Question d'ouverture : « {coachCards.find((c) => c.slug === "ouverture")?.next_question} »</p>}
         </div>
         {acc.phone ? <a href={`tel:${acc.phone}`} className="mt-4 block"><Button size="lg" className="h-14 w-full text-base"><Phone />Appeler {acc.phone}</Button></a>
           : <p className="mt-4 rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">Pas de téléphone renseigné.</p>}
         {guided && <p className="mt-2 text-center text-[11px] text-muted-foreground">L'appel n'est enregistré qu'une fois le résultat choisi ci-dessous.</p>}
       </article>
+
+      <section className="sales-card" aria-label="Aide commerciale pendant l'appel">
+        <button type="button" className="flex w-full items-center justify-between gap-3 text-left" aria-expanded={coachOpen} aria-controls="sales-call-coach" onClick={() => { setCoachOpen((v) => !v); setCoachSlug(null); }}>
+          <span className="flex items-center gap-2 text-sm font-semibold"><BookOpen className="size-4" />Une réponse à trouver ?</span>
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">{coachOpen ? "Masquer" : "Voir les situations"}<ChevronRight className={coachOpen ? "size-4 rotate-90" : "size-4"} /></span>
+        </button>
+        {coachOpen && (
+          <div id="sales-call-coach" className="mt-4 space-y-3 border-t pt-4">
+            <p className="text-xs text-muted-foreground">Choisis ce que tu viens d'entendre, sans quitter le prospect.</p>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {QUICK_COACH.map(({ slug, label }) => (
+                <button key={slug} type="button" className="sales-seg min-h-11 text-left" aria-pressed={coachSlug === slug} onClick={() => setCoachSlug((old) => old === slug ? null : slug)}>{label}</button>
+              ))}
+            </div>
+            {selectedCoach && (
+              <div className="rounded-lg bg-secondary/60 p-3 text-sm" role="region" aria-label={selectedCoach.title}>
+                <p className="mb-3 font-semibold">{selectedCoach.title}</p>
+                {selectedCoach.goal && <div className="mb-3"><p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Ton intention</p><p className="mt-1">{selectedCoach.goal}</p></div>}
+                <div className="mb-3"><p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Tu peux dire</p><p className="mt-1 font-medium">{selectedCoach.next_question || selectedCoach.advice}</p></div>
+                {selectedCoach.listen && <div className="mb-3"><p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">À écouter</p><p className="mt-1">{selectedCoach.listen}</p></div>}
+                <p className="text-xs text-muted-foreground">{selectedCoach.advice}</p>
+                <button type="button" className="mt-3 text-xs font-medium underline underline-offset-4" onClick={() => setCoachSlug(null)}>Fermer le conseil</button>
+              </div>
+            )}
+          </div>
+        )}
+      </section>
 
       <section className="sales-card space-y-4">
         <div>
@@ -558,6 +590,10 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
 /* ---------- 4. Coach ---------- */
 function Coach({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => void }) {
   const cards = mergePlaybook((s.cards.data ?? []) as CoachCard[]);
+  const [search, setSearch] = useState("");
+  const query = search.trim().toLocaleLowerCase("fr");
+  const filteredCards = query ? cards.filter((c) => [c.title, c.advice, c.next_question, c.goal, c.listen].some((v) => v?.toLocaleLowerCase("fr").includes(query))) : cards;
+  const groups = COACH_GROUPS.map((g) => ({ ...g, cards: filteredCards.filter((c) => coachGroupForSlug(c.slug) === g.id) })).filter((g) => g.cards.length > 0);
   const [i, setI] = useState<number | null>(null);
   const [edit, setEdit] = useState<CoachCard | null>(null);
   const [busy, setBusy] = useState(false);
@@ -607,10 +643,23 @@ function Coach({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => void }
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-muted-foreground">Une situation, un conseil court, une question à poser. Choisis ce que tu entends.</p>
-      <div className="grid gap-2 sm:grid-cols-2">
-        {cards.map((c, k) => <button key={c.slug} onClick={() => setI(k)} className="sales-card flex items-center justify-between p-4 text-left transition hover:border-foreground/30"><span className="font-medium">{c.title}</span><ChevronRight className="size-4 text-muted-foreground" /></button>)}
+      <div className="space-y-1">
+        <h2 className="text-xl font-semibold tracking-tight">Le calme fait vendre.</h2>
+        <p className="text-sm text-muted-foreground">Ton playbook Livroum : une situation, une intention, une question. Pour apprendre avant les appels.</p>
       </div>
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+        <Input className="h-11 pl-9" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Chercher une situation, une objection…" aria-label="Rechercher dans le playbook" />
+      </div>
+      {groups.map((group) => (
+        <section key={group.id} className="space-y-2" aria-label={group.label}>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{group.label}</h3>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {group.cards.map((c) => <button key={c.slug} type="button" onClick={() => setI(cards.findIndex((item) => item.slug === c.slug))} className="sales-card flex min-h-14 items-center justify-between gap-2 p-4 text-left transition hover:border-foreground/30"><span className="text-sm font-medium">{c.title}</span><ChevronRight className="size-4 shrink-0 text-muted-foreground" /></button>)}
+          </div>
+        </section>
+      ))}
+      {filteredCards.length === 0 && <p className="rounded-lg bg-secondary p-4 text-sm text-muted-foreground">Aucune situation trouvée. Essaie un autre mot.</p>}
       <section className="sales-card">
         <p className="text-sm font-medium">{PRICING.tagline}</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
