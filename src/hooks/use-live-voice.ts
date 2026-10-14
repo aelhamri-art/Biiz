@@ -123,6 +123,7 @@ export function useLiveVoice(
 
 type LiveOptions = {
   url: string;
+  startData?: Record<string, string>;
   audio: HTMLAudioElement;
   onEvent: (event: LiveEvent) => void;
 };
