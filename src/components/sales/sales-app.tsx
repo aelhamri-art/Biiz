@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { BiizBee, BiizSalesLogo } from "./BiizBee";
 import { CoachMoment } from "./coach-moment";
+import { Aximus } from "./aximus";
+import { PartnerAccounts } from "./partners";
 import {
   type Account, type CoachCard, COACH_GROUPS, QUICK_COACH, coachGroupForSlug, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
   addDays, delta, findDuplicates, isoDate, mergePlaybook, outcomeLabel, parseCsv, periodStats, qualityBadges, stageLabel, startOfDay, startOfWeek,
@@ -640,6 +642,7 @@ function Coach({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => void }
 
   return (
     <div className="space-y-6">
+      <Aximus wsId={wsId} />
       <div className="space-y-1">
         <h2 className="text-xl font-semibold tracking-tight">Le calme fait vendre.</h2>
         <p className="text-sm text-muted-foreground">Comprendre plutôt que réciter. Une intention, tes mots, une vraie écoute.</p>
@@ -724,6 +727,7 @@ function Performance({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => 
   const low = p?.low_stimulation;
   return (
     <div className="space-y-6">
+      <PartnerAccounts wsId={wsId} onDone={refresh} />
       <section>
         <h2 className="sales-h2">Cette semaine</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">

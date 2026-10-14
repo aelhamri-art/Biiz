@@ -326,3 +326,7 @@
 .biiz-sales .biiz-credit-brand { color: var(--sales-ink); }
 .biiz-sales .biiz-credit-dot { background: var(--sales-yellow); opacity: 1; }
 @media (max-width: 640px) { .biiz-credit { padding: 14px 16px 16px; } }
+
+.biiz-sales .aximus-pulse { box-shadow: 0 0 0 0 oklch(0.87 0.18 92 / 0.6); animation: aximus-pulse 1.8s ease-out infinite; }
+@keyframes aximus-pulse { to { box-shadow: 0 0 0 14px oklch(0.87 0.18 92 / 0); } }
+@media (prefers-reduced-motion: reduce) { .biiz-sales .aximus-pulse { animation: none; } }

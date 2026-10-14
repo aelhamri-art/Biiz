@@ -616,6 +616,38 @@ export type Database = {
           },
         ]
       }
+      sales_coach_notes: {
+        Row: {
+          created_at: string
+          id: string
+          note: string
+          user_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note: string
+          user_id?: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string
+          user_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_coach_notes_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sales_contacts: {
         Row: {
           account_id: string
