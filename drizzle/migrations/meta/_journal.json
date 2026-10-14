@@ -64,6 +64,13 @@
       "when": 1791916685311,
       "tag": "0008_sales_log_call_keep_future",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791985657891,
+      "tag": "0009_sales_coach_notes",
+      "breakpoints": true
     }
   ]
 }
