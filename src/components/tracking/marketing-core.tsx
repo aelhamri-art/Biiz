@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { MarketingSettingsPanel } from "@/components/tracking/marketing-settings";
 
 const db = supabase as any;
 
@@ -180,6 +181,7 @@ export function CampaignsPanel({ wsId }: { wsId: string }) {
     <div className="space-y-6">
       <SectionTitle icon={<Target className="size-4" />} title="Campagnes" text="Le niveau qui relie stratégie, contenus, paid, tracking et résultat business." />
       <CampaignForm wsId={wsId} onCreated={reload} />
+      <MarketingSettingsPanel wsId={wsId} />
       <div className="overflow-x-auto rounded-lg border bg-card">
         <table className="w-full min-w-[850px] text-sm">
           <thead className="bg-muted text-left text-xs uppercase tracking-wider text-muted-foreground"><tr>
