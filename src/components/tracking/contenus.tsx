@@ -1,4 +1,5 @@
 import { Plus, Trash2, LayoutGrid, List, Upload, Link2, Megaphone } from "lucide-react";
+import type { TablesUpdate } from "@/integrations/supabase/types";
 import { useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -322,7 +323,7 @@ function Distributions({ wsId, m, c }: { wsId: string; m: MarketingData; c: Cont
     toast.success(link_id ? "Diffusion ajoutée avec son lien BIIZ" : "Diffusion ajoutée");
     setDest(""); m.reload("distributions", "links");
   }
-  async function patch(id: string, row: Record<string, unknown>) {
+  async function patch(id: string, row: TablesUpdate<"distributions">) {
     const { error } = await supabase.from("distributions").update(row).eq("id", id);
     if (error) toast.error(error.message); else m.reload("distributions");
   }

@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { CAMPAIGN_STATUSES, adMetrics, aggregate, channelLabel, eur, labelOf, ratio, type Row } from "@/lib/marketing";
 import { aggregateInput, num, type Campaign, type MarketingData } from "./use-marketing";
 
-export function KpiStrip({ r }: { r?: Row }) {
+export function KpiStrip({ r }: { r?: Row | undefined }) {
   const x = r ?? { spend: 0, revenue: 0, conversions: 0, clicks: 0, impressions: 0, reach: 0, engagement: 0 };
   const m = adMetrics(x);
   const items: [string, string][] = [["Dépense", eur(x.spend)], ["CA attribué", eur(x.revenue)], ["Conversions", String(x.conversions)], ["Clics", String(x.clicks)], ["CPA", eur(m.cpa)], ["ROAS", ratio(m.roas)]];
