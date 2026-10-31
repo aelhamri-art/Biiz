@@ -28,3 +28,4 @@
 - Ad spend is entered manually in ad_performance; `external_id`/`synced_at` are reserved for a future Meta/Google sync so no schema change is needed later.
 - Member roles live on workspace_members.role (owner/editor/contributor/viewer, default editor to keep the open model); policies use can_write()/can_delete() so contributors cannot delete campaigns, links or contents.
 - Publishing cadence is stored per workspace in workspaces.cadence (edited in the Dashboard) and read by the kitchen page; never hardcode a cadence again.
+- HADAL M01 workbook data lives in contents.source_id (unique per workspace), story_templates, story_cycle and shooting_briefs (workspace RLS via can_write/can_delete); measurement rules are pure functions in src/lib/hadal-m01.ts returning null for unmeasured data so "absent" never renders as 0.
