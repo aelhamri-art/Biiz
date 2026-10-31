@@ -18,3 +18,9 @@
 # Sales — Coaching terrain
 - [x] Rendre les fiches progressives et applicables en appel, sans quiz ni changement CRM.
 - [x] Vérifier les interactions connectées et les tests Sales.
+# Marketing V1.1 — Campagnes → Contenus → Diffusion → Ads → Performance
+- [ ] Migration additive : campaigns, distributions, ad_performance, organic_metrics, contents enrichi, rôles membres, cadence par espace, durcir EXECUTE.
+- [ ] Onglets Dashboard, Campagnes (fiche), Ads, Performance ; Contenus Kanban + liste enrichie.
+- [ ] Import CSV calendrier HADAL M01.
+- [ ] Revenue purchase/booking_completed remonté campagne/contenu via lien/diffusion.
+- [ ] Tests (CPA/ROAS, agrégation, import) + vérification bout en bout.
