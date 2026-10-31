@@ -170,7 +170,7 @@ function AppPage() {
                   </table>
                 </div>
     </div>
-  );
+  ) : null;
 
   return (
     <div className="biiz-app min-h-screen bg-background">
