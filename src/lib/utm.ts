@@ -9,6 +9,7 @@ export const SOURCES: { source: string; medium: string; label: string }[] = [
   { label: "TikTok", source: "tiktok", medium: "social" },
   { label: "Google Business", source: "google_business", medium: "local" },
   { label: "Meta Ads", source: "meta", medium: "paid_social" },
+  { label: "Google Ads", source: "google", medium: "paid_search" },
   { label: "Partenaire", source: "partenaire", medium: "referral" },
   { label: "Influenceur", source: "influenceur", medium: "referral" },
   { label: "Campagne CRM", source: "crm", medium: "email" },
