@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import {
   BarChart3, CalendarDays, ChevronDown, ClipboardList, FileText, Link2,
-  ChefHat, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2,
+  ChefHat, LayoutDashboard, Megaphone, Target, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BiizFooter } from "@/components/biiz-footer";
@@ -23,6 +23,11 @@ import { CalendrierPanel } from "@/components/tracking/calendrier";
 import { TachesPanel } from "@/components/tracking/taches";
 import { ScriptIAPanel } from "@/components/tracking/script-ia";
 import { CuisinePanel } from "@/components/tracking/cuisine";
+import { useMarketing } from "@/components/marketing/use-marketing";
+import { DashboardPanel } from "@/components/marketing/dashboard";
+import { CampagnesPanel } from "@/components/marketing/campagnes";
+import { AdsPanel } from "@/components/marketing/ads";
+import { PerformancePanel } from "@/components/marketing/performance";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({
@@ -46,7 +51,10 @@ function AppPage() {
   const [qrLink, setQrLink] = useState<TLink | null>(null);
   const [editLink, setEditLink] = useState<TLink | null>(null);
   const [showArchived, setShowArchived] = useState(false);
-  const [activeTab, setActiveTab] = useState("contenus");
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [trackSub, setTrackSub] = useState("liens");
+  const [prodSub, setProdSub] = useState("cuisine");
+  const mk = useMarketing(wsId ?? "");
 
   const ws = useQuery({
     queryKey: ["workspaces"],
@@ -122,6 +130,47 @@ function AppPage() {
     const { error } = await supabase.from("links").delete().eq("id", l.id);
     if (error) toast.error(error.message); else void reloadLinks();
   }
+
+  const linksSection = (
+    <div>
+                <NewLinkForm wsId={wsId} onCreated={() => void reloadLinks()} />
+                <div className="mt-6 flex items-center justify-end gap-2 text-sm text-muted-foreground">
+                  <Switch id="arch" checked={showArchived} onCheckedChange={setShowArchived} />
+                  <label htmlFor="arch">Afficher les archivés</label>
+                </div>
+                <div className="mt-3 overflow-x-auto rounded-lg border bg-card">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted text-left text-xs uppercase tracking-wider text-muted-foreground">
+                      <tr><th className="px-4 py-3">Nom</th><th className="px-4 py-3">Nomenclature</th><th className="px-4 py-3">Lien court</th><th className="px-4 py-3 text-right">Visites</th><th /></tr>
+                    </thead>
+                    <tbody>
+                      {visible.map((l) => {
+                        const short = `${window.location.origin}/r/${l.code}`;
+                        return (
+                          <tr key={l.id} className={`border-t ${l.archived_at ? "opacity-50" : ""}`}>
+                            <td className="px-4 py-3 font-medium">{l.name}</td>
+                            <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                              {l.utm_source} · {l.utm_medium} · {l.utm_campaign}{l.utm_content ? ` · ${l.utm_content}` : ""}
+                            </td>
+                            <td className="px-4 py-3">
+                              <Button variant="link" className="h-auto p-0 font-mono text-xs" onClick={() => { void navigator.clipboard.writeText(short); toast.success("Lien copié"); }}>/r/{l.code}</Button>
+                            </td>
+                            <td className="px-4 py-3 text-right tabular-nums">{counts[l.id] ?? 0}</td>
+                            <td className="whitespace-nowrap px-4 py-3 text-right">
+                              <Button size="icon" variant="ghost" onClick={() => setQrLink(l)} aria-label={`QR · ${l.name}`} title="QR code"><QrCode /></Button>
+                              <Button size="icon" variant="ghost" onClick={() => setEditLink(l)} aria-label={`Modifier · ${l.name}`} title="Modifier"><Pencil /></Button>
+                              <Button size="icon" variant="ghost" onClick={() => toggleArchive(l)} aria-label={`${l.archived_at ? "Réactiver" : "Archiver"} · ${l.name}`} title={l.archived_at ? "Réactiver" : "Archiver"}>{l.archived_at ? <ArchiveRestore /> : <Archive />}</Button>
+                              <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeLink(l)} aria-label={`Supprimer · ${l.name}`} title="Supprimer"><Trash2 /></Button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {visible.length === 0 && <tr><td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">Aucun lien. Créez-en un ci-dessus.</td></tr>}
+                    </tbody>
+                  </table>
+                </div>
+    </div>
+  );
 
   return (
     <div className="biiz-app min-h-screen bg-background">
@@ -200,7 +249,7 @@ function AppPage() {
               <TabsContent value="performance" className="mt-6"><PerformancePanel m={mk} /></TabsContent>
               <TabsContent value="tracking" className="mt-6">
                 <SubNav value={trackSub} onChange={setTrackSub} items={[["liens", "Liens & QR", <Link2 key="l" />], ["analyse", "Analyse", <BarChart3 key="a" />], ["parcours", "Parcours", <Waypoints key="p" />], ["install", "Installation", <Settings2 key="i" />]]} />
-                {trackSub === "liens" && <LinksSection />}
+                {trackSub === "liens" && linksSection}
                 {trackSub === "analyse" && <div className="mt-6"><AnalysePanel links={links.data ?? []} clicks={clicks.data ?? []} counts={counts} /></div>}
                 {trackSub === "parcours" && <div className="mt-6"><ParcoursPanel wsId={wsId} links={links.data ?? []} /></div>}
                 {trackSub === "install" && <div className="mt-6"><InstallPanel /></div>}
@@ -220,52 +269,8 @@ function AppPage() {
                     </div>
                   ) : null;
                 })()}
-                <CuisinePanel wsId={wsId} />
+                </div>}
               </TabsContent>
-              <TabsContent value="script-ia" className="mt-6"><ScriptIAPanel wsId={wsId} /></TabsContent>
-
-              <TabsContent value="liens">
-                <NewLinkForm wsId={wsId} onCreated={() => void reloadLinks()} />
-                <div className="mt-6 flex items-center justify-end gap-2 text-sm text-muted-foreground">
-                  <Switch id="arch" checked={showArchived} onCheckedChange={setShowArchived} />
-                  <label htmlFor="arch">Afficher les archivés</label>
-                </div>
-                <div className="mt-3 overflow-x-auto rounded-lg border bg-card">
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted text-left text-xs uppercase tracking-wider text-muted-foreground">
-                      <tr><th className="px-4 py-3">Nom</th><th className="px-4 py-3">Nomenclature</th><th className="px-4 py-3">Lien court</th><th className="px-4 py-3 text-right">Visites</th><th /></tr>
-                    </thead>
-                    <tbody>
-                      {visible.map((l) => {
-                        const short = `${window.location.origin}/r/${l.code}`;
-                        return (
-                          <tr key={l.id} className={`border-t ${l.archived_at ? "opacity-50" : ""}`}>
-                            <td className="px-4 py-3 font-medium">{l.name}</td>
-                            <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                              {l.utm_source} · {l.utm_medium} · {l.utm_campaign}{l.utm_content ? ` · ${l.utm_content}` : ""}
-                            </td>
-                            <td className="px-4 py-3">
-                              <Button variant="link" className="h-auto p-0 font-mono text-xs" onClick={() => { void navigator.clipboard.writeText(short); toast.success("Lien copié"); }}>/r/{l.code}</Button>
-                            </td>
-                            <td className="px-4 py-3 text-right tabular-nums">{counts[l.id] ?? 0}</td>
-                            <td className="whitespace-nowrap px-4 py-3 text-right">
-                              <Button size="icon" variant="ghost" onClick={() => setQrLink(l)} aria-label={`QR · ${l.name}`} title="QR code"><QrCode /></Button>
-                              <Button size="icon" variant="ghost" onClick={() => setEditLink(l)} aria-label={`Modifier · ${l.name}`} title="Modifier"><Pencil /></Button>
-                              <Button size="icon" variant="ghost" onClick={() => toggleArchive(l)} aria-label={`${l.archived_at ? "Réactiver" : "Archiver"} · ${l.name}`} title={l.archived_at ? "Réactiver" : "Archiver"}>{l.archived_at ? <ArchiveRestore /> : <Archive />}</Button>
-                              <Button size="icon" variant="ghost" className="text-destructive" onClick={() => removeLink(l)} aria-label={`Supprimer · ${l.name}`} title="Supprimer"><Trash2 /></Button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                      {visible.length === 0 && <tr><td colSpan={5} className="px-4 py-10 text-center text-muted-foreground">Aucun lien. Créez-en un ci-dessus.</td></tr>}
-                    </tbody>
-                  </table>
-                </div>
-              </TabsContent>
-              <TabsContent value="analyse" className="mt-6"><AnalysePanel links={links.data ?? []} clicks={clicks.data ?? []} counts={counts} /></TabsContent>
-              <TabsContent value="parcours" className="mt-6"><ParcoursPanel wsId={wsId} links={links.data ?? []} /></TabsContent>
-              <TabsContent value="equipe" className="mt-6"><EquipePanel wsId={wsId} /></TabsContent>
-              <TabsContent value="install" className="mt-6"><InstallPanel /></TabsContent>
             </Tabs>
           </>
         ) : null}
@@ -377,5 +382,15 @@ function QrDialog({ link, onClose }: { link: TLink | null; onClose: () => void }
         <Button asChild><a href={src} download={`qr-${link?.code}.png`}>Télécharger le PNG</a></Button>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function SubNav({ value, onChange, items }: { value: string; onChange: (v: string) => void; items: [string, string, React.ReactNode][] }) {
+  return (
+    <div role="tablist" className="flex gap-1 overflow-x-auto rounded-lg border bg-card p-1">
+      {items.map(([k, l, icon]) => (
+        <Button key={k} role="tab" aria-selected={value === k} size="sm" variant={value === k ? "default" : "ghost"} className="shrink-0 [&_svg]:size-4" onClick={() => onChange(k)}>{icon}{l}</Button>
+      ))}
+    </div>
   );
 }
