@@ -118,6 +118,9 @@ create index if not exists contents_campaign_idx on public.contents(campaign_id)
 create index if not exists contents_ws_publish_idx on public.contents(workspace_id,publish_date);
 
 drop policy if exists "members add contents" on public.contents;
+drop policy if exists "writers add contents" on public.contents;
+drop policy if exists "writers edit contents" on public.contents;
+drop policy if exists "editors delete contents" on public.contents;
 drop policy if exists "members edit contents" on public.contents;
 drop policy if exists "members delete contents" on public.contents;
 drop policy if exists "writers add contents" on public.contents;
@@ -269,6 +272,9 @@ alter table public.links add column if not exists campaign_id uuid references pu
 create index if not exists links_campaign_idx on public.links(campaign_id);
 
 drop policy if exists "members add links" on public.links;
+drop policy if exists "writers add links" on public.links;
+drop policy if exists "writers edit links" on public.links;
+drop policy if exists "editors delete links" on public.links;
 drop policy if exists "members edit links" on public.links;
 drop policy if exists "members delete links" on public.links;
 drop policy if exists "editors delete links" on public.links;
