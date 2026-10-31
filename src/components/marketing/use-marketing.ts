@@ -12,7 +12,7 @@ export type MLink = Tables<"links">;
 export function useMarketing(wsId: string) {
   const qc = useQueryClient();
   const q = <T,>(key: string, fn: () => PromiseLike<{ data: T | null; error: unknown }>) =>
-    useQuery({ queryKey: [key, wsId], queryFn: async () => { const { data, error } = await fn(); if (error) throw error; return (data ?? []) as T; } });
+    useQuery({ queryKey: [key, wsId], enabled: !!wsId, queryFn: async () => { const { data, error } = await fn(); if (error) throw error; return (data ?? []) as T; } });
   const campaigns = q<Campaign[]>("campaigns", () => supabase.from("campaigns").select("*").eq("workspace_id", wsId).order("created_at", { ascending: false }));
   const contents = q<Content[]>("contents", () => supabase.from("contents").select("*").eq("workspace_id", wsId).order("created_at", { ascending: false }));
   const dists = q<Distribution[]>("distributions", () => supabase.from("distributions").select("*").eq("workspace_id", wsId).order("created_at"));
