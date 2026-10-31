@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import {
-  BarChart3, CalendarDays, ChevronDown, ClipboardList, FileText, Link2,
+  BarChart3, CalendarDays, ChevronDown, ClipboardList, FileText, Link2, Megaphone, Target,
   ChefHat, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import { SOURCES, slugify, randomCode } from "@/lib/utm";
 import { AnalysePanel, EquipePanel, InstallPanel, ParcoursPanel, type TLink } from "@/components/tracking/panels";
 import { ContenusPanel } from "@/components/tracking/contenus";
+import { CampaignsPanel, AdsPanel, PerformancePanel } from "@/components/tracking/marketing-core";
 import { CalendrierPanel } from "@/components/tracking/calendrier";
 import { TachesPanel } from "@/components/tracking/taches";
 import { ScriptIAPanel } from "@/components/tracking/script-ia";
@@ -180,13 +181,13 @@ function AppPage() {
               <div className="biiz-tabs-shell biiz-navigation">
               <div className="biiz-sidebar-brand"><span className="biiz-mark">B</span><div><span className="text-lg font-semibold">BIIZ</span><span className="biiz-sidebar-label">Cockpit marketing</span></div></div>
               <TabsList className="biiz-tabs">
-                <TabsTrigger value="contenus"><FileText />Contenus</TabsTrigger>
+                <TabsTrigger value="campaigns"><Target />Campagnes</TabsTrigger><TabsTrigger value="contenus"><FileText />Contenus</TabsTrigger>
                 <TabsTrigger value="cuisine"><ChefHat />Page cuisine</TabsTrigger>
                 <TabsTrigger value="script-ia"><Sparkles />Script IA</TabsTrigger>
                 <TabsTrigger value="taches"><ClipboardList />Tâches</TabsTrigger>
                 <TabsTrigger value="calendrier"><CalendarDays />Calendrier</TabsTrigger>
-                <TabsTrigger value="liens"><Link2 />Liens & QR</TabsTrigger>
-                <TabsTrigger value="analyse"><BarChart3 />Analyse</TabsTrigger>
+                <TabsTrigger value="ads"><Megaphone />Ads</TabsTrigger><TabsTrigger value="liens"><Link2 />Liens & QR</TabsTrigger>
+                <TabsTrigger value="performance"><BarChart3 />Performance</TabsTrigger><TabsTrigger value="analyse"><BarChart3 />Analyse</TabsTrigger>
                 <TabsTrigger value="parcours"><Waypoints />Parcours</TabsTrigger>
                 <TabsTrigger value="equipe"><Users />Équipe</TabsTrigger>
                 <TabsTrigger value="install"><Settings2 />Installation</TabsTrigger>
@@ -194,6 +195,7 @@ function AppPage() {
               <ChevronDown className="biiz-tabs-hint" />
               <div className="biiz-sidebar-footer"><span className="flex items-center gap-2"><Activity className="size-3.5" />Espace collaboratif</span><span className="mt-2 block">BIIZ par Axium Studios</span></div>
               </div>
+              <TabsContent value="campaigns" className="mt-6"><CampaignsPanel wsId={wsId} /></TabsContent>
               <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
               <TabsContent value="taches" className="mt-6"><TachesPanel wsId={wsId} /></TabsContent>
@@ -211,6 +213,7 @@ function AppPage() {
               </TabsContent>
               <TabsContent value="script-ia" className="mt-6"><ScriptIAPanel wsId={wsId} /></TabsContent>
 
+              <TabsContent value="ads" className="mt-6"><AdsPanel wsId={wsId} /></TabsContent>
               <TabsContent value="liens">
                 <NewLinkForm wsId={wsId} onCreated={() => void reloadLinks()} />
                 <div className="mt-6 flex items-center justify-end gap-2 text-sm text-muted-foreground">
@@ -249,6 +252,7 @@ function AppPage() {
                   </table>
                 </div>
               </TabsContent>
+              <TabsContent value="performance" className="mt-6"><PerformancePanel wsId={wsId} /></TabsContent>
               <TabsContent value="analyse" className="mt-6"><AnalysePanel links={links.data ?? []} clicks={clicks.data ?? []} counts={counts} /></TabsContent>
               <TabsContent value="parcours" className="mt-6"><ParcoursPanel wsId={wsId} links={links.data ?? []} /></TabsContent>
               <TabsContent value="equipe" className="mt-6"><EquipePanel wsId={wsId} /></TabsContent>
