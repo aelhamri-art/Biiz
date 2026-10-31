@@ -24,3 +24,8 @@
 - [x] Import CSV calendrier HADAL M01.
 - [x] Revenue purchase/booking_completed remonté campagne/contenu via lien/diffusion.
 - [x] Tests (CPA/ROAS, agrégation, import) + vérification bout en bout.
+
+# HADAL M01 — Classeur intégré
+- [x] Contenus enrichis (jour, format, visuel, vérification, aperçu) sur les 12 IDs.
+- [x] Stories (4 familles + cycle 7 jours) et Tournages (4 briefs) dans Production & équipe.
+- [x] 12 liens Story relais + 12 diffusions story ; Mesure M01 + protocole et arbitrage J+21 dans Performance.

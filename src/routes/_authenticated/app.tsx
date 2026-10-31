@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import {
   BarChart3, CalendarDays, ChevronDown, ClipboardList, FileText, Link2,
-  ChefHat, LayoutDashboard, Megaphone, Target, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2,
+  ChefHat, LayoutDashboard, Megaphone, Target, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2, Smartphone, Clapperboard,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BiizFooter } from "@/components/biiz-footer";
@@ -28,6 +28,8 @@ import { DashboardPanel } from "@/components/marketing/dashboard";
 import { CampagnesPanel } from "@/components/marketing/campagnes";
 import { AdsPanel } from "@/components/marketing/ads";
 import { PerformancePanel } from "@/components/marketing/performance";
+import { StoriesPanel } from "@/components/marketing/stories";
+import { TournagesPanel } from "@/components/marketing/tournages";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({
@@ -246,7 +248,7 @@ function AppPage() {
               <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} m={mk} /></TabsContent>
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
               <TabsContent value="ads" className="mt-6"><AdsPanel wsId={wsId} m={mk} /></TabsContent>
-              <TabsContent value="performance" className="mt-6"><PerformancePanel m={mk} /></TabsContent>
+              <TabsContent value="performance" className="mt-6"><PerformancePanel wsId={wsId} m={mk} /></TabsContent>
               <TabsContent value="tracking" className="mt-6">
                 <SubNav value={trackSub} onChange={setTrackSub} items={[["liens", "Liens & QR", <Link2 key="l" />], ["analyse", "Analyse", <BarChart3 key="a" />], ["parcours", "Parcours", <Waypoints key="p" />], ["install", "Installation", <Settings2 key="i" />]]} />
                 {trackSub === "liens" && linksSection}
@@ -255,7 +257,9 @@ function AppPage() {
                 {trackSub === "install" && <div className="mt-6"><InstallPanel /></div>}
               </TabsContent>
               <TabsContent value="production" className="mt-6">
-                <SubNav value={prodSub} onChange={setProdSub} items={[["cuisine", "Page cuisine", <ChefHat key="c" />], ["script-ia", "Script IA", <Sparkles key="s" />], ["taches", "Tâches", <ClipboardList key="t" />], ["equipe", "Équipe", <Users key="e" />]]} />
+                <SubNav value={prodSub} onChange={setProdSub} items={[["cuisine", "Page cuisine", <ChefHat key="c" />], ["stories", "Stories", <Smartphone key="st" />], ["tournages", "Tournages", <Clapperboard key="to" />], ["script-ia", "Script IA", <Sparkles key="s" />], ["taches", "Tâches", <ClipboardList key="t" />], ["equipe", "Équipe", <Users key="e" />]]} />
+                {prodSub === "stories" && <div className="mt-6"><StoriesPanel wsId={wsId} /></div>}
+                {prodSub === "tournages" && <div className="mt-6"><TournagesPanel wsId={wsId} m={mk} /></div>}
                 {prodSub === "taches" && <div className="mt-6"><TachesPanel wsId={wsId} /></div>}
                 {prodSub === "script-ia" && <div className="mt-6"><ScriptIAPanel wsId={wsId} /></div>}
                 {prodSub === "equipe" && <div className="mt-6"><EquipePanel wsId={wsId} /></div>}

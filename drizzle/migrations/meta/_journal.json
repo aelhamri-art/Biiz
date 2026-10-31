@@ -78,6 +78,13 @@
       "when": 1793438159733,
       "tag": "0010_marketing_v1_1_campaigns",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1793448583444,
+      "tag": "0011_hadal_m01_workbook",
+      "breakpoints": true
     }
   ]
 }

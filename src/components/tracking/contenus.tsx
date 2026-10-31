@@ -117,7 +117,7 @@ export function ContenusPanel({ wsId, m }: { wsId: string; m: MarketingData }) {
                   <td className="max-w-[200px] truncate px-3 py-2 text-xs">{c.business_objective ?? "—"}</td>
                   <td className="max-w-[160px] truncate px-3 py-2 text-xs">{c.target_summary ?? "—"}</td>
                   <td className="px-3 py-2 text-xs">{c.cta ?? "—"}</td>
-                  <td className="px-3 py-2 text-xs">{fmtDate(c.publish_date ?? c.due_date) || "—"}</td>
+                  <td className="px-3 py-2 text-xs">{fmtDate(c.publish_date ?? c.due_date) || c.planned_day || "—"}</td>
                   <td className="px-3 py-2 text-xs">{statusLabel(c.status)}</td>
                   <td className="px-3 py-2 text-xs">{c.link_id ? "/r/" + (m.links.data?.find((l) => l.id === c.link_id)?.code ?? "") : "—"}</td>
                 </tr>
@@ -236,6 +236,7 @@ function ContentDetail({ wsId, m, c }: { wsId: string; m: MarketingData; c: Cont
     title: c.title, body: s(c.body), status: c.status, campaign_id: c.campaign_id ?? NONE, format: c.format ?? NONE, nature: c.nature ?? NONE,
     platform: s(c.platform), business_objective: s(c.business_objective), target_summary: s(c.target_summary), cta: s(c.cta),
     caption: s(c.caption), asset_url: s(c.asset_url), publish_date: s(c.publish_date), week_label: s(c.week_label), link_id: c.link_id ?? NONE,
+    planned_day: s(c.planned_day), format_detail: s(c.format_detail), visual_status: s(c.visual_status), pre_publish_check: s(c.pre_publish_check), preview_note: s(c.preview_note),
   });
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setF({ ...f, [k]: e.target.value });
   const sel = (k: keyof typeof f, items: readonly (readonly [string, string])[], label: string) => (
@@ -252,6 +253,7 @@ function ContentDetail({ wsId, m, c }: { wsId: string; m: MarketingData; c: Cont
       title: f.title.trim() || c.title, body: n(f.body), status: f.status, campaign_id: n(f.campaign_id), format: n(f.format), nature: n(f.nature),
       platform: n(f.platform), business_objective: n(f.business_objective), target_summary: n(f.target_summary), cta: n(f.cta),
       caption: n(f.caption), asset_url: n(f.asset_url), publish_date: n(f.publish_date), week_label: n(f.week_label), link_id: n(f.link_id),
+      planned_day: n(f.planned_day), format_detail: n(f.format_detail), visual_status: n(f.visual_status), pre_publish_check: n(f.pre_publish_check), preview_note: n(f.preview_note),
     }).eq("id", c.id);
     if (error) toast.error(error.message); else { toast.success("Contenu enregistré"); m.reload("contents"); }
   }
@@ -264,7 +266,8 @@ function ContentDetail({ wsId, m, c }: { wsId: string; m: MarketingData; c: Cont
   return (
     <>
       <DialogHeader><DialogTitle>{c.title}</DialogTitle></DialogHeader>
-      <p className="text-xs text-muted-foreground">{typeLabel(c.type)} · {statusLabel(c.status)} · CA attribué {eur(r?.revenue ?? 0)} · {r?.conversions ?? 0} conversion(s) · {r?.clicks ?? 0} clic(s)</p>
+      <p className="text-xs text-muted-foreground">{c.source_id ? <span className="mr-1 rounded bg-primary/10 px-1.5 py-0.5 font-mono font-medium text-primary">{c.source_id}</span> : null}{typeLabel(c.type)} · {statusLabel(c.status)} · CA attribué {eur(r?.revenue ?? 0)} · {r?.conversions ?? 0} conversion(s) · {r?.clicks ?? 0} clic(s)</p>
+      {c.pre_publish_check && <div className="rounded-md border border-chart-4/40 bg-chart-4/10 p-3 text-sm"><p className="text-xs font-semibold uppercase text-muted-foreground">Avant publication</p><p className="mt-1">{c.pre_publish_check}</p></div>}
       <div className="grid gap-3 md:grid-cols-6">
         <div className="space-y-1.5 md:col-span-4"><Label>Titre / concept</Label><Input value={f.title} onChange={set("title")} /></div>
         <div className="space-y-1.5 md:col-span-2"><Label>Statut</Label>
@@ -280,6 +283,11 @@ function ContentDetail({ wsId, m, c }: { wsId: string; m: MarketingData; c: Cont
         <div className="space-y-1.5 md:col-span-3"><Label>Cible</Label><Input value={f.target_summary} onChange={set("target_summary")} /></div>
         <div className="space-y-1.5 md:col-span-2"><Label>CTA</Label><Input placeholder="Télécharge l'app" value={f.cta} onChange={set("cta")} /></div>
         <div className="space-y-1.5 md:col-span-4"><Label>Asset / visuel (URL ou nom)</Label><Input value={f.asset_url} onChange={set("asset_url")} /></div>
+        <div className="space-y-1.5 md:col-span-2"><Label>Jour prévu</Label><Input placeholder="Mardi" value={f.planned_day} onChange={set("planned_day")} /></div>
+        <div className="space-y-1.5 md:col-span-2"><Label>Format détaillé</Label><Input placeholder="Statique commercial · 4:5" value={f.format_detail} onChange={set("format_detail")} /></div>
+        <div className="space-y-1.5 md:col-span-2"><Label>Aperçu</Label><Input placeholder="Tournage réel" value={f.preview_note} onChange={set("preview_note")} /></div>
+        <div className="space-y-1.5 md:col-span-6"><Label>Visuel prêt ?</Label><Input value={f.visual_status} onChange={set("visual_status")} /></div>
+        <div className="space-y-1.5 md:col-span-6"><Label>Vérification avant publication</Label><Textarea rows={2} value={f.pre_publish_check} onChange={set("pre_publish_check")} /></div>
         <div className="space-y-1.5 md:col-span-6"><Label>Légende / copy</Label><Textarea rows={3} value={f.caption} onChange={set("caption")} /></div>
         <div className="space-y-1.5 md:col-span-6"><Label>Brief</Label><Textarea rows={3} value={f.body} onChange={set("body")} /></div>
         <div className="md:col-span-6">{sel("link_id", (m.links.data ?? []).filter((l) => !l.archived_at).map((l) => [l.id, `${l.name} · /r/${l.code}`] as const), "Lien BIIZ principal")}</div>
