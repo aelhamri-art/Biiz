@@ -1,25 +1,100 @@
 import { format, startOfMonth, startOfWeek } from "date-fns";
 
-// Editorial rules for HADAL. Missions themselves are written by the creative direction in the cockpit.
-export const editorialCadence = [
-  { id: "pov", count: 2, period: "week", title: "POV humoristiques", rhythm: "2 / semaine", role: "Faire rire avec une vraie situation entre collègues.", owner: "Équipe cuisine" },
-  { id: "static", count: 1, period: "week", title: "Post statique", rhythm: "1 / semaine", role: "Montrer un Berliner avec une photo simple et nette.", owner: "Équipe cuisine" },
-  { id: "signature", count: 1, period: "month", title: "Film signature", rhythm: "1 / mois", role: "Installer l’identité HADAL avec un film publicitaire soigné.", owner: "Production dédiée" },
-  { id: "operation", count: 1, period: "month", title: "Opération HADAL", rhythm: "1 / mois", role: "Créer un temps fort autour de HADAL.", owner: "Organisation dédiée" },
-] as const;
+export type EditorialCadenceItem = {
+  id: string;
+  count: number;
+  maxCount?: number;
+  period: "week" | "day";
+  title: string;
+  rhythm: string;
+  role: string;
+  owner: string;
+};
+
+export const editorialCadence: EditorialCadenceItem[] = [
+  {
+    id: "static_commercial",
+    count: 1,
+    period: "week",
+    title: "Post commercial",
+    rhythm: "1 / semaine",
+    role: "Donner une raison de commander maintenant.",
+    owner: "Direction créative",
+  },
+  {
+    id: "static_lifestyle",
+    count: 1,
+    period: "week",
+    title: "Post lifestyle / engageant",
+    rhythm: "1 / semaine",
+    role: "Créer de la préférence et parler à la vraie vie de la cible.",
+    owner: "Direction créative",
+  },
+  {
+    id: "video_simple",
+    count: 1,
+    period: "week",
+    title: "Vidéo simple",
+    rhythm: "1 / semaine",
+    role: "Apporter du réel : produit, préparation, app, cuisine, commande.",
+    owner: "Équipe HADAL + montage",
+  },
+  {
+    id: "stories",
+    count: 2,
+    maxCount: 3,
+    period: "day",
+    title: "Stories",
+    rhythm: "2–3 / jour",
+    role: "Rester présent et pousser régulièrement vers la commande.",
+    owner: "Équipe HADAL / marketing",
+  },
+];
+
+type CadenceSettings = {
+  static_commercial_per_week?: number;
+  static_lifestyle_per_week?: number;
+  simple_video_per_week?: number;
+  stories_per_day_min?: number;
+  stories_per_day_max?: number;
+};
+
+export function cadenceFromSettings(value: unknown): EditorialCadenceItem[] {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return editorialCadence;
+  const v = value as CadenceSettings;
+  const positive = (n: unknown, fallback: number) => typeof n === "number" && Number.isFinite(n) && n >= 0 ? n : fallback;
+
+  const commercial = positive(v.static_commercial_per_week, 1);
+  const lifestyle = positive(v.static_lifestyle_per_week, 1);
+  const video = positive(v.simple_video_per_week, 1);
+  const storiesMin = positive(v.stories_per_day_min, 2);
+  const storiesMax = Math.max(storiesMin, positive(v.stories_per_day_max, 3));
+
+  return [
+    { ...editorialCadence[0]!, count: commercial, rhythm: `${commercial} / semaine` },
+    { ...editorialCadence[1]!, count: lifestyle, rhythm: `${lifestyle} / semaine` },
+    { ...editorialCadence[2]!, count: video, rhythm: `${video} / semaine` },
+    { ...editorialCadence[3]!, count: storiesMin, maxCount: storiesMax, rhythm: `${storiesMin}–${storiesMax} / jour` },
+  ];
+}
 
 export const shootingRules = [
   { id: "vertical", title: "Téléphone vertical", detail: "Format 9:16. Jamais à l’horizontale." },
   { id: "lens", title: "Nettoie l’objectif", detail: "Un coup de chiffon propre avant de filmer." },
   { id: "zoom", title: "Caméra 1x", detail: "Pas de zoom. Rapproche-toi avec tes pieds." },
-  { id: "light", title: "Lumière devant", detail: "La lumière éclaire les visages, pas leur dos." },
+  { id: "light", title: "Lumière devant", detail: "La lumière éclaire le produit ou l’action, pas l’arrière-plan." },
   { id: "timing", title: "Plans de 3 à 6 s", detail: "Lance 1 s avant l’action, coupe 1 s après." },
-  { id: "natural", title: "Reste naturel", detail: "Parle et joue comme entre collègues." },
+  { id: "natural", title: "Reste naturel", detail: "Filme ce qui se passe vraiment. Pas besoin de jouer une scène." },
 ] as const;
 export type RuleId = typeof shootingRules[number]["id"];
 
 export const MISSION_KINDS = [
-  ["pov", "POV humour"], ["statique", "Post statique"], ["film", "Film signature"], ["operation", "Opération HADAL"],
+  ["video_simple", "Vidéo simple"],
+  ["story_capture", "Matière story"],
+  ["statique", "Photo / statique"],
+  ["pov", "POV humour · historique"],
+  ["film", "Film signature · historique"],
+  ["operation", "Opération HADAL"],
 ] as const;
 export const kindLabel = (k: string) => MISSION_KINDS.find(([v]) => v === k)?.[1] ?? k;
 
