@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_performance: {
+        Row: {
+          budget: number | null
+          campaign_id: string | null
+          clicks: number
+          content_id: string | null
+          conversions: number
+          created_at: string
+          created_by: string
+          distribution_id: string | null
+          external_id: string | null
+          id: string
+          impressions: number
+          learning: string | null
+          name: string
+          period_end: string | null
+          period_start: string | null
+          platform: string
+          reach: number
+          revenue: number
+          spend: number
+          status: string
+          synced_at: string | null
+          workspace_id: string
+        }
+        Insert: {
+          budget?: number | null
+          campaign_id?: string | null
+          clicks?: number
+          content_id?: string | null
+          conversions?: number
+          created_at?: string
+          created_by?: string
+          distribution_id?: string | null
+          external_id?: string | null
+          id?: string
+          impressions?: number
+          learning?: string | null
+          name: string
+          period_end?: string | null
+          period_start?: string | null
+          platform: string
+          reach?: number
+          revenue?: number
+          spend?: number
+          status?: string
+          synced_at?: string | null
+          workspace_id: string
+        }
+        Update: {
+          budget?: number | null
+          campaign_id?: string | null
+          clicks?: number
+          content_id?: string | null
+          conversions?: number
+          created_at?: string
+          created_by?: string
+          distribution_id?: string | null
+          external_id?: string | null
+          id?: string
+          impressions?: number
+          learning?: string | null
+          name?: string
+          period_end?: string | null
+          period_start?: string | null
+          platform?: string
+          reach?: number
+          revenue?: number
+          spend?: number
+          status?: string
+          synced_at?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_performance_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_performance_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "contents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_performance_distribution_id_fkey"
+            columns: ["distribution_id"]
+            isOneToOne: false
+            referencedRelation: "distributions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ad_performance_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_events: {
         Row: {
           content_id: string | null
@@ -71,6 +175,62 @@ export type Database = {
           },
         ]
       }
+      campaigns: {
+        Row: {
+          budget: number | null
+          created_at: string
+          created_by: string
+          end_date: string | null
+          id: string
+          name: string
+          notes: string | null
+          objective: string | null
+          offer: string | null
+          start_date: string | null
+          status: string
+          target: string | null
+          workspace_id: string
+        }
+        Insert: {
+          budget?: number | null
+          created_at?: string
+          created_by?: string
+          end_date?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          objective?: string | null
+          offer?: string | null
+          start_date?: string | null
+          status?: string
+          target?: string | null
+          workspace_id: string
+        }
+        Update: {
+          budget?: number | null
+          created_at?: string
+          created_by?: string
+          end_date?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          objective?: string | null
+          offer?: string | null
+          start_date?: string | null
+          status?: string
+          target?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clicks: {
         Row: {
           created_at: string
@@ -115,48 +275,101 @@ export type Database = {
       }
       contents: {
         Row: {
+          asset_url: string | null
+          assignee_id: string | null
           body: string | null
+          business_objective: string | null
+          campaign_id: string | null
+          caption: string | null
           created_at: string
           created_by: string
+          cta: string | null
           due_date: string | null
           file_name: string | null
           file_path: string | null
+          format: string | null
           id: string
+          link_id: string | null
           mission_id: string | null
+          nature: string | null
+          platform: string | null
+          publish_date: string | null
           status: string
+          target_summary: string | null
           title: string
           type: string
+          week_label: string | null
           workspace_id: string
         }
         Insert: {
+          asset_url?: string | null
+          assignee_id?: string | null
           body?: string | null
+          business_objective?: string | null
+          campaign_id?: string | null
+          caption?: string | null
           created_at?: string
           created_by?: string
+          cta?: string | null
           due_date?: string | null
           file_name?: string | null
           file_path?: string | null
+          format?: string | null
           id?: string
+          link_id?: string | null
           mission_id?: string | null
+          nature?: string | null
+          platform?: string | null
+          publish_date?: string | null
           status?: string
+          target_summary?: string | null
           title: string
           type: string
+          week_label?: string | null
           workspace_id: string
         }
         Update: {
+          asset_url?: string | null
+          assignee_id?: string | null
           body?: string | null
+          business_objective?: string | null
+          campaign_id?: string | null
+          caption?: string | null
           created_at?: string
           created_by?: string
+          cta?: string | null
           due_date?: string | null
           file_name?: string | null
           file_path?: string | null
+          format?: string | null
           id?: string
+          link_id?: string | null
           mission_id?: string | null
+          nature?: string | null
+          platform?: string | null
+          publish_date?: string | null
           status?: string
+          target_summary?: string | null
           title?: string
           type?: string
+          week_label?: string | null
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "contents_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contents_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "contents_mission_id_fkey"
             columns: ["mission_id"]
@@ -166,6 +379,104 @@ export type Database = {
           },
           {
             foreignKeyName: "contents_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      distributions: {
+        Row: {
+          campaign_id: string | null
+          channel: string
+          clicks: number | null
+          comments: number | null
+          content_id: string
+          created_at: string
+          created_by: string
+          id: string
+          impressions: number | null
+          likes: number | null
+          link_id: string | null
+          mode: string
+          notes: string | null
+          profile_visits: number | null
+          published_on: string | null
+          reach: number | null
+          saves: number | null
+          shares: number | null
+          status: string
+          workspace_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          channel: string
+          clicks?: number | null
+          comments?: number | null
+          content_id: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          impressions?: number | null
+          likes?: number | null
+          link_id?: string | null
+          mode?: string
+          notes?: string | null
+          profile_visits?: number | null
+          published_on?: string | null
+          reach?: number | null
+          saves?: number | null
+          shares?: number | null
+          status?: string
+          workspace_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          channel?: string
+          clicks?: number | null
+          comments?: number | null
+          content_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          impressions?: number | null
+          likes?: number | null
+          link_id?: string | null
+          mode?: string
+          notes?: string | null
+          profile_visits?: number | null
+          published_on?: string | null
+          reach?: number | null
+          saves?: number | null
+          shares?: number | null
+          status?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distributions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "distributions_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "contents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "distributions_link_id_fkey"
+            columns: ["link_id"]
+            isOneToOne: false
+            referencedRelation: "links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "distributions_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
@@ -343,6 +654,7 @@ export type Database = {
       links: {
         Row: {
           archived_at: string | null
+          campaign_id: string | null
           code: string
           created_at: string
           created_by: string
@@ -357,6 +669,7 @@ export type Database = {
         }
         Insert: {
           archived_at?: string | null
+          campaign_id?: string | null
           code: string
           created_at?: string
           created_by?: string
@@ -371,6 +684,7 @@ export type Database = {
         }
         Update: {
           archived_at?: string | null
+          campaign_id?: string | null
           code?: string
           created_at?: string
           created_by?: string
@@ -384,6 +698,13 @@ export type Database = {
           workspace_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "links_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "links_workspace_id_fkey"
             columns: ["workspace_id"]
@@ -928,16 +1249,19 @@ export type Database = {
       workspace_members: {
         Row: {
           created_at: string
+          role: string
           user_id: string
           workspace_id: string
         }
         Insert: {
           created_at?: string
+          role?: string
           user_id: string
           workspace_id: string
         }
         Update: {
           created_at?: string
+          role?: string
           user_id?: string
           workspace_id?: string
         }
@@ -954,6 +1278,7 @@ export type Database = {
       workspaces: {
         Row: {
           app: string
+          cadence: Json
           created_at: string
           created_by: string
           id: string
@@ -961,6 +1286,7 @@ export type Database = {
         }
         Insert: {
           app?: string
+          cadence?: Json
           created_at?: string
           created_by?: string
           id?: string
@@ -968,6 +1294,7 @@ export type Database = {
         }
         Update: {
           app?: string
+          cadence?: Json
           created_at?: string
           created_by?: string
           id?: string
@@ -980,6 +1307,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_delete: { Args: { _ws: string }; Returns: boolean }
+      can_write: { Args: { _ws: string }; Returns: boolean }
       claim_invites: { Args: never; Returns: undefined }
       invite_member: { Args: { _email: string; _ws: string }; Returns: string }
       is_member: { Args: { _user: string; _ws: string }; Returns: boolean }
@@ -991,6 +1320,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      member_role: { Args: { _user: string; _ws: string }; Returns: string }
       remove_member: {
         Args: { _user: string; _ws: string }
         Returns: undefined
@@ -1004,6 +1334,10 @@ export type Database = {
           _outcome: string
         }
         Returns: string
+      }
+      set_member_role: {
+        Args: { _role: string; _user: string; _ws: string }
+        Returns: undefined
       }
     }
     Enums: {

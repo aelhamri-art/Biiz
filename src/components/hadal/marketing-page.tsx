@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { editorialCadence, instagramEmbedUrl, kindLabel, monthKey, parsePlans, shootingRules, weekKey, type KitchenMission } from "@/lib/hadal-marketing";
+import { instagramEmbedUrl, kindLabel, monthKey, parsePlans, shootingRules, weekKey, type KitchenMission } from "@/lib/hadal-marketing";
+import { parseCadence } from "@/lib/marketing";
 import { RuleVisual } from "./rule-visual";
 import kitchenEditorial from "@/assets/hadal-kitchen-editorial.jpg";
 
@@ -103,13 +104,13 @@ function Week({ wsId }: { wsId: string }) {
   const list = missions.data ?? [];
   const week = list.filter((m) => m.scope === "semaine");
   const month = list.filter((m) => m.scope === "mois");
-  const done = (k: string) => week.filter((m) => m.kind === k && sent[m.id]).length;
+  const cadence = useQuery({ queryKey: ["cadence", wsId], queryFn: async () => { const { data, error } = await supabase.from("workspaces").select("cadence").eq("id", wsId).single(); if (error) throw error; return parseCadence(data.cadence); } });
   return <div className="hadal-week-layout"><div className="hadal-week-intro">
     <p className="hadal-eyebrow"><CalendarDays className="size-3.5" />LE PROGRAMME</p>
     <h2 className="mt-3 text-3xl font-semibold leading-tight">Cette semaine</h2>
     <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Organisez-vous comme vous voulez. Tout doit être filmé d’ici dimanche.</p>
     <div className="hadal-cadence mt-7 grid grid-cols-2 gap-5 lg:grid-cols-1">
-      {editorialCadence.filter((c) => c.period === "week").map((c) => { const k = c.id === "pov" ? "pov" : "statique"; return <div key={c.id} className="flex items-center justify-between gap-3 border-t pt-4"><p className="text-xs text-muted-foreground">{c.title}</p><p className="font-mono text-2xl font-medium">{done(k)}<span className="text-sm text-muted-foreground"> / {c.count}</span></p></div>; })}
+      {(cadence.data ?? []).map((c, i) => <div key={i} className="flex items-center justify-between gap-3 border-t pt-4"><p className="text-xs text-muted-foreground">{c.label}</p><p className="font-mono text-2xl font-medium">{c.count}<span className="text-sm text-muted-foreground"> / {c.period}</span></p></div>)}
     </div>
     </div><div className="min-w-0">
     {missions.isLoading ? <div className="hadal-loading py-12"><Loader2 className="size-5 animate-spin text-primary" /><p className="text-sm text-muted-foreground">Chargement…</p></div> : week.length === 0

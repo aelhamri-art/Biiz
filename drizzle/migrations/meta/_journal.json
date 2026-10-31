@@ -71,6 +71,13 @@
       "when": 1791985657891,
       "tag": "0009_sales_coach_notes",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1793438159733,
+      "tag": "0010_marketing_v1_1_campaigns",
+      "breakpoints": true
     }
   ]
 }
