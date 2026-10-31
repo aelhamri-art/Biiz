@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { editorialCadence, instagramEmbedUrl, kindLabel, monthKey, parsePlans, shootingRules, weekKey, type KitchenMission } from "@/lib/hadal-marketing";
+import { instagramEmbedUrl, kindLabel, monthKey, parsePlans, shootingRules, weekKey, type KitchenMission } from "@/lib/hadal-marketing";
+import { parseCadence } from "@/lib/marketing";
 import { RuleVisual } from "./rule-visual";
 import kitchenEditorial from "@/assets/hadal-kitchen-editorial.jpg";
 

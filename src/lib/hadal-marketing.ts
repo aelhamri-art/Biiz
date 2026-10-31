@@ -1,6 +1,6 @@
 import { format, startOfMonth, startOfWeek } from "date-fns";
 
-// Editorial rules for HADAL. Missions themselves are written by the creative direction in the cockpit.
+// OBSOLÈTE : ancienne cadence, plus affichée. La cadence vient désormais de workspaces.cadence (onglet Dashboard).
 export const editorialCadence = [
   { id: "pov", count: 2, period: "week", title: "POV humoristiques", rhythm: "2 / semaine", role: "Faire rire avec une vraie situation entre collègues.", owner: "Équipe cuisine" },
   { id: "static", count: 1, period: "week", title: "Post statique", rhythm: "1 / semaine", role: "Montrer un Berliner avec une photo simple et nette.", owner: "Équipe cuisine" },
