@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { ContentCsvImport } from "@/components/tracking/content-csv-import";
 
 const db = supabase as any;
 
@@ -132,6 +133,7 @@ export function ContenusPanel({ wsId }: { wsId: string }) {
       </div>
 
       <NewContentForm wsId={wsId} onCreated={reload} />
+      <ContentCsvImport wsId={wsId} />
 
       <div className="biiz-filters flex flex-wrap items-center gap-2">
         <Button size="sm" variant={filter === "tous" ? "default" : "outline"} onClick={() => setFilter("tous")}>Tous</Button>
