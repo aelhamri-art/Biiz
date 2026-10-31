@@ -32,13 +32,13 @@ export type TContent = {
   nature: string | null;
   channel: string | null;
   platform: string | null;
-  objective: string | null;
+  business_objective: string | null;
   target_summary: string | null;
   cta: string | null;
   caption: string | null;
-  publish_at: string | null;
+  publish_date: string | null;
   link_id: string | null;
-  owner_id: string | null;
+  assignee_id: string | null;
 };
 
 type CampaignLite = { id: string; name: string };
@@ -153,9 +153,9 @@ export function ContenusPanel({ wsId }: { wsId: string }) {
                   <p className="mt-1 text-[11px] text-primary">{natureLabel(c.nature)} · {formatLabel(c.format)}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {campaignName(c.campaign_id) ?? "Sans campagne"}
-                    {c.publish_at ? ` · ${format(new Date(c.publish_at), "d MMM", { locale: fr })}` : c.due_date ? ` · ${format(new Date(c.due_date), "d MMM", { locale: fr })}` : ""}
+                    {c.publish_date ? ` · ${format(new Date(c.publish_date), "d MMM", { locale: fr })}` : c.due_date ? ` · ${format(new Date(c.due_date), "d MMM", { locale: fr })}` : ""}
                   </p>
-                  {c.objective && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{c.objective}</p>}
+                  {c.business_objective && <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{c.business_objective}</p>}
                   <div className="mt-2 flex flex-wrap gap-1">
                     {STATUSES.filter(([k]) => k !== c.status).slice(0, 3).map(([k, l]) => (
                       <Button key={k} variant="ghost" className="h-6 rounded px-1.5 text-[11px] text-muted-foreground" onClick={() => setStatus(c, k)}>{l}</Button>
@@ -235,19 +235,18 @@ function NewContentForm({ wsId, onCreated }: { wsId: string; onCreated: () => vo
         campaign_id: campaignId === "none" ? null : campaignId,
         format: contentFormat,
         nature,
-        channel: platform === "offline" ? "offline" : "social",
         platform,
-        objective: objective.trim() || null,
+        business_objective: objective.trim() || null,
         target_summary: target.trim() || null,
         cta: cta.trim() || null,
         caption: caption.trim() || null,
-        publish_at: publishAt ? new Date(publishAt).toISOString() : null,
+        publish_date: publishAt || null,
         due_date: due || null,
         link_id: linkId === "none" ? null : linkId,
         file_path,
         file_name,
         created_by: u.user!.id,
-        owner_id: u.user!.id,
+        assignee_id: u.user!.id,
         status: "brief",
       });
 
@@ -288,7 +287,7 @@ function NewContentForm({ wsId, onCreated }: { wsId: string; onCreated: () => vo
         <div className="space-y-1.5 md:col-span-2"><Label>Lien BIIZ</Label><Select value={linkId} onValueChange={setLinkId}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>
           <SelectItem value="none">Aucun</SelectItem>{links.data?.map((l) => <SelectItem key={l.id} value={l.id}>{l.name} · /r/{l.code}</SelectItem>)}
         </SelectContent></Select></div>
-        <div className="space-y-1.5"><Label>Date publication</Label><Input type="datetime-local" value={publishAt} onChange={(e) => setPublishAt(e.target.value)} /></div>
+        <div className="space-y-1.5"><Label>Date publication</Label><Input type="date" value={publishAt} onChange={(e) => setPublishAt(e.target.value)} /></div>
         <div className="space-y-1.5"><Label>Échéance créa</Label><Input type="date" value={due} onChange={(e) => setDue(e.target.value)} /></div>
 
         <div className="space-y-1.5 md:col-span-3"><Label>Brief / direction</Label><Textarea rows={4} placeholder="Ce que le contenu doit faire comprendre, ressentir ou provoquer…" value={body} onChange={(e) => setBody(e.target.value)} /></div>
@@ -320,7 +319,7 @@ function ContentDialog({ content, campaignName, onClose }: { content: TContent |
         <p className="text-xs text-muted-foreground">
           {content ? statusLabel(content.status) : ""}
           {campaignName ? ` · ${campaignName}` : ""}
-          {content?.publish_at ? ` · publication ${format(new Date(content.publish_at), "d MMMM yyyy HH:mm", { locale: fr })}` : ""}
+          {content?.publish_at ? ` · publication ${format(new Date(content.publish_date + "T00:00"), "d MMMM yyyy", { locale: fr })}` : ""}
         </p>
 
         {content && (
@@ -328,7 +327,7 @@ function ContentDialog({ content, campaignName, onClose }: { content: TContent |
             <p><span className="text-xs text-muted-foreground">Nature</span><br />{natureLabel(content.nature)}</p>
             <p><span className="text-xs text-muted-foreground">Format</span><br />{formatLabel(content.format)}</p>
             <p><span className="text-xs text-muted-foreground">Plateforme</span><br />{content.platform ?? "—"}</p>
-            <p><span className="text-xs text-muted-foreground">Objectif</span><br />{content.objective ?? "—"}</p>
+            <p><span className="text-xs text-muted-foreground">Objectif</span><br />{content.business_objective ?? "—"}</p>
             <p><span className="text-xs text-muted-foreground">Cible</span><br />{content.target_summary ?? "—"}</p>
             <p><span className="text-xs text-muted-foreground">CTA</span><br />{content.cta ?? "—"}</p>
           </div>
