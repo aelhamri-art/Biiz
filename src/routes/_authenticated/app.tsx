@@ -131,7 +131,7 @@ function AppPage() {
     if (error) toast.error(error.message); else void reloadLinks();
   }
 
-  const linksSection = (
+  const linksSection = wsId ? (
     <div>
                 <NewLinkForm wsId={wsId} onCreated={() => void reloadLinks()} />
                 <div className="mt-6 flex items-center justify-end gap-2 text-sm text-muted-foreground">
