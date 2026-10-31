@@ -21,9 +21,9 @@ type Campaign = {
   status: string;
   start_date: string | null;
   end_date: string | null;
-  budget_planned: number | null;
-  target_summary: string | null;
-  offer_summary: string | null;
+  budget: number | null;
+  target: string | null;
+  offer: string | null;
   notes: string | null;
 };
 
@@ -38,7 +38,7 @@ type Ad = {
   ad_group_name: string | null;
   ad_name: string | null;
   audience_summary: string | null;
-  budget_planned: number | null;
+  budget: number | null;
   spend: number;
   impressions: number;
   reach: number | null;
@@ -92,7 +92,7 @@ function SectionTitle({ icon, title, text }: { icon: React.ReactNode; title: str
 function CampaignForm({ wsId, onCreated }: { wsId: string; onCreated: () => void }) {
   const [name, setName] = useState("");
   const [objective, setObjective] = useState("");
-  const [status, setStatus] = useState("draft");
+  const [status, setStatus] = useState("brouillon");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [budget, setBudget] = useState("");
@@ -107,14 +107,13 @@ function CampaignForm({ wsId, onCreated }: { wsId: string; onCreated: () => void
     const { error } = await db.from("campaigns").insert({
       workspace_id: wsId,
       name: name.trim(),
-      slug: slugifyLocal(name),
       objective: objective.trim() || null,
       status,
       start_date: startDate || null,
       end_date: endDate || null,
-      budget_planned: budget ? Number(budget) : null,
-      target_summary: target.trim() || null,
-      offer_summary: offer.trim() || null,
+      budget: budget ? Number(budget) : null,
+      target: target.trim() || null,
+      offer: offer.trim() || null,
       created_by: u.user!.id,
     });
     setBusy(false);
@@ -130,7 +129,7 @@ function CampaignForm({ wsId, onCreated }: { wsId: string; onCreated: () => void
         <div className="space-y-1.5 md:col-span-2"><Label>Campagne</Label><Input required value={name} onChange={(e) => setName(e.target.value)} placeholder="HADAL — Lancement App — M01" /></div>
         <div className="space-y-1.5 md:col-span-2"><Label>Objectif business</Label><Input value={objective} onChange={(e) => setObjective(e.target.value)} placeholder="Commandes directes" /></div>
         <div className="space-y-1.5"><Label>Statut</Label><Select value={status} onValueChange={setStatus}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>
-          <SelectItem value="draft">Brouillon</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="paused">Pause</SelectItem><SelectItem value="completed">Terminée</SelectItem>
+          <SelectItem value="brouillon">Brouillon</SelectItem><SelectItem value="active">Active</SelectItem><SelectItem value="pause">Pause</SelectItem><SelectItem value="terminee">Terminée</SelectItem>
         </SelectContent></Select></div>
         <div className="space-y-1.5"><Label>Budget prévu €</Label><Input type="number" min="0" step="0.01" value={budget} onChange={(e) => setBudget(e.target.value)} /></div>
         <div className="space-y-1.5"><Label>Début</Label><Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} /></div>
@@ -238,7 +237,7 @@ function AdsForm({ wsId, onCreated }: { wsId: string; onCreated: () => void }) {
       ad_group_name: adGroup.trim() || null,
       ad_name: adName.trim() || null,
       audience_summary: audience.trim() || null,
-      budget_planned: budget ? Number(budget) : null,
+      budget: budget ? Number(budget) : null,
       spend: Number(spend || 0),
       impressions: Number(impressions || 0),
       clicks: Number(clicks || 0),
