@@ -1,16 +1,29 @@
 import { describe, expect, it } from "vitest";
-import { editorialCadence, instagramCanonical, instagramEmbedUrl, parsePlans, weekKey, monthKey } from "@/lib/hadal-marketing";
+import { cadenceFromSettings, editorialCadence, instagramCanonical, instagramEmbedUrl, parsePlans, weekKey, monthKey } from "@/lib/hadal-marketing";
 
 describe("HADAL editorial rules", () => {
   it.each([
-    ["pov", 2, "week"],
-    ["static", 1, "week"],
-    ["signature", 1, "month"],
-    ["operation", 1, "month"],
-  ])("sets the required cadence for %s", (id, count, period) => {
+    ["static_commercial", 1, "week"],
+    ["static_lifestyle", 1, "week"],
+    ["video_simple", 1, "week"],
+    ["stories", 2, "day"],
+  ])("sets the M01 cadence for %s", (id, count, period) => {
     const item = editorialCadence.find((entry) => entry.id === id);
     expect(item?.count).toBe(count);
     expect(item?.period).toBe(period);
+  });
+
+  it("reads a workspace-specific cadence without hardcoding it in the UI", () => {
+    const cadence = cadenceFromSettings({
+      static_commercial_per_week: 2,
+      static_lifestyle_per_week: 1,
+      simple_video_per_week: 2,
+      stories_per_day_min: 1,
+      stories_per_day_max: 4,
+    });
+    expect(cadence.find((x) => x.id === "static_commercial")?.count).toBe(2);
+    expect(cadence.find((x) => x.id === "video_simple")?.count).toBe(2);
+    expect(cadence.find((x) => x.id === "stories")?.rhythm).toBe("1–4 / jour");
   });
 
   it("groups missions by Monday week and first day of month", () => {
