@@ -288,16 +288,22 @@ export type Database = {
           file_name: string | null
           file_path: string | null
           format: string | null
+          format_detail: string | null
           id: string
           link_id: string | null
           mission_id: string | null
           nature: string | null
+          planned_day: string | null
           platform: string | null
+          pre_publish_check: string | null
+          preview_note: string | null
           publish_date: string | null
+          source_id: string | null
           status: string
           target_summary: string | null
           title: string
           type: string
+          visual_status: string | null
           week_label: string | null
           workspace_id: string
         }
@@ -315,16 +321,22 @@ export type Database = {
           file_name?: string | null
           file_path?: string | null
           format?: string | null
+          format_detail?: string | null
           id?: string
           link_id?: string | null
           mission_id?: string | null
           nature?: string | null
+          planned_day?: string | null
           platform?: string | null
+          pre_publish_check?: string | null
+          preview_note?: string | null
           publish_date?: string | null
+          source_id?: string | null
           status?: string
           target_summary?: string | null
           title: string
           type: string
+          visual_status?: string | null
           week_label?: string | null
           workspace_id: string
         }
@@ -342,16 +354,22 @@ export type Database = {
           file_name?: string | null
           file_path?: string | null
           format?: string | null
+          format_detail?: string | null
           id?: string
           link_id?: string | null
           mission_id?: string | null
           nature?: string | null
+          planned_day?: string | null
           platform?: string | null
+          pre_publish_check?: string | null
+          preview_note?: string | null
           publish_date?: string | null
+          source_id?: string | null
           status?: string
           target_summary?: string | null
           title?: string
           type?: string
+          visual_status?: string | null
           week_label?: string | null
           workspace_id?: string
         }
@@ -1150,6 +1168,163 @@ export type Database = {
           },
           {
             foreignKeyName: "sales_stage_history_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shooting_briefs: {
+        Row: {
+          concept: string
+          content_id: string | null
+          created_at: string
+          created_by: string
+          duration_label: string | null
+          id: string
+          material_editing: string | null
+          overlay_text: string | null
+          reuse_note: string | null
+          shots: Json
+          source_id: string | null
+          workspace_id: string
+        }
+        Insert: {
+          concept: string
+          content_id?: string | null
+          created_at?: string
+          created_by?: string
+          duration_label?: string | null
+          id?: string
+          material_editing?: string | null
+          overlay_text?: string | null
+          reuse_note?: string | null
+          shots?: Json
+          source_id?: string | null
+          workspace_id: string
+        }
+        Update: {
+          concept?: string
+          content_id?: string | null
+          created_at?: string
+          created_by?: string
+          duration_label?: string | null
+          id?: string
+          material_editing?: string | null
+          overlay_text?: string | null
+          reuse_note?: string | null
+          shots?: Json
+          source_id?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shooting_briefs_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "contents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shooting_briefs_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_cycle: {
+        Row: {
+          copy_material: string | null
+          created_at: string
+          created_by: string
+          id: string
+          notes: string | null
+          position: number
+          sequence: Json
+          story_count: number | null
+          weekday: string
+          workspace_id: string
+        }
+        Insert: {
+          copy_material?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string | null
+          position?: number
+          sequence?: Json
+          story_count?: number | null
+          weekday: string
+          workspace_id: string
+        }
+        Update: {
+          copy_material?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          notes?: string | null
+          position?: number
+          sequence?: Json
+          story_count?: number | null
+          weekday?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_cycle_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      story_templates: {
+        Row: {
+          created_at: string
+          created_by: string
+          example_text: string | null
+          family: string
+          id: string
+          measurement: string | null
+          objective: string | null
+          position: number
+          real_material: string | null
+          reuse_rule: string | null
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string
+          example_text?: string | null
+          family: string
+          id?: string
+          measurement?: string | null
+          objective?: string | null
+          position?: number
+          real_material?: string | null
+          reuse_rule?: string | null
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          example_text?: string | null
+          family?: string
+          id?: string
+          measurement?: string | null
+          objective?: string | null
+          position?: number
+          real_material?: string | null
+          reuse_rule?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_templates_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "workspaces"
