@@ -180,24 +180,37 @@ function AppPage() {
               <div className="biiz-tabs-shell biiz-navigation">
               <div className="biiz-sidebar-brand"><span className="biiz-mark">B</span><div><span className="text-lg font-semibold">BIIZ</span><span className="biiz-sidebar-label">Cockpit marketing</span></div></div>
               <TabsList className="biiz-tabs">
+                <TabsTrigger value="dashboard"><LayoutDashboard />Dashboard</TabsTrigger>
+                <TabsTrigger value="campagnes"><Target />Campagnes</TabsTrigger>
                 <TabsTrigger value="contenus"><FileText />Contenus</TabsTrigger>
-                <TabsTrigger value="cuisine"><ChefHat />Page cuisine</TabsTrigger>
-                <TabsTrigger value="script-ia"><Sparkles />Script IA</TabsTrigger>
-                <TabsTrigger value="taches"><ClipboardList />Tâches</TabsTrigger>
                 <TabsTrigger value="calendrier"><CalendarDays />Calendrier</TabsTrigger>
-                <TabsTrigger value="liens"><Link2 />Liens & QR</TabsTrigger>
-                <TabsTrigger value="analyse"><BarChart3 />Analyse</TabsTrigger>
-                <TabsTrigger value="parcours"><Waypoints />Parcours</TabsTrigger>
-                <TabsTrigger value="equipe"><Users />Équipe</TabsTrigger>
-                <TabsTrigger value="install"><Settings2 />Installation</TabsTrigger>
+                <TabsTrigger value="ads"><Megaphone />Ads</TabsTrigger>
+                <TabsTrigger value="tracking"><Link2 />Tracking</TabsTrigger>
+                <TabsTrigger value="performance"><BarChart3 />Performance</TabsTrigger>
+                <TabsTrigger value="production"><ChefHat />Production & équipe</TabsTrigger>
               </TabsList>
               <ChevronDown className="biiz-tabs-hint" />
               <div className="biiz-sidebar-footer"><span className="flex items-center gap-2"><Activity className="size-3.5" />Espace collaboratif</span><span className="mt-2 block">BIIZ par Axium Studios</span></div>
               </div>
-              <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} /></TabsContent>
+              <TabsContent value="dashboard" className="mt-6"><DashboardPanel wsId={wsId} m={mk} /></TabsContent>
+              <TabsContent value="campagnes" className="mt-6"><CampagnesPanel wsId={wsId} m={mk} /></TabsContent>
+              <TabsContent value="contenus" className="mt-6"><ContenusPanel wsId={wsId} m={mk} /></TabsContent>
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
-              <TabsContent value="taches" className="mt-6"><TachesPanel wsId={wsId} /></TabsContent>
-              <TabsContent value="cuisine" className="mt-6">
+              <TabsContent value="ads" className="mt-6"><AdsPanel wsId={wsId} m={mk} /></TabsContent>
+              <TabsContent value="performance" className="mt-6"><PerformancePanel m={mk} /></TabsContent>
+              <TabsContent value="tracking" className="mt-6">
+                <SubNav value={trackSub} onChange={setTrackSub} items={[["liens", "Liens & QR", <Link2 key="l" />], ["analyse", "Analyse", <BarChart3 key="a" />], ["parcours", "Parcours", <Waypoints key="p" />], ["install", "Installation", <Settings2 key="i" />]]} />
+                {trackSub === "liens" && <LinksSection />}
+                {trackSub === "analyse" && <div className="mt-6"><AnalysePanel links={links.data ?? []} clicks={clicks.data ?? []} counts={counts} /></div>}
+                {trackSub === "parcours" && <div className="mt-6"><ParcoursPanel wsId={wsId} links={links.data ?? []} /></div>}
+                {trackSub === "install" && <div className="mt-6"><InstallPanel /></div>}
+              </TabsContent>
+              <TabsContent value="production" className="mt-6">
+                <SubNav value={prodSub} onChange={setProdSub} items={[["cuisine", "Page cuisine", <ChefHat key="c" />], ["script-ia", "Script IA", <Sparkles key="s" />], ["taches", "Tâches", <ClipboardList key="t" />], ["equipe", "Équipe", <Users key="e" />]]} />
+                {prodSub === "taches" && <div className="mt-6"><TachesPanel wsId={wsId} /></div>}
+                {prodSub === "script-ia" && <div className="mt-6"><ScriptIAPanel wsId={wsId} /></div>}
+                {prodSub === "equipe" && <div className="mt-6"><EquipePanel wsId={wsId} /></div>}
+                {prodSub === "cuisine" && <div className="mt-6">
                 {(() => {
                   const kitchen = ws.data?.find((w) => /hadal/i.test(w.name));
                   return kitchen && kitchen.id !== wsId ? (
