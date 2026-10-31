@@ -109,17 +109,17 @@ export function ContentCsvImport({ wsId }: { wsId: string }) {
           campaign_id: campaignId === "none" ? null : campaignId,
           type: "crea",
           title: concept,
-          body: week ? `Semaine : ${week}` : null,
+          body: null,
+          week_label: week || null,
           format: inferFormat(rawFormat),
           nature: inferNature(rawFormat),
-          channel: "social",
           platform: "instagram",
-          objective: intention || null,
+          business_objective: intention || null,
           target_summary: target || null,
           caption: caption || null,
           status,
           created_by: u.user!.id,
-          owner_id: u.user!.id,
+          assignee_id: u.user!.id,
         }];
       });
 
