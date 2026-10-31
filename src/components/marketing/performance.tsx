@@ -1,7 +1,9 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { adMetrics, aggregate, channelLabel, eur, ratio, type Row } from "@/lib/marketing";
 import { aggregateInput, type MarketingData } from "./use-marketing";
 import { KpiStrip } from "./campagnes";
+import { MesureM01 } from "./mesure-m01";
 
 function Table({ title, rows }: { title: string; rows: [string, Row][] }) {
   const sorted = [...rows].sort((a, b) => b[1].revenue - a[1].revenue || b[1].clicks - a[1].clicks);
@@ -28,7 +30,20 @@ function Table({ title, rows }: { title: string; rows: [string, Row][] }) {
   );
 }
 
-export function PerformancePanel({ m }: { m: MarketingData }) {
+export function PerformancePanel({ wsId, m }: { wsId: string; m: MarketingData }) {
+  const [mode, setMode] = useState<"global" | "m01">("global");
+  const hasM01 = (m.contents.data ?? []).some((c) => c.source_id && /^S[1-4]-[CVL]$/.test(c.source_id));
+  const switcher = hasM01 ? (
+    <div role="tablist" className="inline-flex gap-1 rounded-lg border bg-card p-1">
+      <Button role="tab" size="sm" aria-selected={mode === "global"} variant={mode === "global" ? "default" : "ghost"} onClick={() => setMode("global")}>Vue d’ensemble</Button>
+      <Button role="tab" size="sm" aria-selected={mode === "m01"} variant={mode === "m01" ? "default" : "ghost"} onClick={() => setMode("m01")}>Mesure M01</Button>
+    </div>
+  ) : null;
+  if (hasM01 && mode === "m01") return <div className="space-y-4">{switcher}<MesureM01 wsId={wsId} m={m} /></div>;
+  return <div className="space-y-4">{switcher}<GlobalPerformance m={m} /></div>;
+}
+
+function GlobalPerformance({ m }: { m: MarketingData }) {
   const agg = useMemo(() => aggregate(aggregateInput(m)), [m.links.data, m.contents.data, m.dists.data, m.clicks.data, m.conversions.data, m.ads.data]);
   const total = [...agg.byChannel.values()].reduce<Row>((t, r) => ({ spend: t.spend + r.spend, revenue: t.revenue + r.revenue, conversions: t.conversions + r.conversions, clicks: t.clicks + r.clicks, impressions: t.impressions + r.impressions, reach: t.reach + r.reach, engagement: t.engagement + r.engagement }), { spend: 0, revenue: 0, conversions: 0, clicks: 0, impressions: 0, reach: 0, engagement: 0 });
   const cname = (id: string) => m.campaigns.data?.find((c) => c.id === id)?.name ?? "Campagne";
