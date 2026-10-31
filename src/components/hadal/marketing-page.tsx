@@ -8,9 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { editorialCadence, instagramEmbedUrl, kindLabel, monthKey, parsePlans, shootingRules, weekKey, type KitchenMission } from "@/lib/hadal-marketing";
+import { cadenceFromSettings, instagramEmbedUrl, kindLabel, monthKey, parsePlans, shootingRules, weekKey, type KitchenMission } from "@/lib/hadal-marketing";
 import { RuleVisual } from "./rule-visual";
 import kitchenEditorial from "@/assets/hadal-kitchen-editorial.jpg";
+
+const db = supabase as any;
 
 function useKitchen(wsId: string | null) {
   const missions = useQuery({
@@ -44,7 +46,7 @@ function MissionCard({ m, sentCount, wsId }: { m: KitchenMission; sentCount: num
   const [busy, setBusy] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const qc = useQueryClient();
-  const kitchenMade = m.kind === "pov" || m.kind === "statique";
+  const kitchenMade = ["pov", "statique", "video_simple", "story_capture"].includes(m.kind);
 
   async function upload(files: FileList | null) {
     if (!files?.length) return;
@@ -100,23 +102,37 @@ function MissionCard({ m, sentCount, wsId }: { m: KitchenMission; sentCount: num
 
 function Week({ wsId }: { wsId: string }) {
   const { missions, sent } = useKitchen(wsId);
+  const settings = useQuery({
+    queryKey: ["marketing-settings", wsId],
+    queryFn: async () => {
+      const { data, error } = await db.from("marketing_settings").select("cadence,strategy_notes").eq("workspace_id", wsId).maybeSingle();
+      if (error) throw error;
+      return data as { cadence: unknown; strategy_notes: string | null } | null;
+    },
+  });
+  const cadence = cadenceFromSettings(settings.data?.cadence);
   const list = missions.data ?? [];
   const week = list.filter((m) => m.scope === "semaine");
   const month = list.filter((m) => m.scope === "mois");
-  const done = (k: string) => week.filter((m) => m.kind === k && sent[m.id]).length;
+
   return <div className="hadal-week-layout"><div className="hadal-week-intro">
     <p className="hadal-eyebrow"><CalendarDays className="size-3.5" />LE PROGRAMME</p>
     <h2 className="mt-3 text-3xl font-semibold leading-tight">Cette semaine</h2>
-    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Organisez-vous comme vous voulez. Tout doit être filmé d’ici dimanche.</p>
+    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">Filmez seulement la matière demandée. La direction créative s’occupe du reste.</p>
     <div className="hadal-cadence mt-7 grid grid-cols-2 gap-5 lg:grid-cols-1">
-      {editorialCadence.filter((c) => c.period === "week").map((c) => { const k = c.id === "pov" ? "pov" : "statique"; return <div key={c.id} className="flex items-center justify-between gap-3 border-t pt-4"><p className="text-xs text-muted-foreground">{c.title}</p><p className="font-mono text-2xl font-medium">{done(k)}<span className="text-sm text-muted-foreground"> / {c.count}</span></p></div>; })}
+      {cadence.map((item) => <div key={item.id} className="border-t pt-4">
+        <div className="flex items-center justify-between gap-3"><p className="text-xs font-medium">{item.title}</p><p className="font-mono text-sm font-semibold text-primary">{item.rhythm}</p></div>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{item.role}</p>
+        <p className="mt-1 text-[10px] uppercase tracking-wide text-muted-foreground">{item.owner}</p>
+      </div>)}
     </div>
+    {settings.data?.strategy_notes && <p className="mt-5 border-l-2 border-primary pl-3 text-xs leading-relaxed text-muted-foreground">{settings.data.strategy_notes}</p>}
     </div><div className="min-w-0">
     {missions.isLoading ? <div className="hadal-loading py-12"><Loader2 className="size-5 animate-spin text-primary" /><p className="text-sm text-muted-foreground">Chargement…</p></div> : week.length === 0
-      ? <div className="hadal-empty border-y py-12 text-center"><span className="biiz-empty-icon"><Camera className="size-6" /></span><h2 className="mt-3 font-semibold">Les missions arrivent.</h2><p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">La direction créative prépare la semaine.</p></div>
+      ? <div className="hadal-empty border-y py-12 text-center"><span className="biiz-empty-icon"><Camera className="size-6" /></span><h2 className="mt-3 font-semibold">Rien à filmer pour l’instant.</h2><p className="mx-auto mt-1 max-w-xs text-sm text-muted-foreground">Quand une captation est nécessaire, elle apparaît ici avec les plans exacts.</p></div>
       : <div className="space-y-4">{week.map((m) => <MissionCard key={m.id} m={m} wsId={wsId} sentCount={sent[m.id] ?? 0} />)}</div>}
-    <section className="hadal-month mt-8 border-t pt-6"><h2 className="flex items-center gap-2 text-xs font-medium uppercase text-muted-foreground"><Clapperboard className="size-4" />Ce mois · Préparé à part</h2>
-      {month.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">Film signature et opération HADAL : dates communiquées bientôt.</p>
+    <section className="hadal-month mt-8 border-t pt-6"><h2 className="flex items-center gap-2 text-xs font-medium uppercase text-muted-foreground"><Clapperboard className="size-4" />Ce mois · Production dédiée</h2>
+      {month.length === 0 ? <p className="mt-3 text-sm text-muted-foreground">Aucune grosse production prévue. Priorité au produit réel et aux formats simples.</p>
         : <div className="mt-3 space-y-3">{month.map((m) => <MissionCard key={m.id} m={m} wsId={wsId} sentCount={sent[m.id] ?? 0} />)}</div>}
     </section>
   </div></div>;
