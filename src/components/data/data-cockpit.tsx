@@ -40,8 +40,8 @@ export function DataCockpit({ events, period, rejected, onDrill, onExplore }: {
     </div>
 
     <div className="grid gap-5 2xl:grid-cols-2">
-      <FunnelTable title="Funnel BARBER" steps={computeFunnel(events, "barber")} onDrill={(name) => onDrill(name, events.filter((e) => e.event_name === name))} />
-      <FunnelTable title="Funnel WASH" steps={computeFunnel(events, "wash")} onDrill={(name) => onDrill(name, events.filter((e) => e.event_name === name))} />
+      <FunnelTable title="Funnel BARBER" steps={computeFunnel(events, "barber", period)} onDrill={(name) => onDrill(name, events.filter((e) => e.event_name === name))} />
+      <FunnelTable title="Funnel WASH" steps={computeFunnel(events, "wash", period)} onDrill={(name) => onDrill(name, events.filter((e) => e.event_name === name))} />
     </div>
 
     <Panel title="Fidélisation" description="Repeat et LTV exigent une fenêtre d’observation complète ; la raison est affichée si le calcul est impossible.">
