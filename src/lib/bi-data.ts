@@ -59,6 +59,7 @@ export const BOOKING_EVENTS = new Set(["booking_completed", "wash_booking_comple
 export const COMPLETED_EVENTS = new Set(["booking_service_completed", "wash_completed"]);
 export const CANCEL_EVENTS = new Set(["booking_cancelled", "wash_booking_cancelled"]);
 export const NO_SHOW_EVENTS = new Set(["booking_no_show", "wash_no_show"]);
+export const NO_SHOW_REVERT_EVENTS = new Set(["booking_no_show_reverted", "wash_no_show_reverted"]);
 export const PAGE_EVENTS = new Set(["page_view", "wash_page_viewed"]);
 
 const nil = (reason: string): MetricValue => ({ value: null, reason });
@@ -80,6 +81,20 @@ function uniqueBookings(events: BiEvent[]) {
   const map = new Map<string, BiEvent>();
   for (const e of events) if (!map.has(bookingKey(e)) || time(e) < time(map.get(bookingKey(e))!)) map.set(bookingKey(e), e);
   return [...map.values()];
+}
+
+function activeNoShows(all: BiEvent[]): BiEvent[] {
+  const state = new Map<string, { active: boolean; event: BiEvent }>();
+  const lifecycle = all
+    .filter((e) => NO_SHOW_EVENTS.has(e.event_name) || NO_SHOW_REVERT_EVENTS.has(e.event_name) || CANCEL_EVENTS.has(e.event_name))
+    .sort((a, b) => time(a) - time(b));
+
+  for (const e of lifecycle) {
+    const key = bookingKey(e);
+    if (NO_SHOW_EVENTS.has(e.event_name)) state.set(key, { active: true, event: e });
+    else state.set(key, { active: false, event: e });
+  }
+  return [...state.values()].filter((row) => row.active).map((row) => row.event);
 }
 function revenue(events: BiEvent[], label: string): MetricValue {
   const rows = uniqueBookings(events);
@@ -130,7 +145,7 @@ export function computeMetric(all: BiEvent[], p: Period, id: MetricId, spend?: n
   const current = all.filter((e) => inPeriod(e, p));
   const bookings = uniqueBookings(current.filter((e) => BOOKING_EVENTS.has(e.event_name)));
   const completed = uniqueBookings(current.filter((e) => COMPLETED_EVENTS.has(e.event_name)));
-  const noShows = uniqueBookings(current.filter((e) => NO_SHOW_EVENTS.has(e.event_name)));
+  const noShows = activeNoShows(all).filter((e) => inPeriod(e, p));
   const cancels = uniqueBookings(current.filter((e) => CANCEL_EVENTS.has(e.event_name)));
   const identified = bookings.filter((e) => e.customer_external_id);
   const first = customerFirstBookings(all);
@@ -234,7 +249,7 @@ export function buildCustomers(all: BiEvent[], p: Period): CustomerRow[] {
     const status: CustomerRow["status"] = now - time(rows.at(-1)!) > 90 * dayMs ? "dormant" : rows.length === 1 ? "new" : "returning";
     return {
       id, firstAt, lastAt, bookings: rows.length, bookedRevenue: bookedRevenue.value, realizedRevenue: completeRevenue.value,
-      capabilities, noShows: own.filter((e) => NO_SHOW_EVENTS.has(e.event_name)).length,
+      capabilities, noShows: activeNoShows(own).length,
       cancellations: own.filter((e) => CANCEL_EVENTS.has(e.event_name)).length,
       source: rows.find((e) => e.utm_source)?.utm_source ?? null,
       status,
