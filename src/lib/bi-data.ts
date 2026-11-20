@@ -189,9 +189,47 @@ export function computeMetric(all: BiEvent[], p: Period, id: MetricId, spend?: n
       return val((both / caps.size) * 100, `${both} clients sur ${caps.size} ont les deux univers.`);
     }
     case "conversion_rate": {
-      const views = current.filter((e) => PAGE_EVENTS.has(e.event_name));
-      if (!views.length) return nil("Pages vues non instrumentées.");
-      return bookings.length ? val((bookings.length / views.length) * 100, "Réservations / pages vues, non dédupliqué par session.") : val(0);
+      let totalViews = 0;
+      let totalBookings = 0;
+      const instrumented: string[] = [];
+
+      for (const capability of ["barber", "wash"] as const) {
+        const pageNames = capability === "wash"
+          ? new Set(["wash_page_viewed"])
+          : new Set(["barber_page_viewed", "page_view"]);
+        const firstView = all
+          .filter((e) => pageNames.has(e.event_name))
+          .sort((a, b) => time(a) - time(b))[0];
+        if (!firstView) continue;
+
+        instrumented.push(capability);
+        const effectiveStart = Math.max(startOf(p.from), time(firstView));
+        const effectiveEnd = endOf(p.to);
+        if (effectiveStart > effectiveEnd) continue;
+
+        const capViews = all.filter((e) =>
+          pageNames.has(e.event_name) &&
+          time(e) >= effectiveStart &&
+          time(e) <= effectiveEnd
+        );
+        const capBookings = uniqueBookings(all.filter((e) =>
+          BOOKING_EVENTS.has(e.event_name) &&
+          eventCapability(e) === capability &&
+          time(e) >= effectiveStart &&
+          time(e) <= effectiveEnd
+        ));
+
+        const viewIds = new Set(capViews.map((e) => e.session_id ? `session:${e.session_id}` : `event:${e.id}`));
+        totalViews += viewIds.size;
+        totalBookings += capBookings.length;
+      }
+
+      if (!instrumented.length) return nil("Pages vues non instrumentées.");
+      if (!totalViews) return nil("Aucune session mesurée dans la fenêtre instrumentée.");
+      return val(
+        (totalBookings / totalViews) * 100,
+        `Réservations / sessions uniques depuis le début réel de l’instrumentation (${instrumented.join(" + ")}).`
+      );
     }
     case "cac": {
       if (spend === null || spend === undefined || spend <= 0) return nil("Dépense publicitaire fiable absente.");
@@ -240,7 +278,13 @@ function funnelIdentity(e: BiEvent): string {
 
 export function computeFunnel(events: BiEvent[], capability: "barber" | "wash", p?: Period): FunnelStep[] {
   const steps = capability === "wash" ? WASH_FUNNEL : BARBER_FUNNEL;
-  const current = p ? events.filter((e) => inPeriod(e, p)) : events;
+  const firstEntry = events
+    .filter((e) => e.event_name === steps[0])
+    .sort((a, b) => time(a) - time(b))[0];
+  const requestedStart = p ? startOf(p.from) : Number.NEGATIVE_INFINITY;
+  const requestedEnd = p ? endOf(p.to) : Number.POSITIVE_INFINITY;
+  const effectiveStart = firstEntry ? Math.max(requestedStart, time(firstEntry)) : requestedStart;
+  const current = events.filter((e) => time(e) >= effectiveStart && time(e) <= requestedEnd);
   let previousRequiredCount: number | null = null;
 
   return steps.map((event) => {
