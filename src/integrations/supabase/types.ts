@@ -118,6 +118,271 @@ export type Database = {
           },
         ]
       }
+      bi_data_sources: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string
+          id: string
+          key_hash: string
+          key_prefix: string
+          kind: string
+          last_event_at: string | null
+          name: string
+          workspace_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by: string
+          id?: string
+          key_hash: string
+          key_prefix: string
+          kind?: string
+          last_event_at?: string | null
+          name: string
+          workspace_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string
+          id?: string
+          key_hash?: string
+          key_prefix?: string
+          kind?: string
+          last_event_at?: string | null
+          name?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_data_sources_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_events: {
+        Row: {
+          booking_external_id: string | null
+          capability: string | null
+          currency: string | null
+          customer_external_id: string | null
+          employee_external_id: string | null
+          event_name: string
+          external_event_id: string
+          id: string
+          location_external_id: string | null
+          metadata: Json
+          occurred_at: string
+          received_at: string
+          revenue_cents: number | null
+          service_external_id: string | null
+          session_id: string | null
+          source_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          workspace_id: string
+        }
+        Insert: {
+          booking_external_id?: string | null
+          capability?: string | null
+          currency?: string | null
+          customer_external_id?: string | null
+          employee_external_id?: string | null
+          event_name: string
+          external_event_id: string
+          id?: string
+          location_external_id?: string | null
+          metadata?: Json
+          occurred_at: string
+          received_at?: string
+          revenue_cents?: number | null
+          service_external_id?: string | null
+          session_id?: string | null
+          source_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          workspace_id: string
+        }
+        Update: {
+          booking_external_id?: string | null
+          capability?: string | null
+          currency?: string | null
+          customer_external_id?: string | null
+          employee_external_id?: string | null
+          event_name?: string
+          external_event_id?: string
+          id?: string
+          location_external_id?: string | null
+          metadata?: Json
+          occurred_at?: string
+          received_at?: string
+          revenue_cents?: number | null
+          service_external_id?: string | null
+          session_id?: string | null
+          source_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_events_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "bi_data_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_events_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_ingestion_errors: {
+        Row: {
+          created_at: string
+          external_event_id: string | null
+          id: string
+          reason: string
+          source_id: string
+          workspace_id: string
+        }
+        Insert: {
+          created_at?: string
+          external_event_id?: string | null
+          id?: string
+          reason: string
+          source_id: string
+          workspace_id: string
+        }
+        Update: {
+          created_at?: string
+          external_event_id?: string | null
+          id?: string
+          reason?: string
+          source_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_ingestion_errors_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: false
+            referencedRelation: "bi_data_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_ingestion_errors_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_saved_analyses: {
+        Row: {
+          config: Json
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          pinned: boolean
+          workspace_id: string
+        }
+        Insert: {
+          config: Json
+          created_at?: string
+          created_by?: string
+          id?: string
+          name: string
+          pinned?: boolean
+          workspace_id: string
+        }
+        Update: {
+          config?: Json
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          pinned?: boolean
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_saved_analyses_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_source_sync_state: {
+        Row: {
+          accepted_count: number
+          duplicate_count: number
+          last_error: string | null
+          last_error_at: string | null
+          last_received_at: string | null
+          last_success_at: string | null
+          rejected_count: number
+          source_id: string
+          workspace_id: string
+        }
+        Insert: {
+          accepted_count?: number
+          duplicate_count?: number
+          last_error?: string | null
+          last_error_at?: string | null
+          last_received_at?: string | null
+          last_success_at?: string | null
+          rejected_count?: number
+          source_id: string
+          workspace_id: string
+        }
+        Update: {
+          accepted_count?: number
+          duplicate_count?: number
+          last_error?: string | null
+          last_error_at?: string | null
+          last_received_at?: string | null
+          last_success_at?: string | null
+          rejected_count?: number
+          source_id?: string
+          workspace_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_source_sync_state_source_id_fkey"
+            columns: ["source_id"]
+            isOneToOne: true
+            referencedRelation: "bi_data_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_source_sync_state_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       calendar_events: {
         Row: {
           content_id: string | null
@@ -1482,6 +1747,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bi_record_ingest: {
+        Args: {
+          _accepted: number
+          _duplicates: number
+          _error?: string
+          _rejected: number
+          _source: string
+        }
+        Returns: undefined
+      }
       can_delete: { Args: { _ws: string }; Returns: boolean }
       can_write: { Args: { _ws: string }; Returns: boolean }
       claim_invites: { Args: never; Returns: undefined }

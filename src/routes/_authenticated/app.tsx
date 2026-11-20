@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import {
   BarChart3, CalendarDays, ChevronDown, ClipboardList, FileText, Link2,
-  ChefHat, LayoutDashboard, Megaphone, Target, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2, Smartphone, Clapperboard,
+  ChefHat, LayoutDashboard, Megaphone, Target, LogOut, Plus, Settings2, Sparkles, Users, Waypoints, MousePointer2, TrendingUp, Activity, QrCode, Pencil, Archive, ArchiveRestore, Trash2, Smartphone, Clapperboard, Database,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BiizFooter } from "@/components/biiz-footer";
@@ -30,6 +30,7 @@ import { AdsPanel } from "@/components/marketing/ads";
 import { PerformancePanel } from "@/components/marketing/performance";
 import { StoriesPanel } from "@/components/marketing/stories";
 import { TournagesPanel } from "@/components/marketing/tournages";
+import { DataApp } from "@/components/data/data-app";
 
 export const Route = createFileRoute("/_authenticated/app")({
   head: () => ({
@@ -238,6 +239,7 @@ function AppPage() {
                 <TabsTrigger value="ads"><Megaphone />Ads</TabsTrigger>
                 <TabsTrigger value="tracking"><Link2 />Tracking</TabsTrigger>
                 <TabsTrigger value="performance"><BarChart3 />Performance</TabsTrigger>
+                <TabsTrigger value="data"><Database />BIIZ Data</TabsTrigger>
                 <TabsTrigger value="production"><ChefHat />Production & équipe</TabsTrigger>
               </TabsList>
               <ChevronDown className="biiz-tabs-hint" />
@@ -249,6 +251,7 @@ function AppPage() {
               <TabsContent value="calendrier" className="mt-6"><CalendrierPanel wsId={wsId} /></TabsContent>
               <TabsContent value="ads" className="mt-6"><AdsPanel wsId={wsId} m={mk} /></TabsContent>
               <TabsContent value="performance" className="mt-6"><PerformancePanel wsId={wsId} m={mk} /></TabsContent>
+              <TabsContent value="data" className="mt-6"><DataApp wsId={wsId} workspaceName={currentWorkspace?.name} /></TabsContent>
               <TabsContent value="tracking" className="mt-6">
                 <SubNav value={trackSub} onChange={setTrackSub} items={[["liens", "Liens & QR", <Link2 key="l" />], ["analyse", "Analyse", <BarChart3 key="a" />], ["parcours", "Parcours", <Waypoints key="p" />], ["install", "Installation", <Settings2 key="i" />]]} />
                 {trackSub === "liens" && linksSection}

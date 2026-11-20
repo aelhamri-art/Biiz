@@ -29,3 +29,9 @@
 - [x] Contenus enrichis (jour, format, visuel, vérification, aperçu) sur les 12 IDs.
 - [x] Stories (4 familles + cycle 7 jours) et Tournages (4 briefs) dans Production & équipe.
 - [x] 12 liens Story relais + 12 diffusions story ; Mesure M01 + protocole et arbitrage J+21 dans Performance.
+
+# BIIZ V2 — Data Intelligence
+- [ ] Ajouter le socle analytique workspace-scoped, la source ALPHA et l’ingestion idempotente signée.
+- [ ] Centraliser métriques, funnels Barber/Wash, clients, cohortes, qualité et insights avec tests.
+- [ ] Livrer Cockpit Data, Customer 360, Data Lab drillable et analyses épinglées.
+- [ ] Vérifier RLS, ingestion, tests, build et parcours desktop/mobile sans publier.
