@@ -60,7 +60,7 @@ export const COMPLETED_EVENTS = new Set(["booking_service_completed", "wash_comp
 export const CANCEL_EVENTS = new Set(["booking_cancelled", "wash_booking_cancelled"]);
 export const NO_SHOW_EVENTS = new Set(["booking_no_show", "wash_no_show"]);
 export const NO_SHOW_REVERT_EVENTS = new Set(["booking_no_show_reverted", "wash_no_show_reverted"]);
-export const PAGE_EVENTS = new Set(["page_view", "wash_page_viewed"]);
+export const PAGE_EVENTS = new Set(["page_view", "barber_page_viewed", "wash_page_viewed"]);
 
 const nil = (reason: string): MetricValue => ({ value: null, reason });
 const val = (value: number, reason: string | null = null): MetricValue => ({ value, reason });
@@ -211,21 +211,62 @@ export function computeMetrics(all: BiEvent[], p: Period, spend?: number | null)
 }
 
 export const WASH_FUNNEL = [
-  "wash_page_viewed", "wash_booking_started", "wash_vehicle_selected", "wash_service_selected",
+  "wash_page_viewed", "wash_booking_started", "wash_service_selected", "wash_vehicle_selected",
   "wash_options_selected", "wash_slot_selected", "wash_booking_completed", "wash_arrived",
   "wash_started", "wash_completed", "wash_review_requested", "wash_rebooking_completed",
 ] as const;
 export const BARBER_FUNNEL = [
-  "page_view", "booking_start", "offer_selected", "slot_viewed", "booking_completed",
-  "booking_arrived", "booking_started", "booking_service_completed", "booking_review_requested", "booking_rebooking_completed",
+  "barber_page_viewed", "barber_booking_started", "barber_service_selected", "barber_employee_selected",
+  "barber_slot_selected", "booking_completed", "booking_arrived", "booking_started",
+  "booking_service_completed", "booking_review_requested", "booking_rebooking_completed",
 ] as const;
-export type FunnelStep = { event: string; count: number | null; loss: number | null; reason: string | null };
-export function computeFunnel(events: BiEvent[], capability: "barber" | "wash"): FunnelStep[] {
+
+const OPTIONAL_FUNNEL_STEPS = new Set(["wash_vehicle_selected", "wash_options_selected"]);
+
+export type FunnelStep = {
+  event: string;
+  count: number | null;
+  loss: number | null;
+  reason: string | null;
+  optional?: boolean;
+};
+
+function funnelIdentity(e: BiEvent): string {
+  if (e.session_id) return `session:${e.session_id}`;
+  if (e.booking_external_id) return `booking:${e.booking_external_id}`;
+  if (e.customer_external_id) return `customer:${e.customer_external_id}`;
+  return `event:${e.id}`;
+}
+
+export function computeFunnel(events: BiEvent[], capability: "barber" | "wash", p?: Period): FunnelStep[] {
   const steps = capability === "wash" ? WASH_FUNNEL : BARBER_FUNNEL;
-  return steps.map((event, i) => {
-    const count = events.filter((e) => e.event_name === event).length;
-    const previous = i ? events.filter((e) => e.event_name === steps[i - 1]).length : 0;
-    return { event, count: count || null, loss: count > 0 && previous > 0 ? previous - count : null, reason: count ? null : "Étape non instrumentée ou sans événement reçu." };
+  const current = p ? events.filter((e) => inPeriod(e, p)) : events;
+  let previousRequiredCount: number | null = null;
+
+  return steps.map((event) => {
+    const instrumented = events.some((e) => e.event_name === event);
+    const optional = OPTIONAL_FUNNEL_STEPS.has(event);
+    if (!instrumented) {
+      return {
+        event,
+        count: null,
+        loss: null,
+        reason: optional ? "Étape optionnelle non instrumentée." : "Étape non instrumentée.",
+        optional,
+      };
+    }
+
+    const count = new Set(current.filter((e) => e.event_name === event).map(funnelIdentity)).size;
+    let loss: number | null = null;
+    let reason: string | null = null;
+
+    if (!optional && previousRequiredCount !== null) {
+      if (count <= previousRequiredCount) loss = previousRequiredCount - count;
+      else reason = "Étape aval supérieure à l’amont : vérifier la fenêtre ou l’instrumentation.";
+    }
+    if (!optional) previousRequiredCount = count;
+
+    return { event, count, loss, reason, optional };
   });
 }
 
