@@ -1,0 +1,43 @@
+name: BIIZ Data V2 quality
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/components/data/**"
+      - "src/lib/bi-data.ts"
+      - "src/routes/_authenticated/data.tsx"
+      - "src/routes/api/public/ingest.*"
+      - "src/test/bi-data.test.ts"
+      - "drizzle/migrations/0012_biiz_data_core.sql"
+      - "package.json"
+      - ".github/workflows/data-quality.yml"
+  pull_request:
+    paths:
+      - "src/components/data/**"
+      - "src/lib/bi-data.ts"
+      - "src/routes/_authenticated/data.tsx"
+      - "src/routes/api/public/ingest.*"
+      - "src/test/bi-data.test.ts"
+      - "drizzle/migrations/0012_biiz_data_core.sql"
+      - "package.json"
+      - ".github/workflows/data-quality.yml"
+  workflow_dispatch:
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps --no-audit --no-fund
+      - name: Data semantic tests
+        run: npm test -- --run src/test/bi-data.test.ts
+      - name: Production build
+        run: npm run build
