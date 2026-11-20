@@ -19,9 +19,9 @@ export function EmptyData({ children = "Aucune donnée reçue sur cette période
 }
 
 export function FunnelTable({ title, steps, onDrill }: { title: string; steps: FunnelStep[]; onDrill: (event: string) => void }) {
-  return <Panel title={title} description="Occurrences reçues. Une étape absente reste non instrumentée, jamais zéro.">
+  return <Panel title={title} description="Sessions ou réservations uniques. Une étape absente reste non instrumentée, jamais zéro.">
     <div className="overflow-x-auto"><table className="w-full min-w-[420px] text-sm"><thead className="text-left text-[11px] uppercase text-muted-foreground"><tr><th className="pb-2 font-medium">Étape</th><th className="pb-2 text-right font-medium">Reçus</th><th className="pb-2 text-right font-medium">Perte</th></tr></thead><tbody>
-      {steps.map((s) => <tr key={s.event} className="border-t"><td className="py-2.5"><button type="button" disabled={!s.count} onClick={() => onDrill(s.event)} className="font-mono text-xs enabled:hover:text-primary disabled:cursor-default">{s.event}</button>{!s.count && <span className="ml-2 text-[10px] text-muted-foreground">non instrumentée</span>}</td><td className="py-2.5 text-right tabular-nums">{s.count ?? "—"}</td><td className="py-2.5 text-right tabular-nums text-muted-foreground">{s.loss ?? "—"}</td></tr>)}
+      {steps.map((s) => <tr key={s.event} className="border-t"><td className="py-2.5"><button type="button" disabled={s.count === null || s.count === 0} onClick={() => onDrill(s.event)} className="font-mono text-xs enabled:hover:text-primary disabled:cursor-default">{s.event}</button>{s.count === null && <span className="ml-2 text-[10px] text-muted-foreground">non instrumentée</span>}{s.optional && <span className="ml-2 text-[10px] text-muted-foreground">optionnelle</span>}</td><td className="py-2.5 text-right tabular-nums">{s.count ?? "—"}</td><td className="py-2.5 text-right tabular-nums text-muted-foreground">{s.loss ?? "—"}</td></tr>)}
     </tbody></table></div>
   </Panel>;
 }
