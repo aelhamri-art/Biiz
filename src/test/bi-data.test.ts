@@ -75,6 +75,41 @@ describe("BIIZ semantic layer", () => {
     expect(computeMetric(events, period, "no_show_rate").value).toBe(0);
   });
 
+  it("does not mix pre-instrumentation historical bookings into conversion", () => {
+    const events: BiEvent[] = [
+      event("booking_completed", "2026-11-02T09:00:00Z", {
+        capability: "barber",
+        booking_external_id: "historical",
+        customer_external_id: "historical-customer",
+        revenue_cents: 2500,
+        currency: "EUR",
+      }),
+      event("barber_page_viewed", "2026-11-20T10:00:00Z", {
+        capability: "barber",
+        session_id: "session-a",
+        booking_external_id: null,
+        customer_external_id: null,
+      }),
+      event("barber_page_viewed", "2026-11-20T11:00:00Z", {
+        capability: "barber",
+        session_id: "session-b",
+        booking_external_id: null,
+        customer_external_id: null,
+      }),
+      event("booking_completed", "2026-11-20T10:05:00Z", {
+        capability: "barber",
+        booking_external_id: "new-booking",
+        customer_external_id: "new-customer",
+        revenue_cents: 3000,
+        currency: "EUR",
+      }),
+    ];
+
+    expect(computeMetric(events, period, "conversion_rate").value).toBe(50);
+    const funnel = computeFunnel(events, "barber", period);
+    expect(funnel.find((row) => row.event === "booking_completed")?.count).toBe(1);
+  });
+
   it("counts funnel reach by unique session instead of raw clicks", () => {
     const events: BiEvent[] = [
       event("wash_page_viewed", "2026-11-09T10:00:00Z", { capability: "wash", session_id: "session-a", booking_external_id: null, customer_external_id: null }),
