@@ -75,6 +75,21 @@ describe("BIIZ semantic layer", () => {
     expect(computeMetric(events, period, "no_show_rate").value).toBe(0);
   });
 
+  it("counts funnel reach by unique session instead of raw clicks", () => {
+    const events: BiEvent[] = [
+      event("wash_page_viewed", "2026-11-09T10:00:00Z", { capability: "wash", session_id: "session-a", booking_external_id: null, customer_external_id: null }),
+      event("wash_booking_started", "2026-11-09T10:01:00Z", { capability: "wash", session_id: "session-a", booking_external_id: null, customer_external_id: null }),
+      event("wash_slot_selected", "2026-11-09T10:02:00Z", { capability: "wash", session_id: "session-a", booking_external_id: null, customer_external_id: null }),
+      event("wash_slot_selected", "2026-11-09T10:03:00Z", { capability: "wash", session_id: "session-a", booking_external_id: null, customer_external_id: null }),
+      event("wash_page_viewed", "2026-11-09T11:00:00Z", { capability: "wash", session_id: "session-b", booking_external_id: null, customer_external_id: null }),
+    ];
+
+    const funnel = computeFunnel(events, "wash", period);
+    expect(funnel.find((row) => row.event === "wash_page_viewed")?.count).toBe(2);
+    expect(funnel.find((row) => row.event === "wash_booking_started")?.count).toBe(1);
+    expect(funnel.find((row) => row.event === "wash_slot_selected")?.count).toBe(1);
+  });
+
   it("keeps the Wash funnel separate and marks uninstrumented steps as null", () => {
     const events: BiEvent[] = [
       event("wash_page_viewed", "2026-11-10T10:00:00Z", { capability: "wash", booking_external_id: null, customer_external_id: null, revenue_cents: null }),
