@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
-  BarChart3, BookOpen, CalendarClock, ChevronLeft, ChevronRight, Columns3, Globe, LogOut, Phone, PhoneCall, Plus, Search, Sun, Upload, Users, Pencil, Loader2, Check,
+  ArrowRight, ArrowUpRight, BarChart3, BookOpen, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Columns3, Crosshair, Globe, LogOut, MessageCircleMore, Phone, PhoneCall, Plus, Search, Sun, Target, Upload, Users, Pencil, Loader2, Check, Zap,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BiizFooter } from "@/components/biiz-footer";
@@ -18,6 +18,7 @@ import { BiizBee, BiizSalesLogo } from "./BiizBee";
 import { CoachMoment } from "./coach-moment";
 import { Aximus } from "./aximus";
 import { PartnerAccounts } from "./partners";
+import { SalesMomentumVisual, WeekRhythm } from "./sales-visuals";
 import {
   type Account, type CoachCard, COACH_GROUPS, QUICK_COACH, coachGroupForSlug, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
   addDays, delta, findDuplicates, isoDate, mergePlaybook, outcomeLabel, parseCsv, periodStats, qualityBadges, stageLabel, startOfDay, startOfWeek,
@@ -111,15 +112,30 @@ export function SalesApp() {
   const refresh = () => qc.invalidateQueries({ queryKey: ["sales", wsId] });
   const go = (z: Zone) => { setZone(z); window.scrollTo({ top: 0 }); };
   const startCall = (id: string) => { setFocusId(id); setDetailId(null); go("call"); };
+  useEffect(() => {
+    if (!wsId) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (event.metaKey || event.ctrlKey || event.altKey || target?.matches("input, textarea, select, [contenteditable='true']")) return;
+      if (event.key.toLocaleLowerCase("fr") === "n") { event.preventDefault(); setNewOpen(true); }
+      if (event.key.toLocaleLowerCase("fr") === "p") { event.preventDefault(); setZone("call"); window.scrollTo({ top: 0 }); }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [wsId]);
   const loading = ws.isLoading || s.accounts.isLoading;
   const error = ws.error || s.accounts.error || s.activities.error || s.actions.error;
 
   return (
     <div className="biiz-sales min-h-screen bg-background pb-24 lg:pb-0 lg:pl-60">
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r bg-card lg:flex">
+      <aside className="sales-sidebar fixed inset-y-0 left-0 z-30 hidden w-60 flex-col lg:flex">
         <div className="px-5 py-5"><BiizSalesLogo /></div>
-        <div className="sales-stripes mx-5 mb-4 h-1.5 rounded-full" aria-hidden />
-        <nav className="flex flex-1 flex-col gap-0.5 px-3" aria-label="Sales">
+        <div className="sales-stripes mx-5 mb-5 h-1 rounded-full" aria-hidden />
+        <div className="sales-sidebar-session">
+          <p>POSTE DE TRAVAIL</p>
+          <Button onClick={() => setNewOpen(true)} disabled={!wsId}><Crosshair /><span>Nouveau prospect</span><kbd>N</kbd></Button>
+        </div>
+        <nav className="sales-sidebar-nav flex flex-1 flex-col gap-0.5 px-3" aria-label="Sales">
           {ZONES.map((z) => (
             <button key={z.id} onClick={() => go(z.id)} aria-current={zone === z.id ? "page" : undefined} className="sales-nav-item">
               <z.icon className="size-4" />{z.label}
@@ -129,15 +145,16 @@ export function SalesApp() {
             <LogOut className="size-4" />Déconnexion
           </button>
         </nav>
-        <form onSubmit={createSpace} className="flex gap-1.5 border-t p-3"><Input className="h-9" placeholder="Nouvel espace" value={newSpace} onChange={(e) => setNewSpace(e.target.value)} aria-label="Nouvel espace de vente" /><Button size="icon" variant="outline" type="submit" aria-label="Créer"><Plus /></Button></form>
+        <div className="sales-sidebar-principle"><Zap /><p><strong>Smart first. Hard always.</strong><span>Le bon geste, au bon moment.</span></p></div>
+        <form onSubmit={createSpace} className="sales-sidebar-create flex gap-1.5 p-3"><Input className="h-9" placeholder="Nouvel espace" value={newSpace} onChange={(e) => setNewSpace(e.target.value)} aria-label="Nouvel espace de vente" /><Button size="icon" variant="outline" type="submit" aria-label="Créer"><Plus /></Button></form>
         <BiizFooter className="biiz-credit--compact" />
       </aside>
 
-      <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
+      <header className="sales-header sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
         <div className="sales-stripes h-1 lg:hidden" aria-hidden />
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-3 lg:px-8">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 lg:px-8">
           <span className="lg:hidden"><BiizSalesLogo size={28} /></span><span className="hidden h-5 w-px bg-border sm:block lg:hidden" />
-          <h1 className="hidden text-[15px] font-semibold tracking-tight sm:block">{ZONES.find((z) => z.id === zone)?.label}</h1>
+          <div className="sales-header-title hidden sm:block"><p>BIIZ SALES OS</p><h1>{ZONES.find((z) => z.id === zone)?.label}</h1></div>
           <div className="ml-auto flex items-center gap-2">
             {ws.data && ws.data.length > 0 && (
               <Select value={wsId ?? ""} onValueChange={(v) => { setWsId(v); setFocusId(null); }}>
@@ -149,7 +166,7 @@ export function SalesApp() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-5 lg:px-8 lg:py-8">
+      <main className="sales-main mx-auto max-w-6xl px-4 py-5 lg:px-8 lg:py-8">
         {error ? <Empty title="Chargement impossible" text={(error as Error).message} action={<Button variant="outline" onClick={refresh}>Réessayer</Button>} />
         : !ws.isLoading && ws.data?.length === 0 ? (
           <div className="mx-auto max-w-sm py-14 text-center">
@@ -159,8 +176,8 @@ export function SalesApp() {
             <form onSubmit={createSpace} className="mt-5 flex gap-2"><Input className="h-11" placeholder="Nom de l'espace" value={newSpace} onChange={(e) => setNewSpace(e.target.value)} autoFocus /><Button className="h-11" type="submit">Créer</Button></form>
           </div>
         )
-        : loading || !wsId ? <div className="flex justify-center py-20 text-muted-foreground"><Loader2 className="animate-spin" /></div>
-        : zone === "today" ? <Today s={s} onAdd={() => setNewOpen(true)} onCall={startCall} onOpen={setDetailId} />
+        : loading || !wsId ? <SalesLoading />
+        : zone === "today" ? <Today s={s} onAdd={() => setNewOpen(true)} onCall={startCall} onOpen={setDetailId} onStart={() => go("call")} />
         : zone === "prospects" ? <Prospects s={s} wsId={wsId} onAdd={() => setNewOpen(true)} onOpen={setDetailId} refresh={refresh} />
         : zone === "call" ? <Prospection s={s} focusId={focusId} setFocusId={setFocusId} refresh={refresh} />
         : zone === "coach" ? <Coach s={s} wsId={wsId} refresh={refresh} />
@@ -185,9 +202,12 @@ export function SalesApp() {
 }
 
 /* ---------- petits éléments ---------- */
+function SalesLoading() {
+  return <div className="sales-loading" role="status" aria-label="Chargement de votre espace Sales"><div className="sales-skeleton sales-skeleton--hero" /><div className="sales-skeleton-grid"><div className="sales-skeleton" /><div className="sales-skeleton" /><div className="sales-skeleton" /></div><span className="sr-only">Chargement…</span></div>;
+}
 function Empty({ title, text, action }: { title: string; text: string; action?: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed bg-card px-6 py-12 text-center">
+    <div className="sales-empty rounded-xl border border-dashed bg-card px-6 py-12 text-center">
       <BiizBee size={40} className="mx-auto text-muted-foreground" />
       <p className="mt-4 font-medium">{title}</p>
       <p className="mx-auto mt-1 max-w-sm text-sm text-muted-foreground">{text}</p>
@@ -195,17 +215,20 @@ function Empty({ title, text, action }: { title: string; text: string; action?: 
     </div>
   );
 }
-function Metric({ label, value, sub }: { label: string; value: number | string; sub?: string | null }) {
+function Metric({ label, value, sub, icon: Icon }: { label: string; value: number | string; sub?: string | null; icon?: typeof Sun }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums tracking-tight">{value}</p>
-      {sub && <p className="mt-0.5 text-[11px] text-muted-foreground">{sub}</p>}
+    <div className="sales-metric">
+      <div className="sales-metric-label"><p>{label}</p>{Icon && <span><Icon /></span>}</div>
+      <p className="sales-metric-value">{value}</p>
+      {sub && <p className="sales-metric-sub">{sub}</p>}
     </div>
   );
 }
 function StageChip({ stage }: { stage: string }) {
   return <span className="sales-chip" data-stage={stage}>{stageLabel(stage)}</span>;
+}
+function accountInitials(name: string) {
+  return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toLocaleUpperCase("fr") || "—";
 }
 function memberName(s: S, id?: string | null) {
   if (!id) return "Non assigné";
@@ -216,7 +239,7 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", { day
 const fmtTime = (iso: string) => new Date(iso).toLocaleString("fr-FR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
 
 /* ---------- 1. Aujourd'hui ---------- */
-function Today({ s, onAdd, onCall, onOpen }: { s: S; onAdd: () => void; onCall: (id: string) => void; onOpen: (id: string) => void }) {
+function Today({ s, onAdd, onCall, onOpen, onStart }: { s: S; onAdd: () => void; onCall: (id: string) => void; onOpen: (id: string) => void; onStart: () => void }) {
   const accounts = s.accounts.data ?? [];
   const byId = new Map(accounts.map((a) => [a.id, a]));
   const today = isoDate(new Date());
@@ -227,52 +250,88 @@ function Today({ s, onAdd, onCall, onOpen }: { s: S; onAdd: () => void; onCall: 
   const week = periodStats(myActs, [], startOfWeek(), addDays(startOfWeek(), 7));
   const goal = s.prefs.data?.weekly_challenge;
   const showGoal = goal && !s.prefs.data?.hide_goals;
+  const nextAccount = due[0] ? byId.get(due[0].account_id) : null;
+  const dayLabel = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <Metric label="Appels" value={st.calls} sub="aujourd'hui" />
-        <Metric label="Conversations utiles" value={st.useful} sub="aujourd'hui" />
-        <Metric label="R2 pris" value={st.r2Taken} sub="aujourd'hui" />
-      </div>
-      {showGoal && (
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex justify-between text-sm"><span>Mon défi de la semaine</span><span className="tabular-nums text-muted-foreground">{week.calls} / {goal} appels</span></div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="sales-lime-bar h-full" style={{ width: `${Math.min(100, (week.calls / goal) * 100)}%` }} /></div>
+    <div className="sales-today">
+      <section className="sales-command" aria-labelledby="sales-command-title">
+        <div className="sales-command-copy">
+          <p className="sales-command-eyebrow"><span />SESSION DU JOUR · {dayLabel}</p>
+          <h2 id="sales-command-title">Le prochain geste.<br /><em>Puis le suivant.</em></h2>
+          <p className="sales-command-subtitle">{due.length ? <><strong>{due.length} action{due.length > 1 ? "s" : ""} à traiter.</strong>{nextAccount ? ` Commence par ${nextAccount.name}, le reste attend.` : ""}</> : "Zéro retard. Choisis ton prochain contact et garde une longueur d’avance, sans te disperser."}</p>
+          <div className="sales-command-actions">
+            <Button className="sales-command-primary" onClick={nextAccount ? () => onCall(nextAccount.id) : onStart}><PhoneCall />{nextAccount ? "Traiter la priorité" : "Ouvrir ma file"}<ArrowRight /></Button>
+            <Button variant="ghost" className="sales-command-secondary" onClick={onAdd}><Plus />Nouveau prospect</Button>
+          </div>
         </div>
-      )}
-      <Button onClick={onAdd} size="lg" className="h-12 w-full sm:w-auto"><Plus />Ajouter un prospect</Button>
-
-      <section>
-        <h2 className="sales-h2">À faire maintenant <span className="text-muted-foreground">· {due.length}</span></h2>
-        {due.length === 0 ? <Empty title="Rien en retard" text="Aucune action due aujourd'hui. Les prochaines actions datées apparaîtront ici." /> : (
-          <ul className="divide-y rounded-xl border bg-card">
-            {due.map((a) => { const acc = byId.get(a.account_id); if (!acc) return null; const late = a.next_action_date < today; return (
-              <li key={a.id} className="flex items-center gap-3 p-3">
-                <button className="min-w-0 flex-1 text-left" onClick={() => onOpen(acc.id)}>
-                  <p className="truncate font-medium">{acc.name}</p>
-                  <p className="text-xs text-muted-foreground">{a.label} · <span className={late ? "font-medium text-destructive" : ""}>{late ? `en retard (${fmtDate(a.next_action_date)})` : "aujourd'hui"}</span></p>
-                </button>
-                <Button size="sm" onClick={() => onCall(acc.id)}><PhoneCall />Traiter</Button>
-              </li>
-            ); })}
-          </ul>
-        )}
+        <SalesMomentumVisual actions={due.length} />
+        <footer><span>SMART FIRST. HARD ALWAYS.</span><span>CALME · PRÉCISION · SUIVI</span></footer>
       </section>
 
-      <section>
-        <h2 className="sales-h2">Derniers contacts</h2>
-        {(s.activities.data ?? []).length === 0 ? <Empty title="Aucun appel enregistré" text="Après chaque appel, note le résultat dans Prospection : il apparaîtra ici." /> : (
-          <ul className="divide-y rounded-xl border bg-card">
-            {(s.activities.data ?? []).slice(0, 6).map((a) => (
-              <li key={a.id}><button onClick={() => onOpen(a.account_id)} className="flex w-full items-center gap-3 p-3 text-left">
-                <span className="min-w-0 flex-1"><span className="block truncate font-medium">{byId.get(a.account_id)?.name ?? "Prospect"}</span><span className="block truncate text-xs text-muted-foreground">{outcomeLabel(a.outcome)}{a.note ? ` · ${a.note}` : ""}</span></span>
-                <span className="shrink-0 text-xs text-muted-foreground">{fmtTime(a.created_at)}</span>
-              </button></li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <div className="sales-metrics" aria-label="Mon activité aujourd’hui">
+        <Metric label="Appels" value={st.calls} sub="aujourd’hui" icon={PhoneCall} />
+        <Metric label="Conversations utiles" value={st.useful} sub="aujourd’hui" icon={MessageCircleMore} />
+        <Metric label="R2 pris" value={st.r2Taken} sub="aujourd’hui" icon={Target} />
+      </div>
+
+      <div className="sales-today-grid">
+        <div className="sales-today-main">
+          <section className="sales-section" aria-labelledby="sales-priorities-title">
+            <header className="sales-section-header"><div><p className="sales-section-kicker">EXÉCUTION</p><h2 id="sales-priorities-title">À faire maintenant</h2></div><span className="sales-section-count">{due.length}</span></header>
+            {due.length === 0 ? (
+              <div className="sales-clear-state">
+                <span className="sales-clear-icon"><CheckCircle2 /></span>
+                <div><p>Zéro retard. Le terrain est libre.</p><span>Avance sur un nouveau contact plutôt que de remplir la journée.</span></div>
+                <Button variant="outline" onClick={onStart}>Choisir un prospect<ArrowUpRight /></Button>
+              </div>
+            ) : (
+              <ol className="sales-task-list">
+                {due.map((a, index) => { const acc = byId.get(a.account_id); if (!acc) return null; const late = a.next_action_date < today; return (
+                  <li key={a.id} data-priority={index === 0 ? "true" : undefined}>
+                    <span className="sales-task-index">{String(index + 1).padStart(2, "0")}</span>
+                    <button className="sales-task-account" onClick={() => onOpen(acc.id)}>
+                      <span className="sales-account-avatar">{accountInitials(acc.name)}</span>
+                      <span><strong>{acc.name}</strong><small>{a.label} · <span className={late ? "sales-late" : ""}>{late ? `En retard · ${fmtDate(a.next_action_date)}` : "Aujourd’hui"}</span></small></span>
+                    </button>
+                    <Button size="sm" onClick={() => onCall(acc.id)}><PhoneCall />Traiter</Button>
+                  </li>
+                ); })}
+              </ol>
+            )}
+          </section>
+
+          <section className="sales-section" aria-labelledby="sales-recent-title">
+            <header className="sales-section-header"><div><p className="sales-section-kicker">MÉMOIRE TERRAIN</p><h2 id="sales-recent-title">Derniers contacts</h2></div><Clock3 /></header>
+            {(s.activities.data ?? []).length === 0 ? <Empty title="Aucun appel enregistré" text="Après chaque appel, note le résultat dans Prospection : il apparaîtra ici." /> : (
+              <ul className="sales-activity-list">
+                {(s.activities.data ?? []).slice(0, 6).map((a) => {
+                  const name = byId.get(a.account_id)?.name ?? "Prospect";
+                  return <li key={a.id}><button onClick={() => onOpen(a.account_id)}>
+                    <span className="sales-account-avatar">{accountInitials(name)}</span>
+                    <span className="sales-activity-copy"><strong>{name}</strong><small>{a.note || "Résultat enregistré sans note"}</small></span>
+                    <span className="sales-outcome" data-outcome={a.outcome}>{outcomeLabel(a.outcome)}</span>
+                    <time dateTime={a.created_at}>{fmtTime(a.created_at)}</time>
+                    <ChevronRight />
+                  </button></li>;
+                })}
+              </ul>
+            )}
+          </section>
+        </div>
+
+        <aside className="sales-today-rail" aria-label="Rythme personnel">
+          {showGoal && (
+            <section className="sales-goal">
+              <div><p className="sales-section-kicker">DÉFI PERSONNEL</p><h2>Ma semaine</h2></div>
+              <p><strong>{week.calls}</strong><span> / {goal} appels</span></p>
+              <div className="sales-goal-track" role="progressbar" aria-label="Progression du défi personnel" aria-valuemin={0} aria-valuemax={goal} aria-valuenow={Math.min(week.calls, goal)}><div className="sales-lime-bar" style={{ width: `${Math.min(100, (week.calls / goal) * 100)}%` }} /></div>
+              <small>Un repère choisi par toi, jamais une injonction.</small>
+            </section>
+          )}
+          <WeekRhythm activities={myActs} />
+        </aside>
+      </div>
     </div>
   );
 }
@@ -330,9 +389,9 @@ function Prospects({ s, wsId, onAdd, onOpen, refresh }: { s: S; wsId: string; on
         <ul className="divide-y rounded-xl border bg-card">
           {list.map((a) => (
             <li key={a.id} className="flex items-center gap-3 p-3">
-              <button className="min-w-0 flex-1 text-left" onClick={() => onOpen(a.id)}>
-                <p className="flex items-center gap-2 truncate font-medium">{a.priority && <span className="sales-prio">{a.priority}</span>}{a.name}</p>
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">{[a.city, a.segment, memberName(s, a.owner_id), a.last_activity_at ? `vu ${fmtDate(a.last_activity_at)}` : "jamais contacté"].filter(Boolean).join(" · ")}</p>
+              <button className="sales-prospect-open min-w-0 flex-1 text-left" onClick={() => onOpen(a.id)}>
+                <span className="sales-account-avatar">{accountInitials(a.name)}</span>
+                <span className="min-w-0"><span className="flex items-center gap-2 truncate font-medium">{a.priority && <span className="sales-prio">{a.priority}</span>}{a.name}</span><span className="mt-0.5 block truncate text-xs text-muted-foreground">{[a.city, a.segment, memberName(s, a.owner_id), a.last_activity_at ? `vu ${fmtDate(a.last_activity_at)}` : "jamais contacté"].filter(Boolean).join(" · ")}</span></span>
               </button>
               <StageChip stage={a.stage} />
               {a.phone && <a href={`tel:${a.phone}`} aria-label={`Appeler ${a.name}`}><Button size="icon" variant="ghost"><Phone /></Button></a>}
@@ -528,35 +587,36 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
   const quick = [["Demain", 1], ["Dans 3 j", 3], ["Dans 1 sem.", 7]] as const;
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
+    <div className="sales-prospection mx-auto max-w-2xl space-y-4">
+      <div className="sales-queue-nav flex items-center justify-between text-xs text-muted-foreground">
         <span>{idx >= 0 ? `${idx + 1} / ${queue.length} dans la file` : "Hors file"}</span>
         <div className="flex gap-1">
           <Button size="icon" variant="ghost" aria-label="Précédent" disabled={idx <= 0} onClick={() => setFocusId(queue[idx - 1]?.id ?? null)}><ChevronLeft /></Button>
           <Button size="icon" variant="ghost" aria-label="Suivant" disabled={idx < 0 || idx >= queue.length - 1} onClick={() => setFocusId(queue[idx + 1]?.id ?? null)}><ChevronRight /></Button>
         </div>
       </div>
-      <article className="sales-card">
-        <div className="flex items-start justify-between gap-3">
+      <article className="sales-card sales-call-card">
+        <p className="sales-section-kicker">CONTACT EN COURS · {String(idx >= 0 ? idx + 1 : 1).padStart(2, "0")}</p>
+        <div className="mt-2 flex items-start justify-between gap-3">
           <div className="min-w-0"><h2 className="truncate text-xl font-semibold tracking-tight">{acc.name}</h2><p className="mt-0.5 text-sm text-muted-foreground">{[acc.city, acc.segment, acc.priority].filter(Boolean).join(" · ") || "—"}</p></div>
           <StageChip stage={acc.stage} />
         </div>
-        <div className="mt-4 rounded-lg bg-secondary/60 p-3">
+        <div className="sales-call-objective mt-4 rounded-lg p-4">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Objectif de l'appel</p>
           <p className="mt-1 text-sm">{STAGE_GOAL[acc.stage]}</p>
           {guided && <p className="mt-2 text-xs text-muted-foreground">Question d'ouverture : « {coachCards.find((c) => c.slug === "ouverture")?.next_question} »</p>}
         </div>
-        {acc.phone ? <a href={`tel:${acc.phone}`} className="mt-4 block"><Button size="lg" className="h-14 w-full text-base"><Phone />Appeler {acc.phone}</Button></a>
+        {acc.phone ? <a href={`tel:${acc.phone}`} className="mt-4 block"><Button size="lg" className="sales-call-button h-14 w-full text-base"><Phone /><span>Appeler</span><strong>{acc.phone}</strong><ArrowUpRight /></Button></a>
           : <p className="mt-4 rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">Pas de téléphone renseigné.</p>}
         {guided && <p className="mt-2 text-center text-[11px] text-muted-foreground">L'appel n'est enregistré qu'une fois le résultat choisi ci-dessous.</p>}
       </article>
 
-      <section className="sales-card" aria-label="Aide commerciale pendant l'appel">
+      <section className="sales-card sales-live-help" aria-label="Aide commerciale pendant l'appel">
         <Button variant="ghost" className="h-auto min-h-11 w-full justify-between gap-3 whitespace-normal px-0 text-left" aria-expanded={coachOpen} aria-controls="sales-call-coach" onClick={() => { setCoachOpen((v) => !v); setCoachSlug(null); }}>
           <span className="flex items-center gap-2 text-sm font-semibold"><BookOpen className="size-4" />Une réponse à trouver ?</span>
           <span className="flex items-center gap-1 text-xs text-muted-foreground">{coachOpen ? "Masquer" : "Voir les situations"}<ChevronRight className={coachOpen ? "size-4 rotate-90" : "size-4"} /></span>
         </Button>
-        <Button variant="ghost" size="sm" className="mt-1 h-11" aria-expanded={recenter} onClick={() => setRecenter((value) => !value)}>Je me recentre</Button>
+        <Button variant="ghost" size="sm" className="sales-recenter-button mt-1 h-11" aria-expanded={recenter} onClick={() => setRecenter((value) => !value)}><span aria-hidden />Je me recentre</Button>
         {recenter && <div className="mt-2 space-y-2 border-l-2 sales-lime-border pl-3" role="region" aria-label="Retrouver son calme"><p className="text-sm font-medium">Tu n’as pas à convaincre à tout prix.</p><p className="text-sm text-muted-foreground">Pose les pieds. Relâche les épaules. Une respiration tranquille, puis une seule question.</p><p className="text-xs text-muted-foreground">{coachCards.find((c) => c.slug === "posture")?.goal}</p><Button variant="ghost" size="sm" className="h-11" onClick={() => setRecenter(false)}>Revenir à l’échange</Button></div>}
         {coachOpen && (
           <div id="sales-call-coach" className="mt-4 space-y-3 border-t pt-4">
@@ -576,9 +636,10 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
         )}
       </section>
 
-      <section className="sales-card space-y-4">
+      <section className="sales-card sales-result-card space-y-4">
         <div>
-          <p className="mb-2 text-sm font-medium">Résultat</p>
+          <p className="sales-section-kicker">APRÈS L’ÉCHANGE</p>
+          <p className="mb-2 mt-1 text-sm font-medium">Résultat</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">{OUTCOMES.map((o) => <button key={o.id} className="sales-seg h-12" aria-pressed={outcome === o.id} onClick={() => setOutcome(o.id)}>{o.label}</button>)}</div>
         </div>
         <Textarea rows={2} placeholder="Note courte (ce que tu as appris)" value={note} onChange={(e) => setNote(e.target.value)} maxLength={1000} aria-label="Note" />

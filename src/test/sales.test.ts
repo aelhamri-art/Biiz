@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COACH_GROUPS, QUICK_COACH, coachGroupForSlug, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, DEFAULT_PLAYBOOK } from "@/lib/sales";
+import { COACH_GROUPS, QUICK_COACH, coachGroupForSlug, dailyCallCounts, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, DEFAULT_PLAYBOOK } from "@/lib/sales";
 
 describe("sales rules", () => {
   it("tarifs Widget véridiques", () => {
@@ -18,6 +18,18 @@ describe("sales rules", () => {
     const r = parseCsv("Nom;Téléphone;Ville;Priorité\nChez Ali;0611;Lyon;p1\nSans;;;P9");
     expect(r[0]).toMatchObject({ name: "Chez Ali", phone: "0611", city: "Lyon", priority: "P1" });
     expect(r[1]?.priority).toBeUndefined();
+  });
+  it("compte le rythme sur sept jours sans reprendre les appels plus anciens", () => {
+    const end = new Date(2026, 10, 24, 12);
+    const days = dailyCallCounts([
+      { created_at: new Date(2026, 10, 24, 9).toISOString() },
+      { created_at: new Date(2026, 10, 24, 18).toISOString() },
+      { created_at: new Date(2026, 10, 23, 10).toISOString() },
+      { created_at: new Date(2026, 10, 18, 10).toISOString() },
+      { created_at: new Date(2026, 10, 17, 23, 59).toISOString() },
+    ], end);
+    expect(days).toHaveLength(7);
+    expect(days.map((day) => day.count)).toEqual([1, 0, 0, 0, 0, 1, 2]);
   });
   it("pas de variation affichée sans assez de données", () => {
     expect(delta(10, 4)).toBeNull();

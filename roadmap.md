@@ -30,6 +30,11 @@
 - [x] Stories (4 familles + cycle 7 jours) et Tournages (4 briefs) dans Production & équipe.
 - [x] 12 liens Story relais + 12 diffusions story ; Mesure M01 + protocole et arbitrage J+21 dans Performance.
 
+# BIIZ Sales — Expérience métier haute performance
+- [x] Transformer l’interface Sales avec une direction sur mesure, des visuels originaux et des micro-interactions utiles.
+- [x] Simplifier la priorisation quotidienne et les gestes terrain sans modifier les données ni les règles CRM.
+- [x] Vérifier les parcours, le responsive, l’accessibilité, les tests et le build.
+
 # BIIZ V2 — Data Intelligence
 - [ ] Ajouter le socle analytique workspace-scoped, la source ALPHA et l’ingestion idempotente signée.
 - [ ] Centraliser métriques, funnels Barber/Wash, clients, cohortes, qualité et insights avec tests.

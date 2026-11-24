@@ -158,6 +158,25 @@ export const startOfWeek = (d = new Date()) => { const x = startOfDay(d); x.setD
 export const isoDate = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 export const addDays = (d: Date, n: number) => new Date(d.getTime() + n * DAY);
 
+export function dailyCallCounts(acts: Pick<Activity, "created_at">[], end = new Date()) {
+  const endDay = startOfDay(end);
+  return Array.from({ length: 7 }, (_, index) => {
+    const day = addDays(endDay, index - 6);
+    const next = addDays(day, 1);
+    const from = day.getTime();
+    const to = next.getTime();
+    return {
+      date: isoDate(day),
+      label: new Intl.DateTimeFormat("fr-FR", { weekday: "narrow" }).format(day).toLocaleUpperCase("fr"),
+      fullLabel: new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(day),
+      count: acts.filter((activity) => {
+        const at = new Date(activity.created_at).getTime();
+        return at >= from && at < to;
+      }).length,
+    };
+  });
+}
+
 export function periodStats(acts: Pick<Activity, "outcome" | "account_id" | "created_at" | "note">[], history: Pick<StageEvent, "to_stage" | "created_at">[], from: Date, to: Date) {
   const inP = (iso: string) => { const t = new Date(iso).getTime(); return t >= from.getTime() && t < to.getTime(); };
   const a = acts.filter((x) => inP(x.created_at));
