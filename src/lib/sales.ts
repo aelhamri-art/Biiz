@@ -177,6 +177,26 @@ export function dailyCallCounts(acts: Pick<Activity, "created_at">[], end = new 
   });
 }
 
+export function dailyPerformanceSeries(acts: Pick<Activity, "created_at" | "outcome">[], end = new Date()) {
+  const endDay = startOfDay(end);
+  return dailyCallCounts(acts, end).map((day, index) => {
+    const from = addDays(endDay, index - 6).getTime();
+    const to = addDays(endDay, index - 5).getTime();
+    return {
+      ...day,
+      calls: day.count,
+      useful: acts.filter((activity) => {
+        const at = new Date(activity.created_at).getTime();
+        return at >= from && at < to && isUsefulConversation(activity.outcome);
+      }).length,
+    };
+  });
+}
+
+export function ratioPercent(part: number, total: number): number | null {
+  return total > 0 ? Math.round((part / total) * 100) : null;
+}
+
 export function periodStats(acts: Pick<Activity, "outcome" | "account_id" | "created_at" | "note">[], history: Pick<StageEvent, "to_stage" | "created_at">[], from: Date, to: Date) {
   const inP = (iso: string) => { const t = new Date(iso).getTime(); return t >= from.getTime() && t < to.getTime(); };
   const a = acts.filter((x) => inP(x.created_at));

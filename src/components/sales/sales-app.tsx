@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
-  ArrowRight, ArrowUpRight, BarChart3, BookOpen, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Columns3, Crosshair, Globe, LogOut, MessageCircleMore, Phone, PhoneCall, Plus, Search, Sun, Target, Upload, Users, Pencil, Loader2, Check, Zap,
+  ArrowRight, ArrowUpRight, BarChart3, BookOpen, CalendarClock, CheckCircle2, ChevronLeft, ChevronRight, Clock3, Columns3, Crosshair, Globe, LogOut, MessageCircleMore, Mic, Phone, PhoneCall, Plus, Search, Sparkles, Sun, Target, TrendingUp, Upload, Users, Pencil, Loader2, Check, Zap,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BiizFooter } from "@/components/biiz-footer";
@@ -19,9 +19,11 @@ import { CoachMoment } from "./coach-moment";
 import { Aximus } from "./aximus";
 import { PartnerAccounts } from "./partners";
 import { SalesMomentumVisual, WeekRhythm } from "./sales-visuals";
+import { PerformancePulse, SkillGauge } from "./performance-visuals";
+import villaAsset from "@/assets/sales-california-villa.webp.asset.json";
 import {
   type Account, type CoachCard, COACH_GROUPS, QUICK_COACH, coachGroupForSlug, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
-  addDays, delta, findDuplicates, isoDate, mergePlaybook, outcomeLabel, parseCsv, periodStats, qualityBadges, stageLabel, startOfDay, startOfWeek,
+  addDays, delta, findDuplicates, isoDate, mergePlaybook, outcomeLabel, parseCsv, periodStats, qualityBadges, ratioPercent, stageLabel, startOfDay, startOfWeek,
 } from "@/lib/sales";
 
 export type Zone = "today" | "prospects" | "call" | "coach" | "pipeline" | "perf";
@@ -779,6 +781,8 @@ function Pipeline({ s, onOpen, refresh }: { s: S; onOpen: (id: string) => void; 
 }
 
 /* ---------- 6. Performance ---------- */
+type Debrief = { title: string; context: string };
+
 function Performance({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => void }) {
   const mine = (s.activities.data ?? []).filter((a) => a.actor_id === s.me.data);
   const hist = (s.history.data ?? []).filter((h) => h.actor_id === s.me.data);
@@ -787,52 +791,118 @@ function Performance({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => 
   const week = periodStats(mine, hist, w0, addDays(w0, 7));
   const prev = periodStats(mine, hist, addDays(w0, -7), w0);
   const p = s.prefs.data;
+  const low = !!p?.low_stimulation;
   const [challenge, setChallenge] = useState(p?.weekly_challenge ? String(p.weekly_challenge) : "");
+  const [debrief, setDebrief] = useState<Debrief | null>(null);
+
   async function savePrefs(patch: Partial<{ mode: string; hide_goals: boolean; low_stimulation: boolean; weekly_challenge: number | null }>) {
     const { error } = await supabase.from("sales_preferences").upsert({ workspace_id: wsId, user_id: s.me.data!, mode: p?.mode ?? "accompagne", hide_goals: p?.hide_goals ?? false, low_stimulation: p?.low_stimulation ?? false, weekly_challenge: p?.weekly_challenge ?? null, ...patch, updated_at: new Date().toISOString() });
     if (error) toast.error(error.message); else refresh();
   }
   const d = (k: keyof typeof week) => { const v = delta(week[k], prev[k]); return v === null ? "semaine précédente : données insuffisantes" : `${v >= 0 ? "+" : ""}${v} % vs sem. précédente`; };
-  const rate = (a: number, b: number) => (b ? `${Math.round((a / b) * 100)} %` : "—");
+  const openDebrief = (title: string, facts: string) => setDebrief({ title, context: `Source : onglet Performance de BIIZ Sales, données personnelles actuellement visibles.\n${facts}` });
+  const weekFacts = `Semaine en cours : ${week.calls} appels, ${week.useful} conversations utiles, ${week.contacted} prospects contactés, ${week.r2Taken} R2 pris et ${week.r2Held} R2 tenus. Aujourd'hui : ${today.calls} appels et ${today.useful} conversations utiles.`;
   const badges = qualityBadges(week);
-  const low = p?.low_stimulation;
+  const skills = [
+    { id: "conversation", label: "Créer la conversation", value: ratioPercent(week.useful, week.calls), detail: week.calls ? `${week.useful} conversations utiles sur ${week.calls} appels` : "Aucun appel enregistré" },
+    { id: "notes", label: "Documenter les faits", value: ratioPercent(week.withNote, week.calls), detail: week.calls ? `${week.withNote} appels avec note sur ${week.calls}` : "Aucun appel enregistré" },
+    { id: "r2", label: "Tenir le R2", value: ratioPercent(week.r2Held, week.r2Taken), detail: week.r2Taken ? `${week.r2Held} R2 tenus sur ${week.r2Taken} pris` : "Aucun R2 pris cette semaine" },
+  ];
+
   return (
-    <div className="space-y-6">
-      <PartnerAccounts wsId={wsId} onDone={refresh} />
-      <section>
-        <h2 className="sales-h2">Cette semaine</h2>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-3">
-          <Metric label="Appels" value={week.calls} sub={low ? null : d("calls")} />
-          <Metric label="Conversations utiles" value={week.useful} sub={low ? null : d("useful")} />
-          <Metric label="Prospects contactés" value={week.contacted} sub={low ? null : d("contacted")} />
-          <Metric label="R2 pris / tenus" value={`${week.r2Taken} / ${week.r2Held}`} />
+    <div className="sales-performance" data-low-stimulation={low ? "true" : undefined}>
+      <section className="sales-vision" aria-labelledby="sales-vision-title">
+        <img src={villaAsset.url} alt="Villa contemporaine en Californie au crépuscule, avec piscine et lumières chaleureuses" />
+        <div className="sales-vision-shade" aria-hidden />
+        <div className="sales-vision-copy">
+          <p className="sales-vision-eyebrow"><span />VISION · DISCIPLINE · LIBERTÉ</p>
+          <h2 id="sales-vision-title">Vise la vie que tu veux.<br /><em>Construis-la ici.</em></h2>
+          <p>La vision donne la direction. Tes actions réelles écrivent la suite, un appel après l’autre.</p>
+          <div className="sales-vision-facts" aria-label="Résultats de la semaine"><span><strong>{week.calls}</strong> appels</span><span><strong>{week.r2Taken}</strong> R2 pris</span><span>cette semaine</span></div>
+          <Button className="sales-vision-coach" onClick={() => openDebrief("Vue d’ensemble de ma semaine", weekFacts)}><Mic />Débriefer ma semaine avec Aximus<ArrowUpRight /></Button>
         </div>
-        <p className="mt-2 text-xs text-muted-foreground">Aujourd'hui : {today.calls} appels · {today.useful} conversations utiles. Seules tes propres actions enregistrées sont comptées.</p>
+        <p className="sales-vision-sign">DREAM BIG. TRACK REAL.</p>
       </section>
-      <section>
-        <h2 className="sales-h2">Microcompétences <span className="font-normal text-muted-foreground">· 7 derniers jours</span></h2>
-        <ul className="divide-y rounded-xl border bg-card text-sm">
-          {[["Transformer un appel en conversation", rate(week.useful, week.calls)], ["Documenter chaque appel (note)", rate(week.withNote, week.calls)], ["Transformer un R2 pris en R2 tenu", rate(week.r2Held, week.r2Taken)]].map(([k, v]) => <li key={k} className="flex justify-between p-3"><span>{k}</span><span className="tabular-nums font-medium">{v}</span></li>)}
-        </ul>
+
+      <section className="sales-performance-section" aria-labelledby="sales-week-title">
+        <header className="sales-performance-heading">
+          <div><p className="sales-section-kicker">WEEK IN REVIEW</p><h2 id="sales-week-title">Cette semaine</h2><p>Aujourd’hui : {today.calls} appels · {today.useful} conversations utiles. Tes seules actions enregistrées.</p></div>
+          <Button variant="outline" size="sm" className="sales-debrief-button" onClick={() => openDebrief("Résultats de la semaine", weekFacts)}><Mic />Débrief Aximus</Button>
+        </header>
+        <div className="sales-performance-metrics">
+          <PerformanceMetric label="Appels" value={week.calls} sub={low ? null : d("calls")} icon={PhoneCall} onCoach={() => openDebrief("Appels de la semaine", `${weekFacts} ${low ? "Comparaisons masquées par ton réglage" : d("calls")}.`)} />
+          <PerformanceMetric label="Conversations utiles" value={week.useful} sub={low ? null : d("useful")} icon={MessageCircleMore} onCoach={() => openDebrief("Conversations utiles", `${weekFacts} ${low ? "Comparaisons masquées par ton réglage" : d("useful")}.`)} />
+          <PerformanceMetric label="Prospects contactés" value={week.contacted} sub={low ? null : d("contacted")} icon={Users} onCoach={() => openDebrief("Prospects contactés", `${weekFacts} ${low ? "Comparaisons masquées par ton réglage" : d("contacted")}.`)} />
+          <PerformanceMetric label="R2 pris / tenus" value={`${week.r2Taken} / ${week.r2Held}`} sub="résultats constatés" icon={Target} onCoach={() => openDebrief("Rendez-vous R2", `Cette semaine : ${week.r2Taken} R2 pris et ${week.r2Held} R2 tenus. Aucun taux affiché si aucun R2 n’a été pris.`)} />
+        </div>
       </section>
+
+      <section className="sales-performance-panel" aria-labelledby="sales-pulse-title">
+        <header className="sales-performance-heading">
+          <div><p className="sales-section-kicker">SIGNAL · 7 DERNIERS JOURS</p><h2 id="sales-pulse-title">Ton pouls commercial</h2><p>Le volume attire, la conversation transforme. Lis les deux ensemble.</p></div>
+          <TrendingUp className="sales-performance-heading-icon" />
+        </header>
+        <PerformancePulse activities={mine} calm={low} />
+        <footer className="sales-performance-panel-footer"><span>{mine.length ? "Chaque point correspond à une journée réelle." : "La courbe se dessinera avec tes appels enregistrés."}</span><Button variant="ghost" size="sm" className="sales-debrief-button" onClick={() => openDebrief("Pouls commercial sur sept jours", `${weekFacts} Le graphique compare les appels et les conversations utiles jour par jour sur les sept derniers jours.`)}><Mic />Lire ce graphique avec Aximus</Button></footer>
+      </section>
+
+      <section className="sales-performance-section" aria-labelledby="sales-skills-title">
+        <header className="sales-performance-heading">
+          <div><p className="sales-section-kicker">PRECISION OVER PRESSURE</p><h2 id="sales-skills-title">Microcompétences</h2><p>Un taux absent reste « — ». Jamais un zéro inventé.</p></div>
+          <Button variant="outline" size="sm" className="sales-debrief-button" onClick={() => openDebrief("Microcompétences", skills.map((skill) => `${skill.label} : ${skill.value === null ? "non calculable" : `${skill.value} %`} (${skill.detail}).`).join(" "))}><Mic />Travailler un point</Button>
+        </header>
+        <div className="sales-skill-grid">
+          {skills.map((skill) => (
+            <article key={skill.id} className="sales-skill-card">
+              <SkillGauge value={skill.value} label={skill.label} detail={skill.detail} />
+              <AximusCardButton label={`Débriefer « ${skill.label} » avec Aximus`} onClick={() => openDebrief(skill.label, `${skill.label} : ${skill.value === null ? "non calculable" : `${skill.value} %`}. ${skill.detail}.`)} />
+            </article>
+          ))}
+        </div>
+      </section>
+
       {!low && (
-        <section>
-          <h2 className="sales-h2">Qualité constatée</h2>
-          {badges.length === 0 ? <p className="text-sm text-muted-foreground">Les repères qualité apparaissent quand les données le montrent (par ex. 10 appels avec notes).</p> : (
-            <ul className="grid gap-2 sm:grid-cols-2">{badges.map((b) => <li key={b.id} className="flex items-center gap-3 rounded-xl border bg-card p-3"><BiizBee size={24} className="text-foreground" /><div><p className="text-sm font-medium">{b.label}</p><p className="text-xs text-muted-foreground">{b.fact}</p></div></li>)}</ul>
+        <section className="sales-performance-section" aria-labelledby="sales-quality-title">
+          <header className="sales-performance-heading"><div><p className="sales-section-kicker">PROOF, NOT EGO</p><h2 id="sales-quality-title">Qualité constatée</h2><p>Des signaux mesurés, pas des récompenses artificielles.</p></div><Sparkles className="sales-performance-heading-icon" /></header>
+          {badges.length === 0 ? <div className="sales-quality-empty"><BiizBee size={30} /><p>Les repères qualité apparaissent quand les données les démontrent réellement.</p><Button variant="ghost" size="sm" className="sales-debrief-button" onClick={() => openDebrief("Qualité constatée", `${weekFacts} Aucun badge qualité n’est actuellement justifié par les règles de mesure.`)}><Mic />Comprendre les critères</Button></div> : (
+            <ul className="sales-quality-grid">{badges.map((b) => <li key={b.id}><BiizBee size={28} /><div><p>{b.label}</p><span>{b.fact}</span></div><AximusCardButton label={`Débriefer « ${b.label} » avec Aximus`} onClick={() => openDebrief(b.label, `${b.label}. Fait mesuré : ${b.fact}.`)} /></li>)}</ul>
           )}
         </section>
       )}
-      <section className="sales-card space-y-4">
-        <h2 className="text-sm font-medium">Mes réglages</h2>
+
+      <section className="sales-card sales-performance-settings space-y-4">
+        <div><p className="sales-section-kicker">TON ESPACE</p><h2 className="mt-1 text-sm font-semibold">Mes réglages</h2></div>
         <div><p className="mb-2 text-xs text-muted-foreground">Mode</p><div className="grid grid-cols-2 gap-2">{([["accompagne", "Accompagné"], ["rapide", "Rapide"]] as const).map(([v, l]) => <button key={v} className="sales-seg h-11" aria-pressed={(p?.mode ?? "accompagne") === v} onClick={() => savePrefs({ mode: v })}>{l}</button>)}</div></div>
-        <label className="flex items-center justify-between text-sm">Masquer mon défi personnel<Switch checked={!!p?.hide_goals} onCheckedChange={(v) => savePrefs({ hide_goals: v })} /></label>
-        <label className="flex items-center justify-between text-sm">Réduire la stimulation (sans badges ni comparaisons)<Switch checked={!!low} onCheckedChange={(v) => savePrefs({ low_stimulation: v })} /></label>
+        <label className="flex items-center justify-between gap-4 text-sm">Masquer mon défi personnel<Switch checked={!!p?.hide_goals} onCheckedChange={(v) => savePrefs({ hide_goals: v })} /></label>
+        <label className="flex items-center justify-between gap-4 text-sm">Réduire la stimulation (sans badges ni comparaisons)<Switch checked={low} onCheckedChange={(v) => savePrefs({ low_stimulation: v })} /></label>
         <form className="flex items-end gap-2" onSubmit={(e) => { e.preventDefault(); const n = challenge.trim() ? Math.round(Number(challenge)) : null; if (n !== null && !(n >= 1 && n <= 500)) { toast.error("Entre 1 et 500."); return; } void savePrefs({ weekly_challenge: n }).then(() => toast.success(n ? "Défi enregistré" : "Défi retiré")); }}>
           <Field label="Mini défi personnel (appels / semaine, facultatif)"><Input inputMode="numeric" className="h-10 w-32" value={challenge} onChange={(e) => setChallenge(e.target.value)} /></Field>
           <Button type="submit" variant="outline" className="h-10">OK</Button>
         </form>
       </section>
+      <PartnerAccounts wsId={wsId} onDone={refresh} />
+
+      <Sheet open={!!debrief} onOpenChange={(open) => { if (!open) setDebrief(null); }}>
+        <SheetContent className="biiz-sales sales-debrief-sheet w-full overflow-y-auto sm:max-w-md">
+          <SheetHeader><SheetTitle>Débrief ciblé</SheetTitle></SheetHeader>
+          {debrief && <div className="space-y-4 px-4 pb-6"><div className="sales-debrief-context"><p>{debrief.title}</p><span>{debrief.context}</span></div><Aximus wsId={wsId} context={debrief.context} compact /></div>}
+        </SheetContent>
+      </Sheet>
     </div>
+  );
+}
+
+function AximusCardButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return <Button variant="ghost" size="icon" className="sales-aximus-card-button" aria-label={label} title={label} onClick={onClick}><Mic /></Button>;
+}
+
+function PerformanceMetric({ label, value, sub, icon: Icon, onCoach }: { label: string; value: number | string; sub: string | null; icon: typeof Sun; onCoach: () => void }) {
+  return (
+    <article className="sales-perf-metric">
+      <div className="sales-perf-metric-top"><span className="sales-perf-metric-icon"><Icon /></span><AximusCardButton label={`Débriefer « ${label} » avec Aximus`} onClick={onCoach} /></div>
+      <p className="sales-perf-metric-label">{label}</p>
+      <p className="sales-perf-metric-value">{value}</p>
+      {sub && <p className="sales-perf-metric-sub">{sub}</p>}
+    </article>
   );
 }

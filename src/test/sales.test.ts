@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COACH_GROUPS, QUICK_COACH, coachGroupForSlug, dailyCallCounts, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, DEFAULT_PLAYBOOK } from "@/lib/sales";
+import { COACH_GROUPS, QUICK_COACH, coachGroupForSlug, dailyCallCounts, dailyPerformanceSeries, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, ratioPercent, DEFAULT_PLAYBOOK } from "@/lib/sales";
 
 describe("sales rules", () => {
   it("tarifs Widget véridiques", () => {
@@ -30,6 +30,20 @@ describe("sales rules", () => {
     ], end);
     expect(days).toHaveLength(7);
     expect(days.map((day) => day.count)).toEqual([1, 0, 0, 0, 0, 1, 2]);
+  });
+  it("sépare appels et conversations utiles dans le graphique quotidien", () => {
+    const end = new Date(2026, 10, 24, 12);
+    const days = dailyPerformanceSeries([
+      { created_at: new Date(2026, 10, 24, 9).toISOString(), outcome: "repondu" },
+      { created_at: new Date(2026, 10, 24, 10).toISOString(), outcome: "pas_repondu" },
+      { created_at: new Date(2026, 10, 23, 10).toISOString(), outcome: "r2" },
+    ], end);
+    expect(days.at(-1)).toMatchObject({ calls: 2, useful: 1 });
+    expect(days.at(-2)).toMatchObject({ calls: 1, useful: 1 });
+  });
+  it("n'invente pas de taux sans dénominateur", () => {
+    expect(ratioPercent(0, 0)).toBeNull();
+    expect(ratioPercent(3, 8)).toBe(38);
   });
   it("pas de variation affichée sans assez de données", () => {
     expect(delta(10, 4)).toBeNull();

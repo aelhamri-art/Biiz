@@ -35,6 +35,11 @@
 - [x] Simplifier la priorisation quotidienne et les gestes terrain sans modifier les données ni les règles CRM.
 - [x] Vérifier les parcours, le responsive, l’accessibilité, les tests et le build.
 
+# BIIZ Sales — Performance & projection
+- [x] Créer une scène Performance ambitieuse avec villa sur mesure et lecture graphique futuriste des résultats réels.
+- [x] Ajouter des débriefs Aximus contextuels sur les sections et cartes de données sans inventer de chiffres.
+- [x] Vérifier les interactions vocales disponibles, le mode stimulation réduite, le responsive, les tests et le build.
+
 # BIIZ V2 — Data Intelligence
 - [ ] Ajouter le socle analytique workspace-scoped, la source ALPHA et l’ingestion idempotente signée.
 - [ ] Centraliser métriques, funnels Barber/Wash, clients, cohortes, qualité et insights avec tests.
