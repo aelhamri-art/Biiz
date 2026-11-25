@@ -63,7 +63,7 @@ describe("sales rules", () => {
     expect(new Set(DEFAULT_PLAYBOOK.map((c) => c.slug)).size).toBe(DEFAULT_PLAYBOOK.length);
   });
   it("classe toutes les fiches et relie les six réponses rapides", () => {
-    expect(COACH_GROUPS).toHaveLength(6);
+    expect(COACH_GROUPS).toHaveLength(7);
     expect(DEFAULT_PLAYBOOK.every((c) => coachGroupForSlug(c.slug) !== "autres")).toBe(true);
     expect(QUICK_COACH).toHaveLength(6);
     expect(QUICK_COACH.every((q) => DEFAULT_PLAYBOOK.some((c) => c.slug === q.slug))).toBe(true);
@@ -81,7 +81,8 @@ describe("sales rules", () => {
     expect(result.some((c) => c.slug === "uber-eats")).toBe(false);
   });
   it("la carte d'équipe remplace la carte de base", () => {
-    const m = mergePlaybook([{ ...DEFAULT_PLAYBOOK[6]!, advice: "X", id: "a" }]);
+    const base = DEFAULT_PLAYBOOK.find((card) => card.slug === "cest-cher")!;
+    const m = mergePlaybook([{ ...base, advice: "X", id: "a" }]);
     expect(m).toHaveLength(DEFAULT_PLAYBOOK.length);
     expect(m.find((c) => c.slug === "cest-cher")?.advice).toBe("X");
   });
