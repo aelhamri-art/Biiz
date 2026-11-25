@@ -491,7 +491,7 @@ export function segmentOpeningQuestion(segment?: string | null): string {
 export function coachCardsForSegment(cards: CoachCard[], segment?: string | null): CoachCard[] {
   return cards.filter((card) => !FLORIST_CARDS.has(card.slug) || isFloristSegment(segment));
 }
-export function quickCoachForSegment(segment?: string | null): typeof QUICK_COACH {
+export function quickCoachForSegment(segment?: string | null): ReadonlyArray<{ slug: string; label: string }> {
   if (isFloristSegment(segment)) return QUICK_COACH;
   return [
     { slug: "livraison-deja", label: "Livre déjà" },
