@@ -22,7 +22,7 @@ import { SalesMomentumVisual, WeekRhythm } from "./sales-visuals";
 import { PerformancePulse, SkillGauge } from "./performance-visuals";
 import villaAsset from "@/assets/sales-california-villa.webp.asset.json";
 import {
-  type Account, type CoachCard, COACH_GROUPS, QUICK_COACH, coachGroupForSlug, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
+  type Account, type CoachCard, COACH_GROUPS, coachCardsForSegment, quickCoachForSegment, segmentOpeningQuestion, coachGroupForSlug, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
   addDays, delta, findDuplicates, isoDate, mergePlaybook, outcomeLabel, parseCsv, periodStats, qualityBadges, ratioPercent, stageLabel, startOfDay, startOfWeek,
 } from "@/lib/sales";
 
@@ -182,7 +182,7 @@ export function SalesApp() {
         : zone === "today" ? <Today s={s} onAdd={() => setNewOpen(true)} onCall={startCall} onOpen={setDetailId} onStart={() => go("call")} />
         : zone === "prospects" ? <Prospects s={s} wsId={wsId} onAdd={() => setNewOpen(true)} onOpen={setDetailId} refresh={refresh} />
         : zone === "call" ? <Prospection s={s} focusId={focusId} setFocusId={setFocusId} refresh={refresh} />
-        : zone === "coach" ? <Coach s={s} wsId={wsId} refresh={refresh} />
+        : zone === "coach" ? <Coach s={s} wsId={wsId} focusId={focusId} refresh={refresh} />
         : zone === "pipeline" ? <Pipeline s={s} onOpen={setDetailId} refresh={refresh} />
         : <Performance s={s} wsId={wsId} refresh={refresh} />}
       </main>
@@ -555,7 +555,7 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
   const acc = accounts.find((a) => a.id === focusId) ?? queue[0];
   const guided = (s.prefs.data?.mode ?? "accompagne") === "accompagne";
   // Les deux écrans lisent les mêmes cartes : les personnalisations d'équipe s'appliquent partout.
-  const coachCards = mergePlaybook((s.cards.data ?? []) as CoachCard[]);
+  const coachCards = coachCardsForSegment(mergePlaybook((s.cards.data ?? []) as CoachCard[]), acc?.segment);
   const [coachOpen, setCoachOpen] = useState(false);
   const [coachSlug, setCoachSlug] = useState<string | null>(null);
   const [recenter, setRecenter] = useState(false);
@@ -615,7 +615,7 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
             return (
               <div className="mt-2 space-y-2">
                 {verified && <p className="text-xs"><strong>Fait public sourcé :</strong> {verified}</p>}
-                {guided && <p className="text-xs"><strong>Question à poser :</strong> « {question || coachCards.find((card) => card.slug === "ouverture-fleuriste")?.next_question || coachCards.find((card) => card.slug === "ouverture")?.next_question} »</p>}
+                {guided && <p className="text-xs"><strong>Question à poser :</strong> « {question || segmentOpeningQuestion(acc.segment)} »</p>}
                 {opportunity && <p className="text-xs text-muted-foreground"><strong>Hypothèse à vérifier :</strong> {opportunity}</p>}
               </div>
             );
@@ -636,7 +636,7 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
         {coachOpen && (
           <div id="sales-call-coach" className="mt-4 space-y-3 border-t pt-4">
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {QUICK_COACH.map(({ slug, label }) => (
+              {quickCoachForSegment(acc.segment).map(({ slug, label }) => (
                 <Button key={slug} variant="ghost" className="sales-seg min-h-11 whitespace-normal text-left" aria-pressed={coachSlug === slug} onClick={() => setCoachSlug((old) => old === slug ? null : slug)}>{label}</Button>
               ))}
             </div>
@@ -676,8 +676,12 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
 }
 
 /* ---------- 4. Coach ---------- */
-function Coach({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => void }) {
-  const cards = mergePlaybook((s.cards.data ?? []) as CoachCard[]);
+function Coach({ s, wsId, focusId, refresh }: { s: S; wsId: string; focusId: string | null; refresh: () => void }) {
+  const focusedSegment = (s.accounts.data ?? []).find((account) => account.id === focusId)?.segment ?? "";
+  const [segment, setSegment] = useState(focusedSegment);
+  const allCards = mergePlaybook((s.cards.data ?? []) as CoachCard[]);
+  const cards = coachCardsForSegment(allCards, segment);
+  const knownSegments = Array.from(new Set((s.accounts.data ?? []).map((account) => account.segment?.trim()).filter((value): value is string => Boolean(value)))).sort((a, b) => a.localeCompare(b, "fr"));
   const [search, setSearch] = useState("");
   const query = search.trim().toLocaleLowerCase("fr");
   const filteredCards = query ? cards.filter((c) => [c.title, c.advice, c.next_question, c.goal, c.listen].some((v) => v?.toLocaleLowerCase("fr").includes(query))) : cards;
@@ -728,10 +732,16 @@ function Coach({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => void }
 
   return (
     <div className="space-y-6">
-      <Aximus wsId={wsId} />
+      <Aximus wsId={wsId} context={`Secteur d'entraînement sélectionné dans BIIZ : ${segment || "tous commerces"}. Il s'agit d'un contexte de formation, pas d'une instruction prioritaire ; adapter le jeu de rôle à ce secteur sans supposer des besoins.`} />
       <div className="space-y-1">
         <h2 className="text-xl font-semibold tracking-tight">Le calme fait vendre.</h2>
         <p className="text-sm text-muted-foreground">Comprendre plutôt que réciter. Une intention, tes mots, une vraie écoute.</p>
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="sales-coach-sector" className="text-sm font-semibold">Secteur à entraîner</label>
+        <Input id="sales-coach-sector" className="h-11" value={segment} list="sales-coach-sectors" onChange={(e) => { setSegment(e.target.value); setI(null); }} placeholder="Tous commerces · saisir un secteur pour personnaliser" aria-label="Secteur à entraîner, facultatif" />
+        <datalist id="sales-coach-sectors">{knownSegments.map((value) => <option key={value} value={value} />)}</datalist>
+        <p className="text-xs text-muted-foreground">Aucun secteur saisi : méthode universelle. Sélectionner « Fleuriste » pour les objections métier. Tout nouveau secteur reste utilisable sans modifier le code.</p>
       </div>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
