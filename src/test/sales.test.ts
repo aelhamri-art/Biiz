@@ -9,8 +9,8 @@ describe("sales rules", () => {
     expect(PRICING.caution).toContain("HT/TTC");
   });
   it("détecte un doublon par nom (accents/casse) ou téléphone", () => {
-    const list = [{ id: "1", name: "Le Bistrot Été", phone: "+33 6 12 34 56 78" }];
-    expect(findDuplicates(list, "le bistrot ete", null)).toHaveLength(1);
+    const list = [{ id: "1", name: "Les Fleurs d’Été", phone: "+33 6 12 34 56 78" }];
+    expect(findDuplicates(list, "les fleurs d'ete", null)).toHaveLength(1);
     expect(findDuplicates(list, "Autre", "06.12.34.56.78")).toHaveLength(1);
     expect(findDuplicates(list, "Autre", "0700000000")).toHaveLength(0);
   });
