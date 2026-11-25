@@ -64,7 +64,7 @@ export function Aximus({ wsId, context = "", compact = false }: { wsId: string; 
         )}
         {call.playbackBlocked && <Button variant="outline" className="h-12 w-full" onClick={() => call.resumePlayback()}><Play />Activer le son</Button>}
       </div>
-      {!live && !compact && <p className="mt-3 text-xs text-muted-foreground">Exemples : « Prépare-moi pour mon prochain appel », « Joue un patron pressé », « Débriefe mon appel avec Philo et Capucine ».</p>}
+      {!live && !compact && <p className="mt-3 text-xs text-muted-foreground">Exemples : « Prépare-moi pour mon prochain appel », « Joue un patron pressé », « Débriefe mon dernier appel avec un commerce ».</p>}
       {(notice || call.error) && <p className="mt-3 text-sm" role="status">{call.error ? `Connexion vocale impossible : ${call.error}` : notice}</p>}
       <audio ref={call.audioRef} className="sr-only" />
     </section>
