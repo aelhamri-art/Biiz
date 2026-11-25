@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COACH_GROUPS, QUICK_COACH, coachGroupForSlug, dailyCallCounts, dailyPerformanceSeries, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, ratioPercent, DEFAULT_PLAYBOOK } from "@/lib/sales";
+import { COACH_GROUPS, QUICK_COACH, coachCardsForSegment, quickCoachForSegment, segmentOpeningQuestion, isFloristSegment, coachGroupForSlug, dailyCallCounts, dailyPerformanceSeries, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, ratioPercent, DEFAULT_PLAYBOOK } from "@/lib/sales";
 
 describe("sales rules", () => {
   it("grille SHOP correspond aux arbitrages DG et évite le cumul de commissions", () => {
@@ -79,6 +79,36 @@ describe("sales rules", () => {
   it("les anciennes cartes FOOD ne reviennent jamais via les données d'équipe", () => {
     const result = mergePlaybook([{slug:"uber-eats", title:"Uber Eats", advice:"Ancien script", position:5, goal:null, listen:null, next_question:null}]);
     expect(result.some((c) => c.slug === "uber-eats")).toBe(false);
+  });
+  it("le secteur fleuriste est une option et ne contraint pas les autres commerces", () => {
+    const cards = mergePlaybook([]);
+    const florists = coachCardsForSegment(cards, "Artisan Fleuriste");
+    const pets = coachCardsForSegment(cards, "Animalerie");
+    const cosmetics = coachCardsForSegment(cards, "Cosmétiques");
+    const generic = coachCardsForSegment(cards, null);
+    expect(isFloristSegment("Artisan Fleuriste")).toBe(true);
+    expect(isFloristSegment("animalerie")).toBe(false);
+    expect(florists.some((c) => c.slug === "interflora")).toBe(true);
+    expect(florists.some((c) => c.slug === "fleurs-fragiles")).toBe(true);
+    for (const selection of [pets, cosmetics, generic]) {
+      expect(selection.some((c) => c.slug === "interflora" || c.slug === "fleurs-fragiles" || c.slug === "ouverture-fleuriste")).toBe(false);
+      expect(selection.some((c) => c.slug === "script-widget")).toBe(true);
+      expect(selection.some((c) => c.slug === "objection-produit")).toBe(true);
+    }
+    expect(quickCoachForSegment("Fleuriste").some((q) => q.slug === "interflora")).toBe(true);
+    expect(quickCoachForSegment("Animalerie").some((q) => q.slug === "interflora")).toBe(false);
+    expect(quickCoachForSegment("Animalerie").some((q) => q.slug === "objection-stock")).toBe(true);
+    expect(segmentOpeningQuestion("Animalerie")).not.toContain("bouquet");
+    expect(segmentOpeningQuestion("Fleuriste")).toContain("bouquet");
+  });
+  it("les objections génériques ne supposent pas de fleuriste pour un autre segment", () => {
+    const generic = coachCardsForSegment(mergePlaybook([]), "High-tech");
+    const core = ["ouverture","ouverture-site","ouverture-plateforme","livreurs-propres","entrainement"];
+    for (const slug of core) {
+      const card = generic.find(c => c.slug === slug)!;
+      expect(card).toBeDefined();
+      expect([card.title,card.next_question,card.advice].join(" ")).not.toMatch(/bouquet|Interflora|Sessile|fleuriste/i);
+    }
   });
   it("la carte d'équipe remplace la carte de base", () => {
     const base = DEFAULT_PLAYBOOK.find((card) => card.slug === "cest-cher")!;
