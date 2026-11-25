@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COACH_GROUPS, QUICK_COACH, coachCardsForSegment, quickCoachForSegment, segmentOpeningQuestion, isFloristSegment, coachGroupForSlug, dailyCallCounts, dailyPerformanceSeries, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, ratioPercent, DEFAULT_PLAYBOOK } from "@/lib/sales";
+import { COACH_GROUPS, QUICK_COACH, coachCardsForSegment, newSectorCoachSlug, sectorKey, quickCoachForSegment, segmentOpeningQuestion, isFloristSegment, coachGroupForSlug, dailyCallCounts, dailyPerformanceSeries, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, ratioPercent, DEFAULT_PLAYBOOK } from "@/lib/sales";
 
 describe("sales rules", () => {
   it("grille SHOP correspond aux arbitrages DG et évite le cumul de commissions", () => {
@@ -100,6 +100,23 @@ describe("sales rules", () => {
     expect(quickCoachForSegment("Animalerie").some((q) => q.slug === "objection-stock")).toBe(true);
     expect(segmentOpeningQuestion("Animalerie")).not.toContain("bouquet");
     expect(segmentOpeningQuestion("Fleuriste")).toContain("bouquet");
+  });
+  it("une fiche métier ajoutée en base ne fuit pas vers les autres secteurs", () => {
+    const slug = newSectorCoachSlug("Cosmétiques", "1a2b3c4d");
+    expect(slug).toBe("sector--cosmetiques--1a2b3c4d");
+    expect(sectorKey("  COSMÉTIQUES  ")).toBe("cosmetiques");
+    const scoped = { ...DEFAULT_PLAYBOOK[0]!, slug, title: "Cosmétiques · échantillons", advice: "Question de vente adaptée." };
+    const cards = mergePlaybook([scoped]);
+    expect(coachCardsForSegment(cards, "Cosmétiques").some((card) => card.slug === slug)).toBe(true);
+    expect(coachCardsForSegment(cards, "Fleuriste").some((card) => card.slug === slug)).toBe(false);
+    expect(coachCardsForSegment(cards, "Animalerie").some((card) => card.slug === slug)).toBe(false);
+    expect(coachCardsForSegment(cards, null).some((card) => card.slug === slug)).toBe(false);
+  });
+  it("l'ancien override bouquet en base n'écrase pas les cartes universelles", () => {
+    const legacy = { ...DEFAULT_PLAYBOOK.find((card) => card.slug === "livreurs-propres")!,
+      id: "ancien", advice: "Pour les bouquets, vérifier le transport", version: 2 };
+    const merged = mergePlaybook([legacy]);
+    expect(merged.find((card) => card.slug === "livreurs-propres")?.advice).not.toContain("Pour les bouquets");
   });
   it("les objections génériques ne supposent pas de fleuriste pour un autre segment", () => {
     const generic = coachCardsForSegment(mergePlaybook([]), "High-tech");
