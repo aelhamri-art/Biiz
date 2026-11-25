@@ -573,6 +573,12 @@ function Prospection({ s, wsId, focusId, setFocusId, refresh }: { s: S; wsId: st
     ).sort((x, y) => rank(x) - rank(y));
   }, [accounts, s.actions.data, today, sectorFilter]);
   const acc = accounts.find((a) => a.id === focusId) ?? queue[0];
+  useEffect(() => {
+    const focused = accounts.find((account) => account.id === focusId);
+    if (focused?.segment?.trim() && sectorReady && sectorFilter !== "all" && sectorFilter !== focused.segment.trim()) {
+      setSectorFilter(focused.segment.trim());
+    }
+  }, [accounts, focusId, sectorReady]);
   const guided = (s.prefs.data?.mode ?? "accompagne") === "accompagne";
   // Les deux écrans lisent les mêmes cartes : les personnalisations d'équipe s'appliquent partout.
   const coachCards = coachCardsForSegment(mergePlaybook((s.cards.data ?? []) as CoachCard[]), acc?.segment);
