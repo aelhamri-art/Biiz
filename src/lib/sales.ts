@@ -62,7 +62,7 @@ export const STAGE_GOAL: Record<string, string> = {
   perdu: "Documenter la raison et respecter l'opposition."
 };
 
-/** Source de vérité de secours et pour les nouvelles fiches : SHOP / fleuristes. Les cartes d'équipe en base remplacent un slug existant. */
+/** Socle multi-commerces SHOP et modules secteur optionnels. Les cartes d'équipe en base remplacent un slug existant. */
 export const DEFAULT_PLAYBOOK: CoachCard[] = [
   {
     "slug": "ouverture",
@@ -76,7 +76,7 @@ export const DEFAULT_PLAYBOOK: CoachCard[] = [
   {
     "slug": "ouverture-fleuriste",
     "title": "Fleuriste · La bonne entrée",
-    "advice": "Premier ciblage : fleuristes d'Arcachon, La Teste-de-Buch et Gujan-Mestras. Lire la fiche BIIZ et utiliser uniquement un fait sourcé. Ne jamais supposer que le fleuriste perd des ventes ; le vérifier.",
+    "advice": "Module sectoriel fleuriste uniquement : boutique de fleurs à Arcachon, La Teste-de-Buch ou Gujan-Mestras si la campagne le prévoit. Vérifier la fiche BIIZ, ne rien supposer sur les pertes de ventes. N'utiliser cette carte que pour les métiers de la fleur.",
     "next_question": "Quand un client commande un bouquet à distance, comment gérez-vous la commande puis la livraison ?",
     "goal": "Découvrir le circuit bouquet, paiement, préparation et remise.",
     "listen": "Commandes directes, Interflora/Sessile, jours d'affluence, zones, dates limites.",
@@ -86,18 +86,18 @@ export const DEFAULT_PLAYBOOK: CoachCard[] = [
     "slug": "ouverture-site",
     "title": "Ouverture · Site de vente existant",
     "advice": "Vérifier avant l'appel l'existence d'un site et ses fonctionnalités. Un site n'est pas nécessairement transactionnel. Ne pas annoncer d'intégration Widget avant étude technique et zone.",
-    "next_question": "Votre site permet-il de commander et payer un bouquet, puis de choisir une livraison locale ?",
+    "next_question": "Votre site permet-il au client de choisir un produit, de le payer en ligne et de demander une livraison locale ?",
     "goal": "Évaluer si le Widget répond à un besoin réel.",
-    "listen": "Type de site, vente en ligne, paiement, livraison, panier, support.",
+    "listen": "Site vitrine ou e-commerce, paiement, panier, livraison, autonomie et limites.",
     "position": 2
   },
   {
     "slug": "ouverture-plateforme",
-    "title": "Ouverture · Interflora / Sessile",
-    "advice": "Une plateforme spécialisée peut déjà apporter des commandes : ne pas la critiquer. Tester la part des ventes directes et l'intérêt d'un canal complémentaire. Aucune comparaison chiffrée sans preuve.",
-    "next_question": "En complément d'Interflora ou Sessile, recevez-vous des commandes directement de vos clients ?",
-    "goal": "Identifier l'intérêt éventuel d'un canal propre ou d'une livraison mutualisée.",
-    "listen": "Volume direct, règles de plateforme, dépendance, satisfaction réelle.",
+    "title": "Ouverture · Marketplace ou réseau déjà utilisé",
+    "advice": "Un commerçant peut vendre via une plateforme existante. Ne pas la critiquer, ni présumer de sa marge ou d'une dépendance. Comprendre la part du canal direct et la liberté de décision.",
+    "next_question": "En dehors des plateformes que vous utilisez, recevez-vous des commandes directement de vos clients ?",
+    "goal": "Identifier si un canal propre ou une distribution supplémentaire serait utile.",
+    "listen": "Canaux tiers, commandes directes, liberté de décision, satisfaction réelle.",
     "position": 3
   },
   {
@@ -174,20 +174,20 @@ export const DEFAULT_PLAYBOOK: CoachCard[] = [
   },
   {
     "slug": "livraison-deja",
-    "title": "« Nous livrons déjà »",
-    "advice": "Ne pas contredire l'organisation actuelle. L'intérêt éventuel de LIVROUM! est un complément : pics, trajets, nouveaux secteurs ou gain de temps à démontrer. Ne pas garantir qu'il sera moins cher.",
-    "next_question": "Quelles commandes vous coûtent le plus de temps à organiser aujourd'hui, s'il y en a ?",
-    "goal": "Identifier un manque concret ou conclure qu'il n'y en a pas.",
-    "listen": "Capacité, pics, destination, coûts déclarés.",
+    "title": "« Nous proposons déjà la livraison »",
+    "advice": "La livraison existante peut être suffisante. Un complément se justifie uniquement par un problème reconnu : charge, secteur, horaires, qualité ou conversion. Ne pas déduire un gain financier sans calcul.",
+    "next_question": "Sur quelles demandes votre fonctionnement actuel est-il parfois moins pratique, s'il y en a ?",
+    "goal": "Reconnaître un éventuel écart entre besoin et offre actuelle.",
+    "listen": "Zones, fréquences, coûts, incidents, contraintes produits.",
     "position": 12
   },
   {
     "slug": "livreurs-propres",
     "title": "« Nous avons nos propres livreurs »",
-    "advice": "Respecte les ressources de la boutique. Ne suggère un renfort que si un problème est confirmé. Pour les bouquets, vérifier qualité et conditions de transport ; livraison LIVROUM! sous réserve d'éligibilité.",
-    "next_question": "Est-ce que vos tournées actuelles couvrent toutes les commandes, ou certaines restent difficiles à assurer ?",
-    "goal": "Évaluer la pertinence d'un appoint logistique.",
-    "listen": "Pics, indisponibilités, trajets, exigences de remise.",
+    "advice": "Respecter le dispositif existant. Un renfort n'est pertinent que si une difficulté est identifiée (pics, zones, absence, coût). Vérifier les exigences de manipulation des produits selon la catégorie avant toute promesse.",
+    "next_question": "Vos moyens actuels couvrent-ils toutes les demandes, ou certaines livraisons restent-elles compliquées ?",
+    "goal": "Évaluer objectivement l'utilité d'un renfort.",
+    "listen": "Pics, disponibilité, coûts déclarés, conditions de transport, décision.",
     "position": 13
   },
   {
@@ -309,11 +309,11 @@ export const DEFAULT_PLAYBOOK: CoachCard[] = [
   },
   {
     "slug": "entrainement",
-    "title": "Coach · Jeux de rôle fleuristes",
-    "advice": "Jeu de rôle : fleuriste avec Interflora, fleuriste avec son propre livreur, commerçant sans site, boutique déjà livrante, souci de fragilité et objection prix. Une correction concrète par simulation.",
-    "next_question": "Quel fait as-tu appris avant de proposer une solution ?",
-    "goal": "Développer une découverte fluide et une orientation commerciale juste.",
-    "listen": "Écoute, précision, absence de promesse.",
+    "title": "Coach · Jeux de rôle multi-commerces",
+    "advice": "Demander au commercial quel secteur il travaille. Jouer un commerce crédible : boutique avec site, enseigne sur marketplace, marchand sans livraison, produits fragiles, objection prix ou commission. Adapter les exemples aux faits de la fiche.",
+    "next_question": "Quel est le problème que ce commerçant a lui-même exprimé ?",
+    "goal": "Maîtriser un socle de vente commun et s'adapter au secteur.",
+    "listen": "Écoute, clarification, choix pertinent de l'offre, absence de promesse.",
     "position": 27
   },
   {
@@ -324,6 +324,42 @@ export const DEFAULT_PLAYBOOK: CoachCard[] = [
     "goal": "Éviter tout contenu obsolète, trompeur ou non prouvé.",
     "listen": "Faits confirmés, hypothèses, limites.",
     "position": 28
+  },
+  {
+    "slug": "objection-stock",
+    "title": "« Le stock change trop souvent »",
+    "advice": "Ne pas promettre de synchronisation caisse ou stock sans preuve technique. Identifier fréquence de rupture, temps de mise à jour et seuil minimal de catalogue fiable.",
+    "next_question": "Combien de références pourriez-vous maintenir fiables chaque jour sans désorganiser la boutique ?",
+    "goal": "Mesurer la faisabilité réelle d'un catalogue en ligne.",
+    "listen": "Nombre de produits, rotation, stock, outils existants.",
+    "position": 29
+  },
+  {
+    "slug": "objection-preparation",
+    "title": "« Nous n'avons pas le temps de préparer »",
+    "advice": "Ne pas affirmer que LIVROUM! absorbe toute la préparation. Vérifier volume, temps par commande, conditionnement, possibilité d'horaires ou créneaux.",
+    "next_question": "À quel moment de la journée pourriez-vous préparer une commande sans gêner les ventes en boutique ?",
+    "goal": "Tester la compatibilité du service avec le fonctionnement du marchand.",
+    "listen": "Horaires, personnel, délais, volumes, saisonnalité.",
+    "position": 30
+  },
+  {
+    "slug": "objection-produit",
+    "title": "« Mes produits sont difficiles à livrer »",
+    "advice": "Ne pas minimiser poids, volume, fragilité, température, légalité, valeur ou conditions de remise. Transmettre les critères à Ops/TECH/DATA, sans garantir le transport.",
+    "next_question": "Quelles sont les précautions indispensables pour livrer ce type de produit sans dégrader votre service ?",
+    "goal": "Identifier les contraintes et un éventuel non-fit.",
+    "listen": "Poids, dimensions, emballage, température, fragilité, valeur.",
+    "position": 31
+  },
+  {
+    "slug": "objection-reseau",
+    "title": "« Notre réseau / franchise décide »",
+    "advice": "La boutique n'a pas forcément la main sur les outils ou les prestataires. Vérifier le niveau de décision et l'existence de contrats en cours. Ne pas chercher à contourner une exclusivité.",
+    "next_question": "Qui valide chez vous un nouveau canal de commande ou une solution de livraison ?",
+    "goal": "Identifier l'autorité réelle.",
+    "listen": "Siège, franchisé, gérant, contrat, délégation.",
+    "position": 32
   }
 ];
 
@@ -361,7 +397,7 @@ export const COACH_GROUPS = [
   },
   {
     "id": "objections",
-    "label": "Objections fleuristes",
+    "label": "Objections & situations métier",
     "slugs": [
       "livraison-deja",
       "livreurs-propres",
@@ -373,7 +409,11 @@ export const COACH_GROUPS = [
       "commissions",
       "envoyez-mail",
       "rappelle-plus-tard",
-      "pas-interesse"
+      "pas-interesse",
+      "objection-stock",
+      "objection-preparation",
+      "objection-produit",
+      "objection-reseau"
     ]
   },
   {
@@ -435,6 +475,32 @@ export function mergePlaybook(db: CoachCard[]): CoachCard[] {
   const bySlug = new Map(DEFAULT_PLAYBOOK.map((c) => [c.slug, c]));
   for (const c of db) if (!RETIRED_PLAYBOOK_SLUGS.has(c.slug)) bySlug.set(c.slug, c);
   return [...bySlug.values()].sort((a, b) => a.position - b.position);
+}
+
+
+/** Les fleuristes ne sont qu'une campagne. Les cartes métier sont filtrées selon le segment courant. */
+const FLORIST_CARDS = new Set(["ouverture-fleuriste", "interflora", "fleurs-fragiles"]);
+export function isFloristSegment(segment?: string | null): boolean {
+  const value = (segment ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  return /fleur|florist|bouquet/.test(value);
+}
+export function segmentOpeningQuestion(segment?: string | null): string {
+  if (isFloristSegment(segment)) return "Quand un client souhaite acheter un bouquet sans se déplacer, comment passe-t-il commande et comment le livrez-vous ?";
+  return "Aujourd'hui, lorsqu'un client veut acheter chez vous sans se déplacer, comment ça se passe concrètement ?";
+}
+export function coachCardsForSegment(cards: CoachCard[], segment?: string | null): CoachCard[] {
+  return cards.filter((card) => !FLORIST_CARDS.has(card.slug) || isFloristSegment(segment));
+}
+export function quickCoachForSegment(segment?: string | null): typeof QUICK_COACH {
+  if (isFloristSegment(segment)) return QUICK_COACH;
+  return [
+    { slug: "livraison-deja", label: "Livre déjà" },
+    { slug: "objection-produit", label: "Produit difficile" },
+    { slug: "objection-stock", label: "Stock variable" },
+    { slug: "deja-un-site", label: "Site existant" },
+    { slug: "cest-cher", label: "C'est cher" },
+    { slug: "pas-le-patron", label: "Décideur absent" },
+  ];
 }
 
 export const normalizePhone = (p?: string | null) => {
