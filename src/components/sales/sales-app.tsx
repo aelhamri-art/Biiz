@@ -22,7 +22,7 @@ import { SalesMomentumVisual, WeekRhythm } from "./sales-visuals";
 import { PerformancePulse, SkillGauge } from "./performance-visuals";
 import villaAsset from "@/assets/sales-california-villa.webp.asset.json";
 import {
-  type Account, type CoachCard, COACH_GROUPS, coachCardsForSegment, quickCoachForSegment, segmentOpeningQuestion, coachGroupForSlug, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
+  type Account, type CoachCard, COACH_GROUPS, coachCardsForSegment, newSectorCoachSlug, quickCoachForSegment, segmentOpeningQuestion, coachGroupForSlug, EVIDENCE, OUTCOMES, type OutcomeId, PRICING, PRIORITIES, STAGES, STAGE_GOAL,
   addDays, delta, findDuplicates, isoDate, mergePlaybook, outcomeLabel, parseCsv, periodStats, qualityBadges, ratioPercent, stageLabel, startOfDay, startOfWeek,
 } from "@/lib/sales";
 
@@ -747,6 +747,7 @@ function Coach({ s, wsId, focusId, refresh }: { s: S; wsId: string; focusId: str
 
   if (edit) return (
     <form onSubmit={saveCard} className="mx-auto max-w-xl space-y-3">
+      <p className="text-xs font-medium text-muted-foreground">{edit.slug.startsWith("sector--") ? `Fiche métier — ${segment || "secteur sélectionné"} uniquement` : "Fiche commune — visible dans tous les secteurs"}</p>
       <Field label="Situation"><Input value={edit.title} onChange={(e) => setEdit({ ...edit, title: e.target.value })} maxLength={120} /></Field>
       <Field label="Conseil"><Textarea rows={4} value={edit.advice} onChange={(e) => setEdit({ ...edit, advice: e.target.value })} maxLength={800} /></Field>
       <Field label="Question suivante"><Input value={edit.next_question ?? ""} onChange={(e) => setEdit({ ...edit, next_question: e.target.value })} maxLength={240} /></Field>
@@ -768,7 +769,12 @@ function Coach({ s, wsId, focusId, refresh }: { s: S; wsId: string; focusId: str
         <Button variant="outline" className="h-11 flex-1" disabled={i === 0} onClick={() => setI((value) => value === null ? null : value - 1)}><ChevronLeft />Précédent</Button>
         <Button variant="outline" className="h-11 flex-1" disabled={i === cards.length - 1} onClick={() => setI((value) => value === null ? null : value + 1)}>Suivant<ChevronRight /></Button>
       </div>
-      <Button variant="ghost" className="w-full" onClick={() => setEdit({ ...card })}><Pencil />Modifier pour l'équipe</Button>
+      {segment.trim() && !card.slug.startsWith("sector--") && (
+        <Button variant="outline" className="w-full" onClick={() => setEdit({ ...card, id: undefined, slug: newSectorCoachSlug(segment, crypto.randomUUID().slice(0, 8)), title: `${segment} · ${card.title}`, position: allCards.length + 10 })}>
+          <Plus />Créer une variante pour « {segment} »
+        </Button>
+      )}
+      <Button variant="ghost" className="w-full" onClick={() => setEdit({ ...card })}><Pencil />{card.slug.startsWith("sector--") ? "Modifier la fiche de ce secteur" : "Modifier la fiche commune à tous les commerces"}</Button>
     </div>
   );
 
@@ -783,7 +789,8 @@ function Coach({ s, wsId, focusId, refresh }: { s: S; wsId: string; focusId: str
         <label htmlFor="sales-coach-sector" className="text-sm font-semibold">Secteur à entraîner</label>
         <Input id="sales-coach-sector" className="h-11" value={segment} list="sales-coach-sectors" onChange={(e) => { setSegment(e.target.value); setI(null); }} placeholder="Tous commerces · saisir un secteur pour personnaliser" aria-label="Secteur à entraîner, facultatif" />
         <datalist id="sales-coach-sectors">{knownSegments.map((value) => <option key={value} value={value} />)}</datalist>
-        <p className="text-xs text-muted-foreground">Aucun secteur saisi : méthode universelle. Sélectionner « Fleuriste » pour les objections métier. Tout nouveau secteur reste utilisable sans modifier le code.</p>
+        <p className="text-xs text-muted-foreground">Aucun secteur : méthode universelle. Choisis ou saisis un secteur pour isoler les cas métier, sans modifier le socle commun.</p>
+        <Button variant="outline" className="min-h-10 w-full" disabled={!segment.trim()} onClick={() => setEdit({ slug: newSectorCoachSlug(segment, crypto.randomUUID().slice(0, 8)), title: "", advice: "", next_question: "", goal: "", listen: "", position: allCards.length + 10 })}><Plus />Ajouter une fiche spécifique à ce secteur</Button>
       </div>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
