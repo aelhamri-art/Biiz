@@ -385,7 +385,7 @@ function Prospects({ s, wsId, onAdd, onOpen, refresh }: { s: S; wsId: string; on
         <Button variant="outline" size="sm" className="ml-auto h-9" disabled={importing} onClick={() => fileRef.current?.click()} title="Colonnes : nom, téléphone, ville, site, segment, priorité, source">{importing ? <Loader2 className="animate-spin" /> : <Upload />}Import CSV</Button>
       </div>
       <p className="text-xs text-muted-foreground">{list.length} sur {accounts.length} prospects</p>
-      {accounts.length === 0 ? <Empty title="Aucun prospect" text="Ajoute ton premier restaurant, ou importe un CSV (colonnes nom, téléphone, ville…)." action={<Button onClick={onAdd}><Plus />Ajouter</Button>} />
+      {accounts.length === 0 ? <Empty title="Aucun prospect" text="Ajoute ton premier commerce, ou importe un CSV (colonnes nom, téléphone, ville…)." action={<Button onClick={onAdd}><Plus />Ajouter</Button>} />
       : list.length === 0 ? <Empty title="Aucun résultat" text="Modifie la recherche ou les filtres." />
       : (
         <ul className="divide-y rounded-xl border bg-card">
@@ -606,7 +606,20 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
         <div className="sales-call-objective mt-4 rounded-lg p-4">
           <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">Objectif de l'appel</p>
           <p className="mt-1 text-sm">{STAGE_GOAL[acc.stage]}</p>
-          {guided && <p className="mt-2 text-xs text-muted-foreground">Question d'ouverture : « {coachCards.find((c) => c.slug === "ouverture")?.next_question} »</p>}
+          {(() => {
+            const lines = (acc.notes ?? "").split("\n");
+            const extract = (prefix: string) => lines.find((line) => line.startsWith(prefix))?.slice(prefix.length).trim() || null;
+            const verified = extract("Fait vérifié — ");
+            const question = extract("Question d’ouverture — ") || extract("Question d'ouverture — ");
+            const opportunity = extract("Piste commerciale à confirmer — ");
+            return (
+              <div className="mt-2 space-y-2">
+                {verified && <p className="text-xs"><strong>Fait public sourcé :</strong> {verified}</p>}
+                {guided && <p className="text-xs"><strong>Question à poser :</strong> « {question || coachCards.find((card) => card.slug === "ouverture-fleuriste")?.next_question || coachCards.find((card) => card.slug === "ouverture")?.next_question} »</p>}
+                {opportunity && <p className="text-xs text-muted-foreground"><strong>Hypothèse à vérifier :</strong> {opportunity}</p>}
+              </div>
+            );
+          })()}
         </div>
         {acc.phone ? <a href={`tel:${acc.phone}`} className="mt-4 block"><Button size="lg" className="sales-call-button h-14 w-full text-base"><Phone /><span>Appeler</span><strong>{acc.phone}</strong><ArrowUpRight /></Button></a>
           : <p className="mt-4 rounded-lg border border-dashed p-3 text-center text-sm text-muted-foreground">Pas de téléphone renseigné.</p>}
@@ -736,15 +749,16 @@ function Coach({ s, wsId, refresh }: { s: S; wsId: string; refresh: () => void }
       <section className="sales-card">
         <p className="text-sm font-medium">{PRICING.tagline}</p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {[PRICING.widget, PRICING.app].map((p) => (
-            <div key={p.label} className="rounded-lg border p-3 text-sm">
-              <p className="font-semibold">{p.label}</p>
-              <p className="mt-1 tabular-nums">{p.setup} € setup · {p.monthly} €/mois · +{p.perDelivery.toFixed(2).replace(".", ",")} €/livraison</p>
-              <p className="text-xs text-muted-foreground">{p.note}</p>
+          {PRICING.offers.map((offer) => (
+            <div key={offer.id} className="rounded-lg border p-3 text-sm">
+              <p className="font-semibold">{offer.label}</p>
+              <p className="mt-1 font-semibold tabular-nums">{offer.price}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{offer.note}</p>
             </div>
           ))}
         </div>
-        <p className="mt-3 text-xs text-muted-foreground">{PRICING.transport} Ne jamais garantir une couverture, des délais ou des marges.</p>
+        <p className="mt-3 text-xs font-medium">{PRICING.delivered}</p>
+        <p className="mt-2 text-xs text-muted-foreground">{PRICING.caution}</p>
       </section>
     </div>
   );
