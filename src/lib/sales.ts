@@ -435,7 +435,7 @@ export const COACH_GROUPS = [
   },
   {
     "id": "autres",
-    "label": "Autres fiches",
+    "label": "Fiches métier / autres",
     "slugs": []
   }
 ] as const;
@@ -493,8 +493,23 @@ export function segmentOpeningQuestion(segment?: string | null): string {
   if (isFloristSegment(segment)) return "Quand un client souhaite acheter un bouquet sans se déplacer, comment passe-t-il commande et comment le livrez-vous ?";
   return "Aujourd'hui, lorsqu'un client veut acheter chez vous sans se déplacer, comment ça se passe concrètement ?";
 }
+/** Convention sans migration : secteur--clé-normalisée--identifiant, stockage natif dans sales_coach_cards. */
+export function sectorKey(segment?: string | null): string {
+  return (segment ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+export function newSectorCoachSlug(segment: string, id: string): string {
+  const key = sectorKey(segment);
+  if (!key || !/^[a-z0-9-]{5,40}$/.test(id)) throw new Error("Secteur ou identifiant invalide");
+  return `sector--${key}--${id}`;
+}
 export function coachCardsForSegment(cards: CoachCard[], segment?: string | null): CoachCard[] {
-  return cards.filter((card) => !FLORIST_CARDS.has(card.slug) || isFloristSegment(segment));
+  const current = sectorKey(segment);
+  return cards.filter((card) => {
+    if (FLORIST_CARDS.has(card.slug)) return isFloristSegment(segment);
+    const match = card.slug.match(/^sector--([a-z0-9-]+)--[a-z0-9-]+$/);
+    return !match || Boolean(current && match[1] === current);
+  });
 }
 export function quickCoachForSegment(segment?: string | null): ReadonlyArray<{ slug: string; label: string }> {
   if (isFloristSegment(segment)) return QUICK_COACH;
