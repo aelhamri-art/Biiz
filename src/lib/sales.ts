@@ -473,7 +473,12 @@ export function coachGroupForSlug(slug: string): (typeof COACH_GROUPS)[number]["
 const RETIRED_PLAYBOOK_SLUGS = new Set(["uber-eats"]);
 export function mergePlaybook(db: CoachCard[]): CoachCard[] {
   const bySlug = new Map(DEFAULT_PLAYBOOK.map((c) => [c.slug, c]));
-  for (const c of db) if (!RETIRED_PLAYBOOK_SLUGS.has(c.slug)) bySlug.set(c.slug, c);
+  for (const c of db) {
+    if (RETIRED_PLAYBOOK_SLUGS.has(c.slug)) continue;
+    // Ancienne personnalisation FOOD/floriste sans balise sectorielle : ne pas écraser la version multi-commerces.
+    if (c.slug === "livreurs-propres" && /pour les bouquets|livreurs suffisent-ils aux heures de pointe/i.test([c.advice, c.next_question].join(" "))) continue;
+    bySlug.set(c.slug, c);
+  }
   return [...bySlug.values()].sort((a, b) => a.position - b.position);
 }
 
