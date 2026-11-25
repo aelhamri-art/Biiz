@@ -2,11 +2,11 @@ import { describe, expect, it } from "vitest";
 import { COACH_GROUPS, QUICK_COACH, coachGroupForSlug, dailyCallCounts, dailyPerformanceSeries, delta, findDuplicates, mergePlaybook, parseCsv, periodStats, PRICING, qualityBadges, ratioPercent, DEFAULT_PLAYBOOK } from "@/lib/sales";
 
 describe("sales rules", () => {
-  it("tarifs Widget véridiques", () => {
-    expect([PRICING.widget.setup, PRICING.widget.monthly, PRICING.widget.perDelivery]).toEqual([199, 149, 0.48]);
-  });
-  it("tarifs App véridiques", () => {
-    expect([PRICING.app.setup, PRICING.app.monthly, PRICING.app.perDelivery]).toEqual([850, 108, 0.29]);
+  it("grille SHOP correspond aux arbitrages DG et évite le cumul de commissions", () => {
+    expect(PRICING.offers.map((offer) => offer.price)).toEqual(["59 €/mois", "59 €/mois", "0 €/mois + 8 %", "39 €/mois + 4 %"]);
+    expect(PRICING.delivered).toContain("1 € + 11 %");
+    expect(PRICING.delivered).toContain("REMPLACEMENT");
+    expect(PRICING.caution).toContain("HT/TTC");
   });
   it("détecte un doublon par nom (accents/casse) ou téléphone", () => {
     const list = [{ id: "1", name: "Le Bistrot Été", phone: "+33 6 12 34 56 78" }];
@@ -54,10 +54,12 @@ describe("sales rules", () => {
     expect(qualityBadges(empty)).toEqual([]);
   });
   it("reprend les intentions et les formulations du playbook validé", () => {
-    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "ouverture")?.advice).toContain("responsable commercial");
-    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "uber-eats")?.next_question).toContain("directement chez vous");
-    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "r2")?.advice).toContain("MANUELLEMENT");
-    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "rappelle-plus-tard")?.advice).toContain("n'est pas un R2");
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "ouverture-fleuriste")?.title).toContain("Fleuriste");
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "interflora")?.next_question).toContain("directement");
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "r2")?.advice).toContain("rendez-vous pris");
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "rappelle-plus-tard")?.advice).toContain("rendez-vous commercial");
+    expect(DEFAULT_PLAYBOOK.find((c) => c.slug === "verite")?.advice).toContain("réservation sans paiement");
+    expect(DEFAULT_PLAYBOOK.some((c) => /restaurateur|25 restaurants|Uber Eats|199 € de mise/i.test([c.title,c.advice,c.goal,c.next_question,c.listen].join(" ")))).toBe(false);
     expect(new Set(DEFAULT_PLAYBOOK.map((c) => c.slug)).size).toBe(DEFAULT_PLAYBOOK.length);
   });
   it("classe toutes les fiches et relie les six réponses rapides", () => {
@@ -68,11 +70,15 @@ describe("sales rules", () => {
     expect(coachGroupForSlug("nouvelle-fiche-equipe")).toBe("autres");
   });
   it("applique les modifications d'équipe aussi aux raccourcis d'appel", () => {
-    const original = DEFAULT_PLAYBOOK.find((c) => c.slug === "uber-eats")!;
+    const original = DEFAULT_PLAYBOOK.find((c) => c.slug === "interflora")!;
     const customized = { ...original, id: "surcouche", next_question: "Notre question d'équipe" };
     const result = mergePlaybook([customized]);
-    expect(result.find((c) => c.slug === "uber-eats")?.next_question).toBe("Notre question d'équipe");
+    expect(result.find((c) => c.slug === "interflora")?.next_question).toBe("Notre question d'équipe");
     expect(QUICK_COACH.some((q) => q.slug === customized.slug)).toBe(true);
+  });
+  it("les anciennes cartes FOOD ne reviennent jamais via les données d'équipe", () => {
+    const result = mergePlaybook([{slug:"uber-eats", title:"Uber Eats", advice:"Ancien script", position:5, goal:null, listen:null, next_question:null}]);
+    expect(result.some((c) => c.slug === "uber-eats")).toBe(false);
   });
   it("la carte d'équipe remplace la carte de base", () => {
     const m = mergePlaybook([{ ...DEFAULT_PLAYBOOK[6]!, advice: "X", id: "a" }]);
