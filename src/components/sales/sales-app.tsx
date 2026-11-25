@@ -181,7 +181,7 @@ export function SalesApp() {
         : loading || !wsId ? <SalesLoading />
         : zone === "today" ? <Today s={s} onAdd={() => setNewOpen(true)} onCall={startCall} onOpen={setDetailId} onStart={() => go("call")} />
         : zone === "prospects" ? <Prospects s={s} wsId={wsId} onAdd={() => setNewOpen(true)} onOpen={setDetailId} refresh={refresh} />
-        : zone === "call" ? <Prospection s={s} focusId={focusId} setFocusId={setFocusId} refresh={refresh} />
+        : zone === "call" ? <Prospection s={s} wsId={wsId} focusId={focusId} setFocusId={setFocusId} refresh={refresh} />
         : zone === "coach" ? <Coach s={s} wsId={wsId} focusId={focusId} refresh={refresh} />
         : zone === "pipeline" ? <Pipeline s={s} onOpen={setDetailId} refresh={refresh} />
         : <Performance s={s} wsId={wsId} refresh={refresh} />}
@@ -343,14 +343,17 @@ function Prospects({ s, wsId, onAdd, onOpen, refresh }: { s: S; wsId: string; on
   const [q, setQ] = useState("");
   const [stage, setStage] = useState("all");
   const [prio, setPrio] = useState("all");
+  const [sector, setSector] = useState("all");
   const fileRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
   const accounts = s.accounts.data ?? [];
+  const segments = Array.from(new Set(accounts.map((account) => account.segment?.trim()).filter((value): value is string => Boolean(value)))).sort((a, b) => a.localeCompare(b, "fr"));
   const list = accounts.filter((a) => {
     const t = q.trim().toLowerCase();
     if (t && ![a.name, a.city, a.segment, a.phone].some((v) => v?.toLowerCase().includes(t))) return false;
     if (stage !== "all" && a.stage !== stage) return false;
     if (prio !== "all" && a.priority !== prio) return false;
+    if (sector !== "all" && a.segment?.trim() !== sector) return false;
     return true;
   });
 
@@ -381,6 +384,8 @@ function Prospects({ s, wsId, onAdd, onOpen, refresh }: { s: S; wsId: string; on
           <SelectContent><SelectItem value="all">Toutes étapes</SelectItem>{STAGES.map((x) => <SelectItem key={x.id} value={x.id}>{x.label}</SelectItem>)}</SelectContent></Select>
         <Select value={prio} onValueChange={setPrio}><SelectTrigger className="h-9 w-32" aria-label="Priorité"><SelectValue /></SelectTrigger>
           <SelectContent><SelectItem value="all">Priorités</SelectItem>{PRIORITIES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent></Select>
+        <Select value={sector} onValueChange={setSector}><SelectTrigger className="h-9 w-40" aria-label="Secteur marchand"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="all">Tous secteurs</SelectItem>{segments.map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent></Select>
         <input ref={fileRef} type="file" accept=".csv,text/csv" hidden onChange={(e) => e.target.files?.[0] && importCsv(e.target.files[0])} />
         <Button variant="outline" size="sm" className="ml-auto h-9" disabled={importing} onClick={() => fileRef.current?.click()} title="Colonnes : nom, téléphone, ville, site, segment, priorité, source">{importing ? <Loader2 className="animate-spin" /> : <Upload />}Import CSV</Button>
       </div>
@@ -543,15 +548,30 @@ function DetailSheet({ id, onClose, wsId, s, refresh, onCall }: { id: string; on
 }
 
 /* ---------- 3. Prospection ---------- */
-function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: string | null; setFocusId: (id: string | null) => void; refresh: () => void }) {
+function Prospection({ s, wsId, focusId, setFocusId, refresh }: { s: S; wsId: string; focusId: string | null; setFocusId: (id: string | null) => void; refresh: () => void }) {
   const accounts = s.accounts.data ?? [];
+  const segments = Array.from(new Set(accounts.map((account) => account.segment?.trim()).filter((value): value is string => Boolean(value)))).sort((a, b) => a.localeCompare(b, "fr"));
+  const [sectorFilter, setSectorFilter] = useState("all");
+  const [sectorReady, setSectorReady] = useState(false);
+  useEffect(() => {
+    setSectorReady(false);
+    setSectorFilter(localStorage.getItem(`biiz:sales:sector:${wsId}`) || "all");
+    setSectorReady(true);
+  }, [wsId]);
+  useEffect(() => {
+    if (sectorReady) localStorage.setItem(`biiz:sales:sector:${wsId}`, sectorFilter);
+  }, [sectorReady, sectorFilter, wsId]);
   const today = isoDate(new Date());
   const queue = useMemo(() => {
     const dueIds = new Set((s.actions.data ?? []).filter((a) => a.next_action_date <= today).map((a) => a.account_id));
     const openIds = new Set((s.actions.data ?? []).map((a) => a.account_id));
     const rank = (a: Account) => (dueIds.has(a.id) ? 0 : !openIds.has(a.id) && !a.last_activity_at ? 1 : 2) * 10 + (a.priority ? Number(a.priority[1]) : 4);
-    return accounts.filter((a) => a.stage !== "gagne" && a.stage !== "perdu" && (dueIds.has(a.id) || !openIds.has(a.id))).sort((x, y) => rank(x) - rank(y));
-  }, [accounts, s.actions.data, today]);
+    return accounts.filter((a) =>
+      (sectorFilter === "all" || a.segment?.trim() === sectorFilter)
+      && a.stage !== "gagne" && a.stage !== "perdu"
+      && (dueIds.has(a.id) || !openIds.has(a.id))
+    ).sort((x, y) => rank(x) - rank(y));
+  }, [accounts, s.actions.data, today, sectorFilter]);
   const acc = accounts.find((a) => a.id === focusId) ?? queue[0];
   const guided = (s.prefs.data?.mode ?? "accompagne") === "accompagne";
   // Les deux écrans lisent les mêmes cartes : les personnalisations d'équipe s'appliquent partout.
@@ -572,7 +592,15 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
     else if (outcome === "refus") setNextDate("");
   }, [outcome]);
 
-  if (!acc) return <Empty title="File vide" text="Aucun prospect à appeler maintenant : pas d'action due ni de lead jamais contacté." />;
+  if (!acc) return (
+    <div className="mx-auto max-w-2xl space-y-3">
+      <Select value={sectorFilter} onValueChange={setSectorFilter}>
+        <SelectTrigger className="h-11" aria-label="Changer de secteur"><SelectValue /></SelectTrigger>
+        <SelectContent><SelectItem value="all">Tous les commerces</SelectItem>{segments.map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent>
+      </Select>
+      <Empty title="File vide pour ce secteur" text="Aucun lead à appeler maintenant dans la campagne sélectionnée. Change de secteur ou ajoute un prospect." />
+    </div>
+  );
   const idx = queue.findIndex((a) => a.id === acc.id);
 
   async function save() {
@@ -590,6 +618,14 @@ function Prospection({ s, focusId, setFocusId, refresh }: { s: S; focusId: strin
 
   return (
     <div className="sales-prospection mx-auto max-w-2xl space-y-4">
+      <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
+        <label className="shrink-0 text-xs font-medium" htmlFor="sales-call-segment">Campagne</label>
+        <Select value={sectorFilter} onValueChange={(value) => { setSectorFilter(value); setFocusId(null); }}>
+          <SelectTrigger id="sales-call-segment" className="h-10 flex-1" aria-label="Campagne de prospection par secteur"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="all">Tous les commerces</SelectItem>{segments.map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}</SelectContent>
+        </Select>
+        <span className="text-xs tabular-nums text-muted-foreground">{queue.length} à traiter</span>
+      </div>
       <div className="sales-queue-nav flex items-center justify-between text-xs text-muted-foreground">
         <span>{idx >= 0 ? `${idx + 1} / ${queue.length} dans la file` : "Hors file"}</span>
         <div className="flex gap-1">
