@@ -38,75 +38,402 @@ export const EVIDENCE = [
   { id: "confirme", label: "Confirmé", hint: "Confirmé par le prospect" },
 ] as const;
 
-/** Tarifs véridiques Livroum — ne jamais promettre couverture, délais ou marges. */
+/** Référentiel LIVROUM! SHOP (25/11/2026) : principes validés ; devis, assiettes et disponibilité restent conditionnels. */
 export const PRICING = {
-  widget: { label: "Widget", setup: 199, monthly: 149, perDelivery: 0.48, note: "Premier mois offert" },
-  app: { label: "App", setup: 850, monthly: 108, perDelivery: 0.29, note: "Configuration incluse dans le setup" },
-  transport: "Le coût physique du transport (livreur) est distinct et s'ajoute.",
-  tagline: "Votre marque. Vos clients. Votre livraison.",
+  tagline: "Votre marque. Vos clients. Votre canal. LIVROUM! livre.",
+  offers: [
+    { id: "widget", label: "Widget livraison", price: "59 €/mois", note: "Site marchand existant ; frais de mise en place et livraison à préciser après étude." },
+    { id: "app", label: "App marchande dédiée", price: "59 €/mois", note: "Canal direct sous la marque du commerce ; mise en place à chiffrer." },
+    { id: "starter", label: "MKPlace Starter", price: "0 €/mois + 8 %", note: "Commission sur une vente payée en retrait, jamais sur une simple réservation." },
+    { id: "pro", label: "MKPlace Pro", price: "39 €/mois + 4 %", note: "Fonctions Pro à confirmer dans l'offre signée ; vente payée en retrait." }
+  ],
+  delivered: "Commande livrée : 1 € + 11 % côté marchand, EN REMPLACEMENT de la commission MKPlace 8 % / 4 % (non cumulées).",
+  caution: "HT/TTC, assiette des commissions, mise en place, frais client B2C et éligibilité logistique à valider avant devis. Pilote V0 sans paiement en ligne. Aucun paiement, zone, délai ou frais de livraison ne doit être promis sans GO."
 } as const;
 
 export const STAGE_GOAL: Record<string, string> = {
-  lead: "Joindre le décideur et vérifier s'il livre aujourd'hui.",
-  contacte: "Qualifier : volume de livraisons, plateformes utilisées, qui décide.",
-  qualifie: "Obtenir un R2 daté (10 min, sur place ou en visio).",
-  r2_pris: "Confirmer le R2 la veille.",
-  r2_tenu: "Envoyer une proposition claire Widget ou App.",
-  proposition: "Lever la dernière objection, fixer une date de décision.",
-  gagne: "Préparer le démarrage.",
-  perdu: "Comprendre pourquoi, sans insister.",
+  lead: "Joindre le décideur du commerce et comprendre la vente à distance actuelle.",
+  contacte: "Qualifier : commandes, livraison existante, douleur, capacité boutique, décideur.",
+  qualifie: "Obtenir un rendez-vous de 10 minutes ciblé sur le besoin reconnu.",
+  r2_pris: "Confirmer le rendez-vous et le motif avec le décideur.",
+  r2_tenu: "Faire étudier App, Widget ou MKPlace selon besoin et faisabilité.",
+  proposition: "Répondre aux objections réelles ; obtenir une décision datée.",
+  gagne: "Passer à l'activation uniquement après validation DG/produit.",
+  perdu: "Documenter la raison et respecter l'opposition."
 };
 
-/** Playbook Livroum validé (14 octobre 2026). L'édition d'équipe en base reste prioritaire. */
+/** Source de vérité de secours et pour les nouvelles fiches : SHOP / fleuristes. Les cartes d'équipe en base remplacent un slug existant. */
 export const DEFAULT_PLAYBOOK: CoachCard[] = [
-  { slug: "ouverture", title: "Premières secondes", position: 0, advice: "« Bonjour, c'est Kevin, responsable commercial chez Livroum. Vous allez bien ? Nous lançons un service de livraison sur La Teste et le Bassin Sud. » Posé, naturel. Mentionne les « 25 restaurants choisis » UNIQUEMENT si cette sélection est effectivement vérifiée pour celui-ci.", next_question: "Aujourd'hui, vos clients commandent comment quand ils veulent se faire livrer ?", goal: "Se situer, comprendre le fonctionnement et, si intérêt, proposer 10 minutes de découverte.", listen: "Disponibilité, canaux réels, premières réponses." },
-  { slug: "uber-eats", title: "« On a déjà Uber Eats »", position: 1, advice: "Ne critique pas Uber Eats. Un canal de commande directe peut venir en complément, pas forcément en remplacement. Ne promets jamais de supprimer une dépendance.", next_question: "Très bien. Et vous avez aussi des clients qui commandent directement chez vous, sans passer par la plateforme ?", goal: "Explorer un éventuel canal direct complémentaire.", listen: "Existence de commandes directes, besoins réellement exprimés." },
-  { slug: "livreurs-propres", title: "« On a nos propres livreurs »", position: 2, advice: "« C'est une vraie force. » Respecte le fonctionnement actuel. Un complément n'est pertinent que si un besoin existe.", next_question: "Est-ce que vous arrivez à couvrir toutes les périodes chargées ?", goal: "Vérifier si un renfort apporterait quelque chose.", listen: "Pics de demande, créneaux sans livreur." },
-  { slug: "pas-de-livraison", title: "« On ne livre pas »", position: 3, advice: "Ne présume pas que tout restaurant devrait livrer. Respecte les choix de gestion.", next_question: "Je comprends. C'est un choix ou ça n'a simplement jamais été intéressant à organiser ?", goal: "Distinguer un choix volontaire d'une contrainte.", listen: "Choix ferme, organisation ou intérêt exprimé." },
-  { slug: "deja-un-site", title: "« On a déjà un site »", position: 4, advice: "Ne propose pas une App quand un Widget peut suffire. Distingue site vitrine et véritable canal de commande.", next_question: "Parfait. Est-ce qu'il permet aussi de recevoir des commandes directement ?", goal: "Comprendre ce que le site permet réellement.", listen: "Commande, paiement et livraison possibles ou non." },
-  { slug: "pas-le-patron", title: "« Le patron n'est pas là »", position: 5, advice: "Ne présente pas toute l'offre à un employé. Si le nom est vérifié : « Bonjour, je voudrais parler à M. [nom], il est là ? ». Sinon, demande qui s'occupe des commandes et livraisons.", next_question: "Pour ne pas le déranger pendant le service, je peux le rappeler à quelle heure plutôt ?", goal: "Identifier le décideur et un créneau crédible.", listen: "Prénom, fonction, créneau transmis par l'employé." },
-  { slug: "cest-cher", title: "« C'est cher »", position: 6, advice: "Comprends la comparaison avant d'argumenter. Les commissions Livroum sont distinctes du prix physique du transport. Ne garantis aucune économie.", next_question: "Vous comparez ça à votre fonctionnement actuel, à une plateforme ou à une autre solution ?", goal: "Comprendre la vraie référence de prix.", listen: "Référence de comparaison, budget, coûts de livraison." },
-  { slug: "rappelle-plus-tard", title: "« Rappelez plus tard »", position: 7, advice: "Respecte le service. Un rappel accepté n'est pas un R2 et ne démontre pas un intérêt commercial.", next_question: "Plutôt demain avant le service, ou à un autre moment qui vous arrange ?", goal: "Obtenir un créneau de rappel précis accepté.", listen: "Jour, heure, personne à rappeler." },
-  { slug: "posture", title: "Posture · Le calme fait vendre", position: 8, advice: "Sérieux, curieux, calme. Une idée par phrase. Ni suppliant ni dominant. Laisse finir l'autre et prends le temps de comprendre sa réponse (repère : deux secondes). Un refus commercial ne te définit pas.", next_question: "Quel fait utile dois-je comprendre durant cet appel ?", goal: "Être authentique, naturel, sûr de sa raison d'appeler.", listen: "Voix posée, vraie écoute, absence de précipitation." },
-  { slug: "ouverture-site", title: "Ouverture · Son site existant", position: 9, advice: "Utilise uniquement un fait que tu as vérifié. « Bonjour, c'est Kevin, responsable commercial chez Livroum. Vous allez bien ? J'ai vu votre site... » Puis pose une question courte avant de parler de l'offre.", next_question: "Vos clients peuvent aussi commander en livraison directement depuis ce site ?", goal: "Créer de la pertinence sans faire un long pitch.", listen: "Site vitrine, capacité à commander." },
-  { slug: "ouverture-plateforme", title: "Ouverture · Plateforme connue", position: 10, advice: "Ne prétends pas connaître son entreprise si tu n'as rien vérifié. Lancement local, puis question concrète. La livraison directe peut compléter Uber Eats.", next_question: "À côté de la plateforme, vous recevez des commandes directement chez vous ?", goal: "Comprendre ses canaux avant de proposer Livroum.", listen: "Réponse sur les canaux existants." },
-  { slug: "decouverte", title: "Découverte · 4 questions au maximum", position: 11, advice: "Une question, une réponse, un rebond. Repères : commandes en livraison, commandes directes, difficulté actuelle, décideur. Ne déroule pas un questionnaire automatique.", next_question: "Qu'est-ce qui est le plus compliqué dans ce fonctionnement aujourd'hui ?", goal: "Identifier un besoin précis et la personne qui décide.", listen: "Faits et mots exacts du restaurateur." },
-  { slug: "valeur", title: "La valeur · Pas un logiciel, un canal direct", position: 12, advice: "« Votre marque. Vos clients. Votre livraison. » Widget pour compléter un site exploitable ; App pour créer son canal de commande. Ne garantis ni zone, ni délai, ni économie.", next_question: "Qu'est-ce qui compte le plus : développer les commandes directes ou compléter la livraison ?", goal: "Relier une offre à un besoin réellement exprimé.", listen: "Commandes à la marque, contraintes de livraison." },
-  { slug: "tarifs", title: "Tarifs · Deux offres, transport distinct", position: 13, advice: "Widget + Livroum : 199 € de mise en place, 149 €/mois, 0,48 €/livraison et premier mois d'abonnement offert. App + Livroum : 850 € de mise en place avec configuration, 108 €/mois et 0,29 €/livraison. Prix du transport physique DISTINCT. Ne jamais présenter ces commissions comme tout compris.", next_question: "Vous avez déjà un site de commande exploitable ou vous souhaitez en créer un ?", goal: "Expliquer clairement l'offre adaptée, sans inventer de frais.", listen: "Structure existante, questions sur transport et abonnement." },
-  { slug: "envoyez-mail", title: "« Envoyez-moi un mail »", position: 14, advice: "Accepte la demande. Personnalise le sujet au lieu d'envoyer un document générique ; n'invente pas de rendez-vous ni d'accord de relance.", next_question: "Quel point vous intéresse surtout : le canal de commande ou la livraison ?", goal: "Identifier le sujet utile du mail.", listen: "Sujet précis, adresse professionnelle, suite acceptée." },
-  { slug: "pas-interesse", title: "« Ça ne m'intéresse pas »", position: 15, advice: "Si le refus est ferme, explicite et définitif, respecte-le, sans chercher à relancer. « Pas maintenant » n'est pas forcément un refus définitif.", next_question: "Compris, merci de me l'avoir dit. Bonne journée et bon service.", goal: "Respecter l'opposition et sortir professionnellement.", listen: "Refus explicite ou simple manque de disponibilité." },
-  { slug: "r2", title: "R2 · Le bon rendez-vous", position: 16, advice: "Restaurant pertinent, décideur identifié, fonctionnement compris, problème ou intérêt précis, objet accepté, date et contact enregistrés. R2 pris ≠ R2 tenu. Après confirmation : envoi d'un e-mail dans les cinq minutes, À FAIRE MANUELLEMENT tant qu'il n'est pas automatisé.", next_question: "Au vu de ce que vous me dites sur [le besoin], 10 minutes, ça vous paraît raisonnable ?", goal: "Obtenir une discussion qualifiée qui peut mener à une décision.", listen: "Décideur, motif, jour, heure, coordonnées." },
-  { slug: "relances", title: "Relances · Une raison, un rappel", position: 17, advice: "Repars du dernier échange : un fait et un engagement réels. Ne suppose pas un intérêt. Confirme un R2 obtenu et reprends la question précise après l'envoi d'un document.", next_question: "On s'était dit que je vous rappellerais aujourd'hui au sujet de [point précis]. Vous avez deux minutes ?", goal: "Faire avancer une conversation déjà engagée.", listen: "Réponse réelle et suite convenue." },
-  { slug: "hygiene-biiz", title: "BIIZ · Quatre gestes", position: 18, advice: "Résultat réel → fait utile → prochaine action datée et acceptée → suivant. Employé, patron absent = décideur absent ; rappel ≠ R2. Notes factuelles, aucune opportunité inventée. Évite les suppressions irréversibles.", next_question: "Quel fait nouveau ai-je appris et quelle prochaine action a été acceptée ?", goal: "Conserver une mémoire commerciale fiable en moins de 30 secondes si possible.", listen: "Faits vérifiés, prochaine échéance." },
-  { slug: "entrainement", title: "Entraînement · Observer, jouer, corriger", position: 19, advice: "Deux appels à écouter ; trois situations à jouer sans script ; une seule correction par essai ; rejouer ; puis appels supervisés. Débrief en 90 secondes. Comparer le commercial à lui-même, sans compétition culpabilisante.", next_question: "Qu'as-tu compris ? Quel moment était naturel ? Quel geste corriger au prochain appel ?", goal: "Développer progressivement assurance, voix, écoute et qualification.", listen: "Un progrès observable et une correction concrète." },
-  { slug: "verite", title: "Vérité commerciale · Garde-fous", position: 20, advice: "Aucun partenaire, couverture, délai, économie ou choix de 25 restaurants inventé. Sépare toujours les frais du transport physique. Respecte les oppositions. La crédibilité vaut plus qu'un R2.", next_question: "Ce que je vais annoncer est-il un fait vérifié ?", goal: "Préserver la confiance du marché local.", listen: "Faits, hypothèses, informations à confirmer." }
+  {
+    "slug": "ouverture",
+    "title": "Ouverture · Permission et découverte",
+    "advice": "Se présenter comme Kevin de LIVROUM! SHOP. Demander l'autorisation de poser une question concrète. Pas de promesse de CA ni de livraison immédiate. Une phrase courte, puis écouter.",
+    "next_question": "Aujourd'hui, lorsqu'un client veut acheter chez vous sans se déplacer, comment ça se passe concrètement ?",
+    "goal": "Comprendre le fonctionnement existant avant de présenter la plateforme.",
+    "listen": "Site, téléphone, boutique, réseaux, marketplace, livraison, silence.",
+    "position": 0
+  },
+  {
+    "slug": "ouverture-fleuriste",
+    "title": "Fleuriste · La bonne entrée",
+    "advice": "Premier ciblage : fleuristes d'Arcachon, La Teste-de-Buch et Gujan-Mestras. Lire la fiche BIIZ et utiliser uniquement un fait sourcé. Ne jamais supposer que le fleuriste perd des ventes ; le vérifier.",
+    "next_question": "Quand un client commande un bouquet à distance, comment gérez-vous la commande puis la livraison ?",
+    "goal": "Découvrir le circuit bouquet, paiement, préparation et remise.",
+    "listen": "Commandes directes, Interflora/Sessile, jours d'affluence, zones, dates limites.",
+    "position": 1
+  },
+  {
+    "slug": "ouverture-site",
+    "title": "Ouverture · Site de vente existant",
+    "advice": "Vérifier avant l'appel l'existence d'un site et ses fonctionnalités. Un site n'est pas nécessairement transactionnel. Ne pas annoncer d'intégration Widget avant étude technique et zone.",
+    "next_question": "Votre site permet-il de commander et payer un bouquet, puis de choisir une livraison locale ?",
+    "goal": "Évaluer si le Widget répond à un besoin réel.",
+    "listen": "Type de site, vente en ligne, paiement, livraison, panier, support.",
+    "position": 2
+  },
+  {
+    "slug": "ouverture-plateforme",
+    "title": "Ouverture · Interflora / Sessile",
+    "advice": "Une plateforme spécialisée peut déjà apporter des commandes : ne pas la critiquer. Tester la part des ventes directes et l'intérêt d'un canal complémentaire. Aucune comparaison chiffrée sans preuve.",
+    "next_question": "En complément d'Interflora ou Sessile, recevez-vous des commandes directement de vos clients ?",
+    "goal": "Identifier l'intérêt éventuel d'un canal propre ou d'une livraison mutualisée.",
+    "listen": "Volume direct, règles de plateforme, dépendance, satisfaction réelle.",
+    "position": 3
+  },
+  {
+    "slug": "pas-le-patron",
+    "title": "« Le responsable n'est pas là »",
+    "advice": "L'employé ne décide pas toujours. Ne pas faire un long pitch, ni demander de numéro personnel inutile. Noter le bon créneau et le rôle du décideur.",
+    "next_question": "Qui s'occupe de vos commandes en ligne et des décisions sur la livraison ? Quel serait le bon moment pour lui parler ?",
+    "goal": "Joindre la personne autorisée à décider.",
+    "listen": "Nom/rôle professionnel, disponibilités, standard.",
+    "position": 4
+  },
+  {
+    "slug": "posture",
+    "title": "Posture · Curiosité, calme, respect",
+    "advice": "Ni récitation mécanique ni pression. Poser une question à la fois, reformuler avec les mots du commerçant, écouter et laisser une pause. Un refus clair met fin au contact.",
+    "next_question": "Quel fait utile dois-je comprendre pendant cet appel ?",
+    "goal": "Construire la confiance par l'écoute et l'exactitude.",
+    "listen": "Réponses concrètes, rythme, intérêt ou absence d'intérêt.",
+    "position": 5
+  },
+  {
+    "slug": "decouverte",
+    "title": "Découverte · Le parcours client",
+    "advice": "Explorer en conversation : comment commande-t-on ? comment encaisse-t-on ? qui prépare ? comment livre-t-on ? où bloque-t-on ? Ne pas dérouler toutes les questions si la première suffit.",
+    "next_question": "Quand vous recevez une commande à distance, quelle étape est la plus difficile aujourd'hui ?",
+    "goal": "Faire formuler une difficulté ou reconnaître l'absence de problème.",
+    "listen": "Perte de demande prouvée, temps, logistique, ruptures, coûts déclarés.",
+    "position": 6
+  },
+  {
+    "slug": "qualification",
+    "title": "Qualification · Valeur et décision",
+    "advice": "Qualification d'abord à partir de faits : motif d'achat, volume approximatif déclaré, capacité à gérer prix/stocks, décideur, zone. Ne pas assimiler un lead Outscraper à une opportunité validée.",
+    "next_question": "Si l'on pouvait résoudre ce point, qu'est-ce qui serait concrètement différent pour votre boutique ?",
+    "goal": "Établir impact et raison d'agir sans chiffres inventés.",
+    "listen": "Motivation, timing, contraintes, autorité d'achat.",
+    "position": 7
+  },
+  {
+    "slug": "valeur",
+    "title": "Valeur · Trois portes, un besoin",
+    "advice": "LIVROUM! SHOP vise la vente en ligne et la livraison locale. Widget : livraison ajoutée à un canal existant ; App : canal dédié sous sa marque ; MKPlace : visibilité et nouveaux acheteurs. Le meilleur choix dépend du besoin, pas seulement de la présence d'un site.",
+    "next_question": "Vous cherchez surtout à mieux livrer des commandes existantes, à vendre sous votre marque, ou à toucher de nouveaux acheteurs locaux ?",
+    "goal": "Relier une offre pertinente au problème reconnu.",
+    "listen": "Priorité business réelle, sans pousser trois offres simultanément.",
+    "position": 8
+  },
+  {
+    "slug": "script-widget",
+    "title": "Pitch Widget · Livraison sur site",
+    "advice": "« Vous conservez votre site et votre parcours de commande ; nous étudions l'ajout d'une livraison locale mutualisée. » Vérifier site, compatibilité, zone, préparation et fonctionnement avant toute promesse.",
+    "next_question": "Sur votre site actuel, qu'est-ce qui bloque aujourd'hui la livraison locale des commandes ?",
+    "goal": "Qualifier un besoin Widget et une étude de faisabilité.",
+    "listen": "Plateforme e-commerce, checkout, volume, horaires, rayon souhaité.",
+    "position": 9
+  },
+  {
+    "slug": "script-app",
+    "title": "Pitch App · Canal direct",
+    "advice": "« L'idée est d'avoir un parcours de commande sous votre propre marque, pour vos clients. » Ne pas promettre une application sur mesure illimitée, une date de livraison ou une fonctionnalité non démontrée.",
+    "next_question": "Si vos clients fidèles pouvaient commander directement auprès de votre boutique, qu'attendriez-vous de ce canal ?",
+    "goal": "Qualifier l'intérêt d'un canal marchand dédié.",
+    "listen": "Fréquence d'achat, catalogue, marque, gestion quotidienne.",
+    "position": 10
+  },
+  {
+    "slug": "script-mkplace",
+    "title": "Pitch MKPlace · De nouveaux acheteurs",
+    "advice": "« MKPlace permet de présenter vos produits aux habitants qui cherchent à acheter localement. » Vision : achat/paiement en ligne et livraison. En pilote V0, réservation sans paiement intégré : dire clairement le statut réel.",
+    "next_question": "Est-ce que rencontrer de nouveaux acheteurs locaux, au-delà de vos clients habituels, est un objectif pour vous ?",
+    "goal": "Tester l'intérêt marchand pour la marketplace.",
+    "listen": "Qualité catalogue, mise à jour produits, visibilité, disponibilité.",
+    "position": 11
+  },
+  {
+    "slug": "livraison-deja",
+    "title": "« Nous livrons déjà »",
+    "advice": "Ne pas contredire l'organisation actuelle. L'intérêt éventuel de LIVROUM! est un complément : pics, trajets, nouveaux secteurs ou gain de temps à démontrer. Ne pas garantir qu'il sera moins cher.",
+    "next_question": "Quelles commandes vous coûtent le plus de temps à organiser aujourd'hui, s'il y en a ?",
+    "goal": "Identifier un manque concret ou conclure qu'il n'y en a pas.",
+    "listen": "Capacité, pics, destination, coûts déclarés.",
+    "position": 12
+  },
+  {
+    "slug": "livreurs-propres",
+    "title": "« Nous avons nos propres livreurs »",
+    "advice": "Respecte les ressources de la boutique. Ne suggère un renfort que si un problème est confirmé. Pour les bouquets, vérifier qualité et conditions de transport ; livraison LIVROUM! sous réserve d'éligibilité.",
+    "next_question": "Est-ce que vos tournées actuelles couvrent toutes les commandes, ou certaines restent difficiles à assurer ?",
+    "goal": "Évaluer la pertinence d'un appoint logistique.",
+    "listen": "Pics, indisponibilités, trajets, exigences de remise.",
+    "position": 13
+  },
+  {
+    "slug": "pas-de-livraison",
+    "title": "« Nous ne proposons pas de livraison »",
+    "advice": "C'est peut-être un choix volontaire, pas un manque. Demander pourquoi avant de présenter un service. Si le commerçant ne veut pas livrer, ne pas forcer.",
+    "next_question": "C'est un choix de positionnement ou une question d'organisation ?",
+    "goal": "Distinguer absence de besoin et obstacle réel.",
+    "listen": "Contraintes, motivation, préparation, acceptation de sous-traitance.",
+    "position": 14
+  },
+  {
+    "slug": "deja-un-site",
+    "title": "« Nous avons déjà un site »",
+    "advice": "Très bien. Vérifier ce que le site fait : vitrine, panier, paiement, livraison ; ne pas vendre une App si le Widget suffit ou si aucun besoin n'existe.",
+    "next_question": "Vos clients peuvent-ils acheter et payer directement sur ce site, puis choisir la livraison ?",
+    "goal": "Savoir ce qui manque réellement au site.",
+    "listen": "Parcours, commandes, checkout, trafic déclaré.",
+    "position": 15
+  },
+  {
+    "slug": "interflora",
+    "title": "« Nous travaillons avec Interflora / Sessile »",
+    "advice": "Ne jamais dénigrer le réseau. Un canal direct ou un renfort livraison n'est pertinent que si la boutique a une marge de décision et un objectif complémentaire.",
+    "next_question": "Quelle part de vos clients commande directement auprès de vous, en dehors du réseau ?",
+    "goal": "Découvrir l'autonomie commerciale du fleuriste.",
+    "listen": "Liberté contractuelle, commandes directes, motifs de fidélité.",
+    "position": 16
+  },
+  {
+    "slug": "fleurs-fragiles",
+    "title": "« Vos livreurs vont abîmer mes bouquets »",
+    "advice": "Objection sérieuse : ne pas minimiser. Demander les exigences de conditionnement, stabilité, remise et responsabilité. Aucune garantie de manutention non validée par les opérations.",
+    "next_question": "Quelles précautions sont indispensables pour que vous acceptiez de confier un bouquet à un coursier extérieur ?",
+    "goal": "Identifier un critère de faisabilité et de confiance.",
+    "listen": "Emballage, eau, température, taille, geste de remise.",
+    "position": 17
+  },
+  {
+    "slug": "cest-cher",
+    "title": "« C'est trop cher »",
+    "advice": "Demander par rapport à quoi. Ne pas annoncer de retour sur investissement garanti ni de frais de mise en place non validés. Les montants HT/TTC et assiettes de commissions restent à préciser au contrat.",
+    "next_question": "Vous comparez ce coût à votre système actuel, au prix d'une tournée, ou à une autre plateforme ?",
+    "goal": "Comprendre la référence et le seuil de valeur.",
+    "listen": "Comparaison, marge déclarée, fréquence, panier.",
+    "position": 18
+  },
+  {
+    "slug": "commissions",
+    "title": "« La commission est trop élevée »",
+    "advice": "Expliquer que sur une commande livrée la règle marchand 1 € + 11 % remplace les commissions MKPlace Starter/Pro ; elles ne s'additionnent pas. Les assiettes, HT/TTC et conditions restent à contractualiser. Ne pas inventer d'économie.",
+    "next_question": "Sur quel panier et quelle marge produit comparez-vous cette commission ?",
+    "goal": "Comparer sur une opération réelle, sans promesse.",
+    "listen": "Panier, marge, origine du client, coût actuel déclaré.",
+    "position": 19
+  },
+  {
+    "slug": "envoyez-mail",
+    "title": "« Envoyez-moi un mail »",
+    "advice": "Accepter, demander quel sujet intéresse le commerçant et envoyer une synthèse précise après consentement aux coordonnées professionnelles. Un document envoyé n'est ni un rendez-vous ni une opportunité gagnée.",
+    "next_question": "Vous préférez recevoir un exemple du Widget, de l'App ou de la présence sur MKPlace ?",
+    "goal": "Personnaliser un message utile et convenir d'une suite.",
+    "listen": "Sujet demandé, adresse pro, permission de rappel.",
+    "position": 20
+  },
+  {
+    "slug": "rappelle-plus-tard",
+    "title": "« Rappelez plus tard »",
+    "advice": "Ne pas confondre autorisation de rappel et rendez-vous commercial. Demander un créneau précis sans insister et le saisir dans BIIZ.",
+    "next_question": "À quel moment seriez-vous disponible pour deux minutes, sans gêner votre service ?",
+    "goal": "Fixer une prochaine action explicite et datée.",
+    "listen": "Jour, heure, interlocuteur, accord.",
+    "position": 21
+  },
+  {
+    "slug": "pas-interesse",
+    "title": "« Ça ne m'intéresse pas »",
+    "advice": "Un refus ferme met fin à la prospection. Enregistrer l'opposition sans relance. Si c'est simplement « pas maintenant », demander éventuellement une seule précision, sans pression.",
+    "next_question": "Compris. Merci de me l'avoir dit, je ne vous solliciterai plus à ce sujet.",
+    "goal": "Respecter le refus et préserver la réputation locale.",
+    "listen": "Refus définitif vs simple indisponibilité.",
+    "position": 22
+  },
+  {
+    "slug": "tarifs",
+    "title": "Offres · Grille SHOP validée, limites à vérifier",
+    "advice": "Widget : 59 €/mois + mise en place à chiffrer. App : 59 €/mois + mise en place à chiffrer. MKPlace Starter : 0 €/mois + 8 % d'une vente payée en retrait. Pro : 39 €/mois + 4 %. Commande livrée : 1 € + 11 % côté marchand, EN REMPLACEMENT des 8/4 %, pas en plus. HT/TTC, assiettes et frais client B2C à clarifier. Pas de commission sur une simple réservation V0.",
+    "next_question": "Quel canal correspond réellement à votre commerce, et quelles conditions doivent être précisées avant toute proposition ?",
+    "goal": "Expliquer les principes sans transformer un tarif partiel en devis signable.",
+    "listen": "Frais, question prix, compatibilité, validation DG.",
+    "position": 23
+  },
+  {
+    "slug": "r2",
+    "title": "R2 · Rendez-vous qualifié",
+    "advice": "Un R2 = décideur, difficulté/objectif identifié, objet clair, date et heure acceptées. Une proposition doit dépendre d'une démo et faisabilité vérifiées ; rendez-vous pris ≠ tenu. Confirmer via le canal autorisé.",
+    "next_question": "À partir de ce que vous m'avez expliqué, dix minutes pour étudier la solution adaptée, ça vous conviendrait ?",
+    "goal": "Obtenir une prochaine étape utile et réelle.",
+    "listen": "Nom et rôle, besoin, date, moyen de contact.",
+    "position": 24
+  },
+  {
+    "slug": "relances",
+    "title": "Relance · Un fait, une raison",
+    "advice": "Repartir de la dernière discussion, ne jamais inventer un accord ou une disponibilité. Respecter une opposition et les règles de prospection B2B.",
+    "next_question": "Nous avions échangé sur [sujet réellement évoqué]. Est-ce toujours d'actualité pour vous ?",
+    "goal": "Faire avancer ou clore proprement le dossier.",
+    "listen": "Réponse, intérêt actuel, prochaine action acceptée.",
+    "position": 25
+  },
+  {
+    "slug": "hygiene-biiz",
+    "title": "BIIZ · Résultat → preuve → suite",
+    "advice": "Après l'appel : résultat réel, citation factuelle, proposition adaptée seulement si motivée, prochaine action datée si acceptée. Un commerçant Outscraper reste un lead non contacté jusqu'à un vrai échange. Ne pas mélanger SHOP et FOOD.",
+    "next_question": "Quel besoin le commerçant a-t-il reconnu, et quelle prochaine action a-t-il acceptée ?",
+    "goal": "Conserver un CRM exploitable et fidèle à la réalité.",
+    "listen": "Faits datés, source, offre étudiée, refus ou suite.",
+    "position": 26
+  },
+  {
+    "slug": "entrainement",
+    "title": "Coach · Jeux de rôle fleuristes",
+    "advice": "Jeu de rôle : fleuriste avec Interflora, fleuriste avec son propre livreur, commerçant sans site, boutique déjà livrante, souci de fragilité et objection prix. Une correction concrète par simulation.",
+    "next_question": "Quel fait as-tu appris avant de proposer une solution ?",
+    "goal": "Développer une découverte fluide et une orientation commerciale juste.",
+    "listen": "Écoute, précision, absence de promesse.",
+    "position": 27
+  },
+  {
+    "slug": "verite",
+    "title": "Vérité commerciale · Stop aux fausses promesses",
+    "advice": "Vision SHOP = achat, paiement en ligne et livraison. Ne pas confondre avec pilote V0 : réservation sans paiement. Aucune annonce de disponibilité, couverture, livraison J+0, partenaire signé, économie ou délai sans confirmation. Pas de remise ni contrat non autorisé.",
+    "next_question": "Ce que je vais dire est-il validé pour ce commerce, cette zone et cette date ?",
+    "goal": "Éviter tout contenu obsolète, trompeur ou non prouvé.",
+    "listen": "Faits confirmés, hypothèses, limites.",
+    "position": 28
+  }
 ];
 
-/** Une seule source pour Coach et les raccourcis Prospection. */
 export const COACH_GROUPS = [
-  { id: "posture", label: "Posture & premiers mots", slugs: ["posture","ouverture","ouverture-site","ouverture-plateforme","pas-le-patron"] },
-  { id: "decouverte", label: "Découverte & valeur", slugs: ["decouverte","valeur"] },
-  { id: "objections", label: "Objections", slugs: ["uber-eats","livreurs-propres","pas-de-livraison","deja-un-site","cest-cher","envoyez-mail","rappelle-plus-tard","pas-interesse"] },
-  { id: "r2", label: "R2 & suivi", slugs: ["r2","relances","hygiene-biiz"] },
-  { id: "methode", label: "Méthode & prix", slugs: ["tarifs","entrainement","verite"] },
-  { id: "autres", label: "Autres fiches", slugs: [] }
+  {
+    "id": "posture",
+    "label": "Premiers mots & posture",
+    "slugs": [
+      "posture",
+      "ouverture",
+      "ouverture-fleuriste",
+      "ouverture-site",
+      "ouverture-plateforme",
+      "pas-le-patron"
+    ]
+  },
+  {
+    "id": "decouverte",
+    "label": "Découverte & qualification",
+    "slugs": [
+      "decouverte",
+      "qualification",
+      "valeur"
+    ]
+  },
+  {
+    "id": "offres",
+    "label": "Choisir la bonne offre",
+    "slugs": [
+      "script-widget",
+      "script-app",
+      "script-mkplace",
+      "tarifs"
+    ]
+  },
+  {
+    "id": "objections",
+    "label": "Objections fleuristes",
+    "slugs": [
+      "livraison-deja",
+      "livreurs-propres",
+      "pas-de-livraison",
+      "deja-un-site",
+      "interflora",
+      "fleurs-fragiles",
+      "cest-cher",
+      "commissions",
+      "envoyez-mail",
+      "rappelle-plus-tard",
+      "pas-interesse"
+    ]
+  },
+  {
+    "id": "r2",
+    "label": "Rendez-vous & suivi",
+    "slugs": [
+      "r2",
+      "relances",
+      "hygiene-biiz"
+    ]
+  },
+  {
+    "id": "methode",
+    "label": "Entraînement & garde-fous",
+    "slugs": [
+      "entrainement",
+      "verite"
+    ]
+  },
+  {
+    "id": "autres",
+    "label": "Autres fiches",
+    "slugs": []
+  }
 ] as const;
 export const QUICK_COACH = [
-  { slug: "uber-eats", label: "Uber Eats" },
-  { slug: "livreurs-propres", label: "Nos livreurs" },
-  { slug: "pas-de-livraison", label: "Pas de livraison" },
-  { slug: "deja-un-site", label: "Site existant" },
-  { slug: "cest-cher", label: "C'est cher" },
-  { slug: "pas-le-patron", label: "Patron absent" }
+  {
+    "slug": "interflora",
+    "label": "Interflora"
+  },
+  {
+    "slug": "livraison-deja",
+    "label": "Livre déjà"
+  },
+  {
+    "slug": "fleurs-fragiles",
+    "label": "Bouquet fragile"
+  },
+  {
+    "slug": "deja-un-site",
+    "label": "Site existant"
+  },
+  {
+    "slug": "cest-cher",
+    "label": "C'est cher"
+  },
+  {
+    "slug": "pas-le-patron",
+    "label": "Décideur absent"
+  }
 ] as const;
 export function coachGroupForSlug(slug: string): (typeof COACH_GROUPS)[number]["id"] {
-  return COACH_GROUPS.find((g) => g.slugs.some((s) => s === slug))?.id ?? "autres";
+  return COACH_GROUPS.find((g) => g.slugs.some((s: string) => s === slug))?.id ?? "autres";
 }
 
-/** Cartes affichées : la version d'équipe (DB) remplace la carte de base au même slug. */
+/** Les vieux slugs FOOD ne doivent jamais ressurgir via une ancienne carte en base. */
+const RETIRED_PLAYBOOK_SLUGS = new Set(["uber-eats"]);
 export function mergePlaybook(db: CoachCard[]): CoachCard[] {
   const bySlug = new Map(DEFAULT_PLAYBOOK.map((c) => [c.slug, c]));
-  for (const c of db) bySlug.set(c.slug, c);
+  for (const c of db) if (!RETIRED_PLAYBOOK_SLUGS.has(c.slug)) bySlug.set(c.slug, c);
   return [...bySlug.values()].sort((a, b) => a.position - b.position);
 }
 
