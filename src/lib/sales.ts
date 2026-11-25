@@ -466,7 +466,7 @@ export function parseCsv(text: string) {
     out.push(cur.trim());
     return out;
   };
-  const alias: Record<string, string> = { nom: "name", name: "name", restaurant: "name", telephone: "phone", tel: "phone", phone: "phone", ville: "city", city: "city", site: "website", website: "website", segment: "segment", priorite: "priority", priority: "priority", source: "source" };
+  const alias: Record<string, string> = { nom: "name", name: "name", boutique: "name", commerce: "name", telephone: "phone", tel: "phone", phone: "phone", ville: "city", city: "city", site: "website", website: "website", segment: "segment", priorite: "priority", priority: "priority", source: "source" };
   const head = split(first).map((h) => alias[normalizeName(h)] ?? "");
   if (!head.includes("name")) return [];
   return lines.slice(1).map((l) => {
