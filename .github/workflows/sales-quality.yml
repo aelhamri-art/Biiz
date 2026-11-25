@@ -5,15 +5,18 @@ on:
     paths:
       - "src/components/sales/**"
       - "src/lib/sales.ts"
+      - "src/lib/live-relay.server.ts"
       - "src/test/sales.test.ts"
       - "package.json"
       - ".github/workflows/sales-quality.yml"
   push:
     branches:
+      - "main"
       - "feat/sales-coach-livroum-playbook-v1"
     paths:
       - "src/components/sales/**"
       - "src/lib/sales.ts"
+      - "src/lib/live-relay.server.ts"
       - "src/test/sales.test.ts"
       - ".github/workflows/sales-quality.yml"
 
